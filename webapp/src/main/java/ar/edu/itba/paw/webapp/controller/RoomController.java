@@ -9,9 +9,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 
-// The difference between Date and Calendar is that Date class operates with specific
-// instant in time and Calendar operates with difference between two dates.
-import java.util.Calendar;
+import java.time.LocalDate;
 
 @Controller
 @RequestMapping("/rooms")
@@ -38,30 +36,30 @@ public class RoomController {
     }
 
     @PostMapping("/checkin")
-    public ModelAndView checkIn(Calendar startDate, Calendar endDate) {
+    public ModelAndView checkIn(LocalDate startDate, LocalDate endDate) {
         final ModelAndView mav = new ModelAndView("index");
-        mav.addObject("RoomNumber", roomService.getARoom());
+        mav.addObject("Checked in, your room is: ", roomService.checkin(startDate, endDate));
         return mav;
     }
 
     @PostMapping("/checkinto/room")
-    public ModelAndView checkIn(@RequestParam long roomID, Calendar startDate, Calendar endDate) {
+    public ModelAndView checkIn(@RequestParam long roomID, LocalDate startDate, LocalDate endDate) {
         final ModelAndView mav = new ModelAndView("index");
-        mav.addObject("RoomNumber", roomService.getRoom(roomID));
+        mav.addObject("Checked into room: ", roomService.checkingInto(roomID, startDate, endDate));
         return mav;
     }
 
-    @PostMapping("/checkout")
-    public ModelAndView checkOut(long roomID) {
+    @PostMapping("/checkout/room")
+    public ModelAndView checkOut(@RequestParam long roomID) {
         final ModelAndView mav = new ModelAndView("index");
-        mav.addObject("RoomNumber", roomService.getRoom(roomID));
+        mav.addObject("Checked out of room: ", roomService.checkout(roomID));
         return mav;
     }
 
-    @PostMapping("/checkout")
-    public ModelAndView checkOut() {
-        final ModelAndView mav = new ModelAndView("index");
-        mav.addObject("RoomNumber", roomService.getARoom());
-        return mav;
-    }
+//    @PostMapping("/checkout")
+//    public ModelAndView checkOut() {
+//        final ModelAndView mav = new ModelAndView("index");
+//        mav.addObject("Checked out of your room, room ", roomService.getARoom());
+//        return mav;
+//    }
 }

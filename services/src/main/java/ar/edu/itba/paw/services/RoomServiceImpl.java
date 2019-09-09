@@ -3,6 +3,7 @@ package ar.edu.itba.paw.services;
 import ar.edu.itba.paw.interfaces.RoomService;
 import org.springframework.stereotype.Component;
 
+import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.List;
 
@@ -19,7 +20,6 @@ public class RoomServiceImpl implements RoomService {
 
     @Override
     public String getRoom(long roomID) {
-        // TODO: make room IDs
         return roomsList.get((int) roomID);
     }
 
@@ -28,4 +28,20 @@ public class RoomServiceImpl implements RoomService {
         return roomsList.get(0);
     }
 
+    @Override
+    public String checkin(LocalDate startDate, LocalDate endDate) {
+        // TODO: check what room is empty between those dates
+        return roomsList.get(0);
+    }
+
+    @Override
+    public String checkingInto(long roomID, LocalDate startDate, LocalDate endDate) {
+        // TODO: verify that the room is empty during these dates
+        return roomsList.get((int) roomID);
+    }
+
+    @Override
+    public String checkout(long roomID) {
+        return null;
+    }
 }
