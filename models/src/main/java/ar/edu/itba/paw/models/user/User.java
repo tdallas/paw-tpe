@@ -18,6 +18,8 @@ public class User implements SqlObject {
 
     private long id;
     private String email;
+    // TODO
+    private String password;
 
     public User(ResultSet resultSet) throws SQLException {
         this.id = resultSet.getLong(KEY_ID);

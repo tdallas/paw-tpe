@@ -7,6 +7,7 @@ import ar.edu.itba.paw.interfaces.daos.UserDao;
 import ar.edu.itba.paw.interfaces.services.UserService;
 import ar.edu.itba.paw.models.charge.Charge;
 import ar.edu.itba.paw.models.product.Product;
+import ar.edu.itba.paw.models.user.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -67,5 +68,10 @@ public class UserServiceImpl implements UserService {
     @Override
     public boolean addCharge(Charge product) {
         return chargeDao.addCharge(product);
+    }
+
+    @Override
+    public User findByUsername(String username) {
+        return null;
     }
 }
