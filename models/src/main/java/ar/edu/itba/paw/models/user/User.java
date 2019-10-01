@@ -20,6 +20,7 @@ public class User implements SqlObject {
     private String email;
     // TODO
     private String password;
+    private UserRole role;
 
     public User(ResultSet resultSet) throws SQLException {
         this.id = resultSet.getLong(KEY_ID);
@@ -28,6 +29,12 @@ public class User implements SqlObject {
 
     public User(String email) {
         this.email = email;
+        this.role = UserRole.CLIENT;
+    }
+
+    public User(String email, UserRole userRole) {
+        this.email = email;
+        this.role = userRole;
     }
 
     @Override
