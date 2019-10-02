@@ -1,5 +1,5 @@
 package ar.edu.itba.paw.models.user;
 
 public enum UserRole {
-    MANAGER, EMPLOYEE, CLIENT
+    ROLE_MANAGER, ROLE_EMPLOYEE, ROLE_CLIENT
 }

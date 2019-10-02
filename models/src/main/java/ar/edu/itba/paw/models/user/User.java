@@ -29,7 +29,7 @@ public class User implements SqlObject {
 
     public User(String email) {
         this.email = email;
-        this.role = UserRole.CLIENT;
+        this.role = UserRole.ROLE_CLIENT;
     }
 
     public User(String email, UserRole userRole) {

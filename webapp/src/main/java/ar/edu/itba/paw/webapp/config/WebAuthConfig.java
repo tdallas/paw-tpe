@@ -36,20 +36,24 @@ public class WebAuthConfig extends WebSecurityConfigurerAdapter {
     protected void configure(final HttpSecurity http) throws Exception {
         http.sessionManagement()
                 .invalidSessionUrl("/login")
-                .and().authorizeRequests()
-                .antMatchers("/login").anonymous()
-                .antMatchers("/admin/**").hasRole("ADMIN")
-                .antMatchers("/**").authenticated()
-                .and().formLogin()
+                .and()
+                .authorizeRequests()
+                .antMatchers("/login")
+                .anonymous()
+                .antMatchers("/**")
+                .authenticated()
+                .and()
+                .formLogin()
                 .usernameParameter("j_username")
                 .passwordParameter("j_password")
                 .defaultSuccessUrl("/", false)
                 .loginPage("/login")
-                .and().rememberMe()
+                .and()
+                .rememberMe()
                 .rememberMeParameter("j_rememberme")
                 .userDetailsService(userDetailsService)
                 .key("mysupersecretketthatnobodyknowsabout")
-                .tokenValiditySeconds((int) TimeUnit.DAYS.toSeconds(30)).and().logout()
+                .tokenValiditySeconds((int) TimeUnit.DAYS.toSeconds(60)).and().logout()
                 .logoutUrl("/logout")
                 .logoutSuccessUrl("/login")
                 .and().exceptionHandling()
@@ -59,8 +63,7 @@ public class WebAuthConfig extends WebSecurityConfigurerAdapter {
 
     @Override
     public void configure(final WebSecurity web) throws Exception {
-        web.ignoring()
-                .antMatchers("/css/**", "/js/**", "/img/**", " /favicon.ico", "/403");
+        web.ignoring().antMatchers("/css/**", "/js/**", "/img/**", " /favicon.ico", "/403");
     }
 
     @Bean
