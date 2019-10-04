@@ -13,6 +13,7 @@ import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.stereotype.Repository;
 
 import javax.sql.DataSource;
+import java.util.Calendar;
 import java.util.List;
 
 @Repository
@@ -74,6 +75,24 @@ public class ReservationRepository extends SimpleRepository<Reservation> impleme
         parameters.addValue("isActive", isActive);
         return jdbcTemplateWithNamedParameter.update("UPDATE " + Reservation.TABLE_NAME + " SET "
                 + Reservation.KEY_IS_ACTIVE + " = :isActive WHERE " + Reservation.KEY_ID + " = :reservationId", parameters);
+    }
+
+    @Override
+    public List<Reservation> findAllReservationsByUserEmail(String email) {
+        MapSqlParameterSource parameters = new MapSqlParameterSource();
+        parameters.addValue("email", email);
+        return jdbcTemplateWithNamedParameter.query("SELECT * FROM " + Reservation.TABLE_NAME + " WHERE "
+                + Reservation.KEY_USER_EMAIL + " = :email AND " + Reservation.KEY_IS_ACTIVE + " = TRUE", parameters, getRowMapper());
+    }
+
+    @Override
+    public Reservation findActiveReservationByUserEmail(String email) {
+        MapSqlParameterSource parameters = new MapSqlParameterSource();
+        parameters.addValue("email", email);
+        parameters.addValue("now", Calendar.getInstance());
+        return jdbcTemplateWithNamedParameter.query("SELECT * FROM " + Reservation.TABLE_NAME + " WHERE "
+                + Reservation.KEY_USER_EMAIL + "=:email AND " + Reservation.KEY_IS_ACTIVE + " = FALSE AND "
+                + Reservation.KEY_START_DATE + " > :now", parameters, getRowMapper()).get(0);
     }
 
 
