@@ -11,4 +11,5 @@ public interface ReservationDao extends SimpleDao<Reservation> {
 
     Reservation findReservationByHash(String hash);
 
+    int updateActive(long reservationId, boolean b);
 }
