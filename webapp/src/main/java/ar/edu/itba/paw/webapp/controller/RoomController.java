@@ -70,7 +70,7 @@ public class RoomController {
         final ModelAndView mav = new ModelAndView("checkinPost");
         Reservation reser = reservationService.getReservationByHash(form.getId_reservation());
         roomService.reservateRoom(reser.getRoomId());
-        reservationService.activeReservation(form.getId_reservation());
+        reservationService.activeReservation(reservationService.getReservationByHash(form.getId_reservation()).getId());
         return mav;
     }
 
@@ -92,7 +92,7 @@ public class RoomController {
     @GetMapping("/rooms/reservations")
     public ModelAndView reservations() {
         final ModelAndView mav = new ModelAndView("reservations");
-        mav.addObject("reservation",)
+//        mav.addObject("reservation",)
         return mav;
     }
 
