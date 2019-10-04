@@ -6,6 +6,8 @@ import ar.edu.itba.paw.models.reservation.Reservation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
+
 @Component
 public class ReservationServiceImpl implements ReservationService {
 
@@ -24,5 +26,10 @@ public class ReservationServiceImpl implements ReservationService {
     @Override
     public void activeReservation(long reservationId) {
         reservationDao.updateActive(reservationId, true);
+    }
+
+    @Override
+    public List<Reservation> getAll(){
+        return reservationDao.findAll();
     }
 }

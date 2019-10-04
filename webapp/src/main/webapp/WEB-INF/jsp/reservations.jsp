@@ -50,7 +50,7 @@
         </div>
     </div>
 <c:url value="/rooms/reservationPost" var="postPath"/>
-<form:form modelAttribute="reservationForm" action="${postPath}" method="post">
+<form:form modelAttribute="reservationFilter" action="${postPath}" method="post">
     <div class="row myheader vertical-align">
         <div class="col-xs-6" style="text-align: left">
             <div>Reservas</div>
@@ -88,11 +88,11 @@
     </div>
     <div class="row">
          <div class="col-xs-6">
-            <form:label class="items" path="id_reservation">ID de reserva: </form:label>
+            <form:label class="items" path="userEmail">Titular: </form:label>
                  <div class="input-group">
                         <span class="input-group-addon"></span>
-                      <form:input id="IDres" path="id_reservation" type="text" class="form-control" name="IDres"
-                placeholder="ID de reserva"></form:input>
+                      <form:input id="IDres" path="userEmail" type="text" class="form-control" name="IDres"
+                placeholder="Email del titular"></form:input>
                  </div>
           </div>
         <div class="col-xs-6">
@@ -108,44 +108,41 @@
             <table id="myTable" class="display" style="width:100%;  border: 1px solid black !important;">
                 <thead>
                 <tr>
-                    <th>Numero</th>
+                    <th>Habitacion</th>
                     <th>Titular</th>
                     <th>Desde</th>
                     <th>Hasta</th>
                 </tr>
                 </thead>
                 <tbody>
-<%--                <c:forEach var="room" items="${RoomList}">--%>
-<%--                    <tr>--%>
+                <c:forEach var="reservation" items="${reservations}">
+                    <tr>
 
-<%--                        <c:if test="${room.freeNow == true}">--%>
+                            <td style="text-align: left">${reservation.roomId}</td>
+                            <td style="text-align: left">${reservation.userEmail}</td>
+                            <td style="text-align: left">${reservation.startDate}</td>
+                            <td style="text-align: left">${reservation.endDate}</td>
 
-<%--                            <td style="text-align: left">${room.id}</td>--%>
-<%--                            <td style="text-align: left">${room.number}</td>--%>
-<%--                            <td>${room.roomType}</td>--%>
-<%--                            <td style="text-align: left">-</td>--%>
-<%--                            <td style="text-align: left">-</td>--%>
-
-<%--                        </c:if>--%>
-
-
-<%--                    </tr>--%>
-<%--                </c:forEach>--%>
+                    </tr>
+                </c:forEach>
                 </tbody>
             </table>
         </div>
     </div>
 
 </div>
+
 </div>
+</form:form>
 </body>
-
-<script>
-    $(document).ready(function () {
-        $('#myTable').DataTable({
-            filter: false,
-        });
-    });
-</script>
-
 </html>
+
+
+
+    <script>
+    $(document).ready(function () {
+    $('#myTable').DataTable({
+    filter: false,
+    });
+    });
+    </script>
