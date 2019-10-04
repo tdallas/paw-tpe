@@ -10,6 +10,7 @@ import ar.edu.itba.paw.models.reservation.Reservation;
 import ar.edu.itba.paw.models.room.Room;
 import ar.edu.itba.paw.models.user.User;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDate;
@@ -48,12 +49,15 @@ public class RoomServiceImpl implements RoomService {
         if (user != null) {
             reserva.setUserId(user.getId());
         } else {
-            reserva.setUserId(userDao.save(new User(reserva.getUserEmail())).getId());
+            reserva.setUserId(userDao.save(new User(reserva.getUserEmail(),
+                    reserva.getUserEmail(),
+                    new BCryptPasswordEncoder().encode(reserva.getUserEmail()))).getId());
         }
         reservationDao.save(reserva);
         emailService.sendConfirmationOfReservation(reserva.getUserEmail(), "Reserva confirmada",
                 "Su reserva ha sido confirmada! " +
-                        "Hash de la reserva: " + reserva.getHash());
+                        "Hash de la reserva: " + reserva.getHash() + "\n Credenciales: \n username: "
+                        + reserva.getUserEmail() + "\n password: " + reserva.getUserEmail());
     }
 
     public void reservateRoom(long roomID){
