@@ -16,7 +16,8 @@
 
 </head>
 <body>
-<div class="container cont" style="height: 100vh !important; width: 100vw !important;margin-left: 0 !important; margin-right: 0 !important">
+<div class="container cont"
+     style="height: 100vh !important; width: 100vw !important;margin-left: 0 !important; margin-right: 0 !important">
     <div class="row">
         <div class="col">
             <nav class="navbar navbar-inverse sidebar" style="z-index: initial !important;" role="navigation">
@@ -69,36 +70,20 @@
                 </tr>
                 </thead>
                 <tbody>
-<%--                <c:forEach var="room" items="${RoomList}">--%>
-<%--                    <tr>--%>
-
-<%--                        <c:if test="${room.freeNow == true}">--%>
-
-<%--                            <td style="text-align: left">${room.id}</td>--%>
-<%--                            <td style="text-align: left">${room.number}</td>--%>
-<%--                            <td>${room.roomType}</td>--%>
-<%--                            <td style="text-align: left">-</td>--%>
-<%--                            <td style="text-align: left">-</td>--%>
-
-<%--                        </c:if>--%>
-
-
-<%--                    </tr>--%>
-<%--                </c:forEach>--%>
+                <c:forEach var="charge" items="${charges}">
+                    <tr>
+                        <td>${charge.product.description}</td>
+                        <td>${charge.product.price}</td>
+                    </tr>
+                </c:forEach>
                 </tbody>
-                <tfoot>
-                <tr>
-                    <th>Total</th>
-                    <th>Mucho</th>
-                </tr>
-                </tfoot>
             </table>
         </div>
     </div>
 
-        <div class="col-xs-6" style="margin-left: 25px">
-            <button type="button" class="btn btn-success btn-lg"><a href="/" style="color: white">Volver</a></button>
-        </div>
+    <div class="col-xs-6" style="margin-left: 25px">
+        <button type="button" class="btn btn-success btn-lg"><a href="/" style="color: white">Volver</a></button>
+    </div>
 
 
 </div>
