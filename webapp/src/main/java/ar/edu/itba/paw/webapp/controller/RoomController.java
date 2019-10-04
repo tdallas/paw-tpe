@@ -91,6 +91,7 @@ public class RoomController {
     @GetMapping("/rooms/reservations")
     public ModelAndView reservations() {
         final ModelAndView mav = new ModelAndView("reservations");
+        mav.addObject("reservation",)
         return mav;
     }
 
