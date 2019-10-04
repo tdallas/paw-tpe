@@ -27,7 +27,8 @@ public class ChargeRepository extends SimpleRepository<Charge> implements Charge
                 .execute("CREATE TABLE IF NOT EXISTS " + getTableName() + " (" +
                         "id SERIAL PRIMARY KEY, " +
                         "product_id INTEGER REFERENCES product (id), " +
-                        "reservation_id INTEGER REFERENCES reservation (id))");
+                        "reservation_id INTEGER REFERENCES reservation (id)," +
+                        "delivered BOOLEAN)");
     }
 
     @Override
