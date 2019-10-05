@@ -28,7 +28,9 @@ public class ReservationRepository extends SimpleRepository<Reservation> impleme
                         "id SERIAL PRIMARY KEY," +
                         "start_date TIMESTAMP," +
                         "end_date TIMESTAMP," +
-                        "user_email VARCHAR(100), hash VARCHAR(1000), " +
+                        "user_email VARCHAR(100), " +
+                        "hash VARCHAR(1000), " +
+                        "is_active BOOLEAN," +
                         "room_id INTEGER REFERENCES " + Room.TABLE_NAME + "(id)," +
                         "user_id INTEGER REFERENCES " + User.TABLE_NAME + "(id) )");
     }
@@ -57,10 +59,22 @@ public class ReservationRepository extends SimpleRepository<Reservation> impleme
     }
 
     @Override
+<<<<<<< HEAD
     public List<Reservation> findAllReservationsByUserId(long userID) {
         return jdbcTemplateWithNamedParameter.query("SELECT * FROM " + getTableName()
                         + " WHERE user_id = " + userID
                         + " ORDER BY start_date desc"
                 , getRowMapper());
     }
+=======
+    public int updateActive(long reservationId, boolean isActive) {
+        MapSqlParameterSource parameters = new MapSqlParameterSource();
+        parameters.addValue("reservationId", reservationId);
+        parameters.addValue("isActive", isActive);
+        return jdbcTemplateWithNamedParameter.update("UPDATE " + Reservation.TABLE_NAME + " SET "
+                + Reservation.KEY_IS_ACTIVE + " = :isActive WHERE " + Reservation.KEY_ID + " = :reservationId", parameters);
+    }
+
+
+>>>>>>> baac4aa5a487de8ab7aa983fadafcbb230d80b7e
 }

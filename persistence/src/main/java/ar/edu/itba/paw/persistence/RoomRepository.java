@@ -4,7 +4,11 @@ import ar.edu.itba.paw.interfaces.daos.RoomDao;
 import ar.edu.itba.paw.models.reservation.Reservation;
 import ar.edu.itba.paw.models.room.Room;
 import ar.edu.itba.paw.models.room.RoomType;
+<<<<<<< HEAD
 import ar.edu.itba.paw.models.entities.RoomReservationDto;
+=======
+import ar.edu.itba.paw.models.dtos.RoomReservationDTO;
+>>>>>>> baac4aa5a487de8ab7aa983fadafcbb230d80b7e
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
@@ -30,7 +34,11 @@ public class RoomRepository extends SimpleRepository<Room> implements RoomDao {
     }
 
     @Override
+<<<<<<< HEAD
     public List<RoomReservationDto> findAllFreeBetweenDatesAndEmail(LocalDate startDate, LocalDate endDate, String email) {
+=======
+    public List<RoomReservationDTO> findAllFreeBetweenDatesAndEmail(LocalDate startDate, LocalDate endDate, String email) {
+>>>>>>> baac4aa5a487de8ab7aa983fadafcbb230d80b7e
         MapSqlParameterSource parameterSource = new MapSqlParameterSource();
         parameterSource.addValue("startDate", startDate);
         parameterSource.addValue("endDate", endDate);
@@ -42,8 +50,13 @@ public class RoomRepository extends SimpleRepository<Room> implements RoomDao {
                 parameterSource, getRowMapperWithJoin());
     }
 
+<<<<<<< HEAD
     private RowMapper<RoomReservationDto> getRowMapperWithJoin() {
         return ((resultSet, i) -> new RoomReservationDto(resultSet));
+=======
+    private RowMapper<RoomReservationDTO> getRowMapperWithJoin() {
+        return ((resultSet, i) -> new RoomReservationDTO(resultSet));
+>>>>>>> baac4aa5a487de8ab7aa983fadafcbb230d80b7e
     }
 
     @Override

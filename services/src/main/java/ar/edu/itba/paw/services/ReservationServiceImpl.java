@@ -5,9 +5,10 @@ import ar.edu.itba.paw.interfaces.services.ReservationService;
 import ar.edu.itba.paw.models.reservation.Reservation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import org.springframework.stereotype.Service;
 
-@Service
+import java.util.List;
+
+@Component
 public class ReservationServiceImpl implements ReservationService {
 
     private final ReservationDao reservationDao;
@@ -20,5 +21,15 @@ public class ReservationServiceImpl implements ReservationService {
     @Override
     public Reservation getReservationByHash(String hash) {
         return reservationDao.findReservationByHash(hash);
+    }
+
+    @Override
+    public void activeReservation(long reservationId) {
+        reservationDao.updateActive(reservationId, true);
+    }
+
+    @Override
+    public List<Reservation> getAll(){
+        return reservationDao.findAll();
     }
 }

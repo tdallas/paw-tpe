@@ -2,8 +2,14 @@ package ar.edu.itba.paw.persistence;
 
 import ar.edu.itba.paw.interfaces.daos.ChargeDao;
 import ar.edu.itba.paw.models.charge.Charge;
+<<<<<<< HEAD
 import ar.edu.itba.paw.models.entities.ProductChargeDto;
 import ar.edu.itba.paw.models.product.Product;
+=======
+import ar.edu.itba.paw.models.dtos.ChargeDTO;
+import ar.edu.itba.paw.models.product.Product;
+import ar.edu.itba.paw.models.reservation.Reservation;
+>>>>>>> baac4aa5a487de8ab7aa983fadafcbb230d80b7e
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.ResultSetExtractor;
@@ -14,10 +20,14 @@ import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.stereotype.Repository;
 
 import javax.sql.DataSource;
+<<<<<<< HEAD
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
+=======
+import java.util.List;
+>>>>>>> baac4aa5a487de8ab7aa983fadafcbb230d80b7e
 
 @Repository
 public class ChargeRepository extends SimpleRepository<Charge> implements ChargeDao {
@@ -29,9 +39,10 @@ public class ChargeRepository extends SimpleRepository<Charge> implements Charge
         super(new NamedParameterJdbcTemplate(dataSource));
         jdbcTemplateWithNamedParameter.getJdbcTemplate()
                 .execute("CREATE TABLE IF NOT EXISTS " + getTableName() + " (" +
-                "id SERIAL PRIMARY KEY, " +
-                "product_id INTEGER REFERENCES product (id), " +
-                "reservation_id INTEGER REFERENCES reservation (id))");
+                        "id SERIAL PRIMARY KEY, " +
+                        "product_id INTEGER REFERENCES product (id), " +
+                        "reservation_id INTEGER REFERENCES reservation (id)," +
+                        "delivered BOOLEAN)");
     }
 
     @Override
@@ -60,6 +71,7 @@ public class ChargeRepository extends SimpleRepository<Charge> implements Charge
     }
 
     @Override
+<<<<<<< HEAD
     public Map<Product, Integer> getAllChargesByUser(long userID) {
         MapSqlParameterSource parameterSource = new MapSqlParameterSource();
         parameterSource.addValue("reservation_id", userID);
@@ -84,5 +96,18 @@ public class ChargeRepository extends SimpleRepository<Charge> implements Charge
 
     private RowMapper<ProductChargeDto> getRowMapperWithJoin() {
         return ((resultSet, i) -> new ProductChargeDto(resultSet));
+=======
+    public List<ChargeDTO> findChargeByReservationHash(long reservationId) {
+        MapSqlParameterSource parameters = new MapSqlParameterSource();
+        parameters.addValue("reservationId", reservationId);
+        return jdbcTemplateWithNamedParameter
+                .query("SELECT * FROM " + Charge.TABLE_NAME + " NATURAL JOIN " +
+                        Product.TABLE_NAME + " NATURAL JOIN " + Reservation.TABLE_NAME +
+                        " r WHERE r.id = :reservationId", parameters, getRowMapperOfChargeDTO());
+    }
+
+    private RowMapper<ChargeDTO> getRowMapperOfChargeDTO() {
+        return ((resultSet, i) -> new ChargeDTO(resultSet));
+>>>>>>> baac4aa5a487de8ab7aa983fadafcbb230d80b7e
     }
 }

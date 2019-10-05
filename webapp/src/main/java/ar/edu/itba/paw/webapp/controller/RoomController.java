@@ -1,10 +1,12 @@
 package ar.edu.itba.paw.webapp.controller;
 
+import ar.edu.itba.paw.interfaces.services.ChargeService;
 import ar.edu.itba.paw.interfaces.services.ReservationService;
 import ar.edu.itba.paw.interfaces.services.RoomService;
 import ar.edu.itba.paw.models.reservation.Reservation;
 import form.CheckinForm;
 import form.CheckoutForm;
+import form.ReservationFilter;
 import form.ReservationForm;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -17,14 +19,16 @@ import java.sql.Date;
 public class RoomController {
     private final RoomService roomService;
     private final ReservationService reservationService;
+    private final ChargeService chargeService;
 
     @Autowired
-    public RoomController(RoomService roomService,ReservationService reservationService) {
+    public RoomController(RoomService roomService,ReservationService reservationService,ChargeService chargeService) {
         this.roomService = roomService;
         this.reservationService = reservationService;
+        this.chargeService = chargeService;
     }
 
-    @GetMapping("/home")
+    @GetMapping("/")
     public ModelAndView getAllRooms() {
         final ModelAndView mav = new ModelAndView("index");
         mav.addObject("RoomList", roomService.getRoomsList());
@@ -67,6 +71,7 @@ public class RoomController {
         final ModelAndView mav = new ModelAndView("checkinPost");
         Reservation reser = reservationService.getReservationByHash(form.getId_reservation());
         roomService.reservateRoom(reser.getRoomId());
+        reservationService.activeReservation(reservationService.getReservationByHash(form.getId_reservation()).getId());
         return mav;
     }
 
@@ -79,14 +84,21 @@ public class RoomController {
     @PostMapping("/rooms/checkoutPost")
     public ModelAndView checkoutPost(@ModelAttribute("checkoutForm") final CheckoutForm form){
         final ModelAndView mav = new ModelAndView("checkoutPost");
-        mav.addObject("charges",roomService.getRoomsList());
+        mav.addObject("charges",chargeService.getAllChargesByReservationId(reservationService.getReservationByHash(form.getId_reservation()).getId()));
         roomService.freeRoom(reservationService.getReservationByHash(form.getId_reservation()).getRoomId());
         return mav;
     }
 
 
     @GetMapping("/rooms/reservations")
-    public ModelAndView reservations() {
+    public ModelAndView reservations(@ModelAttribute("reservationFilter") final ReservationFilter form) {
+        final ModelAndView mav = new ModelAndView("reservations");
+        mav.addObject("reservations",reservationService.getAll());
+        return mav;
+    }
+
+    @PostMapping("/rooms/reservations")
+    public ModelAndView reservationsPost(@ModelAttribute("reservationFilter") final ReservationFilter form) {
         final ModelAndView mav = new ModelAndView("reservations");
         return mav;
     }
