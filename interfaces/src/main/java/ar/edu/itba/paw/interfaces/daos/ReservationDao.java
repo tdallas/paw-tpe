@@ -8,7 +8,7 @@ import java.util.List;
 
 public interface ReservationDao extends SimpleDao<Reservation> {
 
-    List<Reservation> findAllReservationsByUserId(long userID);
+    List<Reservation> findAllReservationsByUserEmail(String userEmail);
 
     List<Reservation> findAllReservationsByUserId(long userID);
 

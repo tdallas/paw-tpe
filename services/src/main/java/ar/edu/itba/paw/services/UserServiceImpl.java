@@ -34,11 +34,9 @@ public class UserServiceImpl implements UserService {
         return  new LinkedList<>(productDao.getAllProducts());
     }
 
-    
-
     @Override
-    public List<Reservation> getAllReservations(long userID) {
-        return new LinkedList<>(reservationDao.findAllReservationsByUserId(userID));
+    public List<Reservation> getAllReservations(String userEmail) {
+        return new LinkedList<>(reservationDao.findAllReservationsByUserEmail(userEmail));
     }
 
      @Override
@@ -46,15 +44,6 @@ public class UserServiceImpl implements UserService {
         return new HashMap<>(chargeDao.getAllChargesByUser(userID));
     }
 
-    @Override
-    public long getReservation(long userID) {
-        return reservationDao.findLastReservationByUserId(userID).getId();
-    }
-
-    @Override
-    public long getReservationID(String reservationHash) {
-        return reservationDao.findReservationByHash(reservationHash).getId();
-    }
 
     @Override
     public boolean addCharge(Charge product) {

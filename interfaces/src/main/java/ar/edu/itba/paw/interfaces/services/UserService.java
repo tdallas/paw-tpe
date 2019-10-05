@@ -11,11 +11,9 @@ public interface UserService {
 
     Map<Product, Integer> checkProductsPurchasedByUser(long userID);
 
-    List<Reservation> getAllReservations(long userID);
+    List<Reservation> getAllReservations(String userEmail);
 
     List<Product> getProducts();
-
-    long getReservationID(String reservationHash);
 
     boolean addCharge(Charge product);
 

@@ -67,12 +67,14 @@ public class ReservationRepository extends SimpleRepository<Reservation> impleme
                 + Reservation.KEY_IS_ACTIVE + " = :isActive WHERE " + Reservation.KEY_ID + " = :reservationId", parameters);
     }
 
-@Override
-    public List<Reservation> findAllReservationsByUserId(long userID) {
+    @Override
+    public List<Reservation> findAllReservationsByUserEmail(String userEmail) {
+        MapSqlParameterSource parameters = new MapSqlParameterSource();
+        parameters.addValue("userEmail", userEmail);
         return jdbcTemplateWithNamedParameter.query("SELECT * FROM " + getTableName()
-                        + " WHERE user_id = " + userID
-                        + " ORDER BY start_date desc"
-                , getRowMapper());
+                        + " WHERE " + Reservation.KEY_USER_EMAIL + "  = :userEmail AND " + Reservation.KEY_IS_ACTIVE + " = FALSE ORDER BY "
+                        + Reservation.KEY_START_DATE + " desc"
+                , parameters, getRowMapper());
     }
 
 
