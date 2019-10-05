@@ -24,28 +24,28 @@ public class UserController extends SimpleController {
     public ModelAndView getLandingPage(Authentication authentication) {
         final ModelAndView mav = new ModelAndView("userLanding");
         mav.addObject("ReservationsList",
-                userService.getAllReservations(getUsername(authentication)));
+                userService.findActiveReservation(getUsername(authentication)));
         return mav;
     }
 
     @GetMapping("/products")
-    public ModelAndView getAllProducts(@ModelAttribute("productForm") ProductForm productForm) {
+    public ModelAndView getAllProducts(@ModelAttribute("productForm") ProductForm productForm,
+                                       @RequestParam(value = "reservationId") long reservationId) {
         final ModelAndView mav = new ModelAndView("browseProducts");
         mav.addObject("ProductsList", userService.getProducts());
         return mav;
     }
 
     @GetMapping("/expenses")
-    public ModelAndView boughtProducts(@RequestParam long reservationId) {
+    public ModelAndView boughtProducts(Authentication authentication, @RequestParam(value = "reservationId") long reservationId) {
         final ModelAndView mav = new ModelAndView("expenses");
         mav.addObject("ProductsList",
-                userService.checkProductsPurchasedByUser(reservationId));
+                userService.checkProductsPurchasedByUserByReservationId(getUsername(authentication), reservationId));
         return mav;
     }
 
     @PostMapping("/buyProducts")
-    public ModelAndView buyProduct(@ModelAttribute("productForm") ProductForm productForm,
-                                   @RequestParam long reservationId) {
+    public ModelAndView buyProduct(@ModelAttribute("productForm") ProductForm productForm, @RequestParam(value = "reservationId") long reservationId) {
         if (productForm != null) {
             final ModelAndView mav = new ModelAndView("buyProducts");
             Charge charge = new Charge(productForm.getProductId(), reservationId);

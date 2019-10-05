@@ -3,17 +3,14 @@ package ar.edu.itba.paw.services;
 import ar.edu.itba.paw.interfaces.daos.ChargeDao;
 import ar.edu.itba.paw.interfaces.daos.ProductDao;
 import ar.edu.itba.paw.interfaces.daos.ReservationDao;
-import ar.edu.itba.paw.interfaces.daos.UserDao;
 import ar.edu.itba.paw.interfaces.services.UserService;
 import ar.edu.itba.paw.models.charge.Charge;
-import ar.edu.itba.paw.models.entities.ProductChargeDto;
+import ar.edu.itba.paw.models.dtos.RoomReservationDTO;
 import ar.edu.itba.paw.models.product.Product;
-import ar.edu.itba.paw.models.reservation.Reservation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.*;
-
 
 @Component
 public class UserServiceImpl implements UserService {
@@ -35,13 +32,13 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public List<Reservation> getAllReservations(String userEmail) {
-        return new LinkedList<>(reservationDao.findAllReservationsByUserEmail(userEmail));
+    public List<RoomReservationDTO> findActiveReservation(String userEmail) {
+        return reservationDao.findActiveReservation(userEmail);
     }
 
      @Override
-    public Map<Product, Integer> checkProductsPurchasedByUser(long userID) {
-        return new HashMap<>(chargeDao.getAllChargesByUser(userID));
+    public Map<Product, Integer> checkProductsPurchasedByUserByReservationId(String userEmail, long reservationId) {
+        return new HashMap<>(chargeDao.getAllChargesByUser(userEmail, reservationId));
     }
 
 
