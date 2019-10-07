@@ -9,6 +9,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
+import java.util.List;
 
 @Service
 public class ProductServiceImpl implements ProductService {
@@ -25,6 +26,11 @@ public class ProductServiceImpl implements ProductService {
     public Product saveProduct(Product product) {
         LOGGER.debug("About to save product with description " + product.getDescription() + " and price " + product.getPrice());
         return productDao.save(product);
+    }
+
+    @Override
+    public List<Product> getAllProducts(){
+        return productDao.getAllProducts();
     }
 
     @Override

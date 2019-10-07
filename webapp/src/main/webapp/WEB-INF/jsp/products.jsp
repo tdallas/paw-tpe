@@ -2,7 +2,6 @@
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form" %>
 
 <html>
-
 <head>
     <title>e-lobby</title>
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/css/bootstrap.min.css">
@@ -59,12 +58,28 @@
     <br>
     <br>
     <div class="row">
+        <div class="col-xs-6">
+            <label class="items" path="description">Nombre: </label>
+            <div class="input-group">
+                <span class="input-group-addon"></span>
+                <input id="description" path="userEmail" type="text" class="form-control" name="description"
+                       placeholder="Nombre del producto">
+            </div>
+        </div>
+        <div class="col-xs-6">
+            <button id="search" type="button" class="btn btn-success btn-lg">
+                <div style="color: black">Buscar</div>
+            </button>
+        </div>
+    </div>
+    <br>
+    <br>
+    <div class="row">
         <div class="col-xs-8 form-group" style="z-index:9999;grid-auto-columns: auto">
             <table id="myTable" class="display" style="width:100%;  border: 1px solid black !important;">
                 <thead>
                 <tr>
                     <th>Producto</th>
-                    <th>Descripcion</th>
                     <th>Precio</th>
                     <th>Estado</th>
                 </tr>
@@ -73,11 +88,9 @@
                 <c:forEach var="prod" items="${products}">
                     <tr>
 
-                            <td style="text-align: left">${room.id}</td>
-                            <td style="text-align: left">${room.number}</td>
-                            <td>${room.roomType}</td>
-                            <td style="text-align: left">-</td>
-                            <td style="text-align: left">-</td>
+                            <td style="text-align: left">${prod.description}</td>
+                            <td style="text-align: left">${prod.price}</td>
+                            <td>-</td>
 
                     </tr>
                 </c:forEach>
