@@ -3,6 +3,7 @@ package ar.edu.itba.paw.services;
 import ar.edu.itba.paw.interfaces.daos.ChargeDao;
 import ar.edu.itba.paw.interfaces.daos.ProductDao;
 import ar.edu.itba.paw.interfaces.daos.ReservationDao;
+import ar.edu.itba.paw.interfaces.exceptions.RequestInvalidException;
 import ar.edu.itba.paw.interfaces.services.UserService;
 import ar.edu.itba.paw.models.charge.Charge;
 import ar.edu.itba.paw.models.dtos.RoomReservationDTO;
@@ -41,10 +42,22 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public Map<Product, Integer> checkProductsPurchasedByUserByReservationId(String userEmail, long reservationId) {
+    public Map<Product, Integer> checkProductsPurchasedByUserByReservationId(String userEmail, long reservationId) throws RequestInvalidException {
+        boolean hasReservation = false;
+        List<RoomReservationDTO> activeReservations = reservationDao.findActiveReservation(userEmail);
+        if(activeReservations == null) {
+            throw new RequestInvalidException();
+        }
+        ListIterator iterator = activeReservations.listIterator();
+        while(!hasReservation && iterator.hasNext()) {
+            RoomReservationDTO rrDTO = (RoomReservationDTO) iterator.next();
+            hasReservation = (rrDTO.getReservation().getId() == reservationId);
+        }
+        if(!hasReservation) {
+            throw new RequestInvalidException();
+        }
         return new HashMap<>(chargeDao.getAllChargesByUser(userEmail, reservationId));
     }
-
 
     @Override
     public Charge addCharge(Charge charge) {

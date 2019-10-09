@@ -3,6 +3,7 @@ package ar.edu.itba.paw.services;
 import ar.edu.itba.paw.interfaces.daos.ChargeDao;
 import ar.edu.itba.paw.interfaces.daos.ProductDao;
 import ar.edu.itba.paw.interfaces.daos.ReservationDao;
+import ar.edu.itba.paw.interfaces.exceptions.RequestInvalidException;
 import ar.edu.itba.paw.models.charge.Charge;
 import ar.edu.itba.paw.models.dtos.RoomReservationDTO;
 import ar.edu.itba.paw.models.product.Product;
@@ -40,6 +41,7 @@ public class UserServiceImplTest {
     private static final int ROOM_NUMBER = 105;
     private static final boolean FALSE = false;
     private static final boolean TRUE = true;
+    private static final String HASH = "mYzup3rH4sH";
 
     @Mock
     private ProductDao productDao;
@@ -96,7 +98,7 @@ public class UserServiceImplTest {
      * uses chargeDao.getAllChargesByUser(String email, long reservationId)
      */
     @Test
-    public void testCheckProductsPurchasedByUserByReservationId() {
+    public void testCheckProductsPurchasedByUserByReservationId() throws RequestInvalidException {
         // 1. Setup!
         Product product1 = new Product(PRODUCT_NAME_1, PRODUCT_PRICE_1);
         Product product2 = new Product(PRODUCT_NAME_2, PRODUCT_PRICE_2);
@@ -106,6 +108,13 @@ public class UserServiceImplTest {
         productsMap.put(product1, i1);
         productsMap.put(product2, i2);
         Mockito.when(chargeDao.getAllChargesByUser(FAKE_VALID_EMAIL, ID_1)).thenReturn(productsMap);
+        Room room = new Room(ID_1, RoomType.DOUBLE, FALSE, ROOM_NUMBER);
+        Reservation reservationValid = new Reservation(ID_1, Date.valueOf(START_DATE).toLocalDate(), Date.valueOf(END_DATE).toLocalDate(),
+                null, FAKE_VALID_EMAIL, ID_1, ID_1, TRUE, HASH);
+        RoomReservationDTO rrDTO = new RoomReservationDTO(room, reservationValid);
+        List<RoomReservationDTO> list = new LinkedList<>();
+        list.add(rrDTO);
+        Mockito.when(reservationDao.findActiveReservation(FAKE_VALID_EMAIL)).thenReturn(list);
         // 2. SUT
         Map<Product, Integer> expenses = userService.checkProductsPurchasedByUserByReservationId(FAKE_VALID_EMAIL, ID_1);
         // 3. Asserts

@@ -1,7 +1,10 @@
 package ar.edu.itba.paw.webapp.controller;
 
+import ar.edu.itba.paw.interfaces.exceptions.RequestInvalidException;
 import ar.edu.itba.paw.interfaces.services.UserService;
 import ar.edu.itba.paw.models.charge.Charge;
+import ar.edu.itba.paw.models.dtos.RoomReservationDTO;
+import ar.edu.itba.paw.models.reservation.Reservation;
 import form.BuyProductForm;
 import form.ProductForm;
 import org.slf4j.Logger;
@@ -11,6 +14,9 @@ import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
+
+import java.util.LinkedList;
+import java.util.List;
 
 @Controller
 @RequestMapping("/user")
@@ -26,11 +32,15 @@ public class UserController extends SimpleController {
     }
 
     @GetMapping("/home")
-    public ModelAndView getLandingPage(Authentication authentication) {
+    public ModelAndView getLandingPage(Authentication authentication) throws RequestInvalidException {
         final ModelAndView mav = new ModelAndView("userLanding");
         LOGGER.debug("Request received to user's landing page");
-        mav.addObject("ReservationsList",
-                userService.findActiveReservation(getUsername(authentication)));
+        List<RoomReservationDTO> usersReservations = new LinkedList<>();
+        usersReservations = userService.findActiveReservation(getUsername(authentication));
+        if(usersReservations.isEmpty()) {
+            throw new RequestInvalidException();
+        }
+        mav.addObject("ReservationsList", usersReservations);
         return mav;
     }
 
@@ -53,15 +63,14 @@ public class UserController extends SimpleController {
     }
 
     @PostMapping("/buyProducts")
-    public ModelAndView buyProduct(@ModelAttribute("buyProductForm") BuyProductForm buyProductForm, @RequestParam(value = "reservationId") long reservationId) {
+    public ModelAndView buyProduct(@ModelAttribute("buyProductForm") BuyProductForm buyProductForm, @RequestParam(value = "reservationId") long reservationId) throws RequestInvalidException {
         LOGGER.debug("Request received to buy products on reservation with id" + reservationId);
-        if (buyProductForm != null) {
-            final ModelAndView mav = new ModelAndView("buyProducts");
-            Charge charge = new Charge(buyProductForm.getProductId(), reservationId);
-            mav.addObject("charge", userService.addCharge(charge));
-            return mav;
+        if (buyProductForm == null) {
+            throw new RequestInvalidException();
         }
-        return new ModelAndView("redirect:/products");
+        final ModelAndView mav = new ModelAndView("buyProducts");
+        Charge charge = new Charge(buyProductForm.getProductId(), reservationId);
+        mav.addObject("charge", userService.addCharge(charge));
+        return mav;
     }
-
 }

@@ -1,5 +1,6 @@
 package ar.edu.itba.paw.interfaces.services;
 
+import ar.edu.itba.paw.interfaces.exceptions.RequestInvalidException;
 import ar.edu.itba.paw.models.charge.Charge;
 import ar.edu.itba.paw.models.dtos.RoomReservationDTO;
 import ar.edu.itba.paw.models.product.Product;
@@ -9,7 +10,7 @@ import java.util.Map;
 
 public interface UserService {
 
-    Map<Product, Integer> checkProductsPurchasedByUserByReservationId(String userEmail, long reservationId);
+    Map<Product, Integer> checkProductsPurchasedByUserByReservationId(String userEmail, long reservationId) throws RequestInvalidException;
 
     List<RoomReservationDTO> findActiveReservation(String userEmail);
 
