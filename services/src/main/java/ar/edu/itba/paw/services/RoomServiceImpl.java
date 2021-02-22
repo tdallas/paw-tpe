@@ -4,6 +4,7 @@ import ar.edu.itba.paw.interfaces.daos.ReservationDao;
 import ar.edu.itba.paw.interfaces.daos.RoomDao;
 import ar.edu.itba.paw.interfaces.daos.UserDao;
 import ar.edu.itba.paw.interfaces.dtos.ReservationResponse;
+import ar.edu.itba.paw.interfaces.dtos.RoomResponse;
 import ar.edu.itba.paw.interfaces.exceptions.EntityNotFoundException;
 import ar.edu.itba.paw.interfaces.exceptions.RequestInvalidException;
 import ar.edu.itba.paw.interfaces.services.*;
@@ -19,6 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Calendar;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Component
 public class RoomServiceImpl implements RoomService {
@@ -51,8 +53,10 @@ public class RoomServiceImpl implements RoomService {
     }
 
     @Override
-    public List<Room> findAllFreeBetweenDates(Calendar startDate, Calendar endDate) {
-        return roomDao.findAllFreeBetweenDates(startDate, endDate);
+    public List<RoomResponse> findAllFreeBetweenDates(Calendar startDate, Calendar endDate) {
+        return roomDao.findAllFreeBetweenDates(startDate, endDate)
+                .stream().map(room -> new RoomResponse(room.getNumber(), room.getRoomType(), room.getId(), room.isFreeNow()))
+                .collect(Collectors.toList());
     }
 
     @Override

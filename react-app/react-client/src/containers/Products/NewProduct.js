@@ -30,6 +30,8 @@ const useStyles = makeStyles((theme) => ({
 const NewProduct = ({ history }) => {
   const classes = useStyles();
 
+  console.log('NEW PRODUCT');
+
   const [description, setDescription] = useState("");
   const [photo, setPhoto] = useState("");
   const [price, setPrice] = useState("");
