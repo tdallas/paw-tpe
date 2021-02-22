@@ -25,7 +25,7 @@ import java.net.URI;
 import java.util.List;
 
 @Controller
-@Path("/api/user")
+@Path("user")
 public class UserController extends SimpleController {
     private static final Logger LOGGER = LoggerFactory.getLogger(UserController.class);
     public static final String DEFAULT_FIRST_PAGE = "1";

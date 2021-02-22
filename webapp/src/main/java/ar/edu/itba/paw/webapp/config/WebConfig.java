@@ -46,13 +46,13 @@ public class WebConfig {
     public DataSource dataSource() {
         final SimpleDriverDataSource ds = new SimpleDriverDataSource();
         ds.setDriverClass(org.postgresql.Driver.class);
-//        ds.setUrl("jdbc:postgresql://localhost/postgres");
-//        ds.setUsername("postgres");
-//        ds.setPassword("postgres");
+        ds.setUrl("jdbc:postgresql://localhost/postgres");
+        ds.setUsername("postgres");
+        ds.setPassword("postgres");
 //        // credenciales para deploy
-        ds.setUrl("jdbc:postgresql://localhost/paw-2019b-2");
-        ds.setUsername("paw-2019b-2");
-        ds.setPassword("R79Jrbbfz");
+//        ds.setUrl("jdbc:postgresql://localhost/paw-2019b-2");
+//        ds.setUsername("paw-2019b-2");
+//        ds.setPassword("R79Jrbbfz");
         return ds;
     }
 
@@ -65,10 +65,10 @@ public class WebConfig {
         factoryBean.setJpaVendorAdapter(vendorAdapter);
         final Properties properties = new Properties();
         // FIXME TODO create-drop for development only
-        properties.setProperty("hibernate.hbm2ddl.auto", "validate"); // poner create en vez de update BORRA todos los datos guardados, cuidado
+        properties.setProperty("hibernate.hbm2ddl.auto", "update"); // poner create en vez de update BORRA todos los datos guardados, cuidado
         properties.setProperty("hibernate.dialect", "org.hibernate.dialect.PostgreSQL92Dialect");
         // TODO: BORRAR ANTES DE MANDAR A PROD
-        properties.setProperty("hibernate.show_sql", "true");   // todo: setear false antes de pushear a prod
+        properties.setProperty("hibernate.show_sql", "false");   // todo: setear false antes de pushear a prod
         properties.setProperty("format_sql", "true");   // todo: setear false antes de pushear a prod
 
         factoryBean.setJpaProperties(properties);

@@ -12,7 +12,7 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
 @Component
-@Path("/api/")
+@Path("")
 public class AuthController {
 
     @Context

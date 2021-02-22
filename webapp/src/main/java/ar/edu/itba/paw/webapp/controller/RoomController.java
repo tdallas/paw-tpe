@@ -33,7 +33,7 @@ import java.util.stream.Collectors;
 
 @Component
 @Controller
-@Path("/api/rooms")
+@Path("rooms")
 public class RoomController extends SimpleController {
     private static final Logger LOGGER = LoggerFactory.getLogger(RoomController.class);
     public static final String DEFAULT_FIRST_PAGE = "1";

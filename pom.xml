@@ -32,6 +32,14 @@
         <jersey.version>3.0-SNAPSHOT</jersey.version>
         <io.jsonwebtoken.jjwt.version>0.7.0</io.jsonwebtoken.jjwt.version>
         <org.hibernate-validator.version>4.3.1.Final</org.hibernate-validator.version>
+
+<!--        front-->
+        <frontend-plugin-version>1.7.6</frontend-plugin-version>
+        <frontend-source-dir>react-app/react-client</frontend-source-dir>
+        <frontend-build-dir>../react-app/react-client/build</frontend-build-dir>
+        <target-resources>target/classes/webapp/WEBB-INF/classes</target-resources>
+        <node-version>v10.19.0</node-version>
+        <npm-version>6.14.4</npm-version>
     </properties>
 
     <dependencyManagement>
@@ -353,14 +361,7 @@
                         <packagingExcludes>**/logback-test.xml</packagingExcludes>
                         <webResources>
                             <resource>
-                                <directory>../react-app/react-client/build</directory>
-                            </resource>
-                            <resource>
-                                <filtering>true</filtering>
-                                <directory>src/main/webapp</directory>
-                                <includes>
-                                    <include>**/web.xml</include>
-                                </includes>
+                                <directory>${frontend-build-dir}</directory>
                             </resource>
                         </webResources>
                     </configuration>
