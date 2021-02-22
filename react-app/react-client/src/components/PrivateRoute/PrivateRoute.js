@@ -16,6 +16,8 @@ export const PrivateRoute = ({
 
       const { path } = routeProps;
 
+      console.log("path", path);
+
       if (path === "/login") {
         if (role && currentUser) {
           return <Redirect to={{ pathname: "/" }} />;

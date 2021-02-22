@@ -35,7 +35,6 @@ export const ordersColumns = [
 
 
 export const productsColumns = [
-    {id: "file", label: " "},
     {id: "description", label: "product.description"},
     {id: "price", label: "user.price"},
     {id: "toggle", label: "product.enabled", isButton: true}
