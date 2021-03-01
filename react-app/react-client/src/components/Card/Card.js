@@ -25,19 +25,12 @@ const useStyles = makeStyles({
 const ImgMediaCard = (props) => {
   const classes = useStyles();
 
-  const { id, price, name, reservationId } = props;
+  const { id, price, name, reservationId, onClick } = props;
   const {t} = useTranslation();
 
 
-  const onSubmitBuy = (productId) =>
-    buyProduct({ productId, reservationId })
-      .then((response) => {
-      })
-      .catch((error) => {
-      });
-
   return (
-    <div style={{ height: "400px" }}>
+    <div style={{ height: "400px"}}>
       <Col xs={12} md={3}>
         <Card className={classes.root}>
           <CardActionArea>
@@ -56,7 +49,7 @@ const ImgMediaCard = (props) => {
               id={id}
               ButtonType="Save"
               size="large"
-              onClick={() => onSubmitBuy(id)}
+              onClick={onClick}
               ButtonText={t("buy")}
             ></Button>
           </CardActions>
