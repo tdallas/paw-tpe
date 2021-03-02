@@ -16,8 +16,6 @@ export const PrivateRoute = ({
 
       const { path } = routeProps;
 
-      console.log("path AL QUE QUIERO IR", path);
-
       if (path === "/login") {
         if (role && currentUser) {
           return <Redirect to={{ pathname: "/" }} />;
@@ -35,12 +33,11 @@ export const PrivateRoute = ({
       }
 
       if (role === CLIENT) {
-        console.log(clientPaths);
         if (clientPaths.indexOf(path) == -1) {
           return <Forbidden />;
         }
       } else if (role === MANAGER) {
-        console.log(managerPaths);
+        console.log("path",path);
         if (managerPaths.indexOf(path) == -1) {
           return <Forbidden />;
         }
