@@ -77,9 +77,7 @@ const UserProducts = ({ match, history }) => {
               name={description}
               price={"$" + price}
               reservationId={reservationId}
-              onClick={() => onSubmitBuy({
-                productId: id
-              })}
+              onClick={() => onSubmitBuy(id)}
             />
           ))}
         </CardDeck>
