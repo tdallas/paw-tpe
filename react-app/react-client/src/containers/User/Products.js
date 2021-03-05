@@ -44,7 +44,7 @@ const UserProducts = ({ match, history }) => {
         // call show dialog in InfoSimpleDialog
         updateShowDialog(true);
         // send result to dialog window to show it
-        updateInfo("compraste coquita");
+        updateInfo(response);
       })
       .catch((error) => {
         updateShowLoading(false);
@@ -64,10 +64,10 @@ const UserProducts = ({ match, history }) => {
   return (
     <Container className={classes.container}>
       <InfoSimpleDialog open={loading} title={t('loading')} />
-                            <InfoSimpleDialog open={showDialog} onClose={handleDialogClose} title={info ? t('reservation.checkin.successful') : ''}>
+                            <InfoSimpleDialog open={showDialog} onClose={handleDialogClose} title={info ? t('user.bought') : ''}>
                                 {info ? <div>
-                                   <div>Compre Coquita</div>
-                                </div> : <div>{t('reservation.checkin.error')}</div>}
+                                   <div>{t('user.itemsDelivered')}</div>
+                                </div> : <div>{t('user.error')}</div>}
                             </InfoSimpleDialog>
       <Row style={{ background: "#FAF6FC", width: '100%' }}>
         <CardDeck style={{ justifyContent: "center", background: "#FAF6FC", width: "100vw" }}>
