@@ -66,7 +66,6 @@ const Products = ({ history }) => {
   };
 
   const addProduct = () => {
-    console.log("agregando producto");
     history.push("/products/newProduct");
   };
 

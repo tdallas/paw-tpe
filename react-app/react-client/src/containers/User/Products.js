@@ -4,8 +4,7 @@ import { makeStyles } from "@material-ui/core/styles";
 import { withRouter } from "react-router";
 
 import Card from "../../components/Card/Card";
-import { getAllProducts } from "../../api/productApi";
-import { buyProduct } from "../../api/userApi";
+import { buyProduct,getAllProducts } from "../../api/userApi";
 import InfoSimpleDialog from '../../components/Dialog/SimpleDialog';
 import { useTranslation } from "react-i18next";
 
@@ -58,7 +57,7 @@ const UserProducts = ({ match, history }) => {
   }
 
   products.length === 0 &&
-    getAllProducts()
+    getAllProducts(reservationId)
       .then((response) => setProducts(response.data));
 
   return (

@@ -138,6 +138,15 @@ const registration = ({ history }) => {
                 />
               </Col>
             </Row>
+            <Row className={classes.buttonRow}>
+          <Col className={classes.buttonColRight}>
+            <Button
+              ButtonType="Save"
+              onClick={onAddOccupant}
+              ButtonText={t("registrations.addOccupant")}
+            />
+          </Col>
+        </Row>
           </Col>
           <Col xs={6} md={3}/>
         </Row>
@@ -150,15 +159,7 @@ const registration = ({ history }) => {
             onLastNameChange(index)
           )
         )}
-        <Row className={classes.buttonRow}>
-          <Col className={classes.buttonColRight}>
-            <Button
-              ButtonType="Save"
-              onClick={onAddOccupant}
-              ButtonText={t("registrations.addOccupant")}
-            />
-          </Col>
-        </Row>
+        
       </Container>
     </div>
   );
