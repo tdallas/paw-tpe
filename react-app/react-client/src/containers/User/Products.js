@@ -63,11 +63,11 @@ const UserProducts = ({ match, history }) => {
   return (
     <Container className={classes.container}>
       <InfoSimpleDialog open={loading} title={t('loading')} />
-                            <InfoSimpleDialog open={showDialog} onClose={handleDialogClose} title={info ? t('user.bought') : ''}>
-                                {info ? <div>
-                                   <div>{t('user.itemsDelivered')}</div>
-                                </div> : <div>{t('user.error')}</div>}
-                            </InfoSimpleDialog>
+      <InfoSimpleDialog open={showDialog} onClose={handleDialogClose} title={info ? t('user.bought') : ''}>
+        {info ? <div>
+          <div>{t('user.itemsDelivered')}</div>
+        </div> : <div>{t('user.error')}</div>}
+      </InfoSimpleDialog>
       <Row style={{ background: "#FAF6FC", width: '100%' }}>
         <CardDeck style={{ justifyContent: "center", background: "#FAF6FC", width: "100vw" }}>
           {products.map(({ id, description, price }) => (
