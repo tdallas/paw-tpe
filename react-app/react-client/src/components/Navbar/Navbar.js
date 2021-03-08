@@ -6,7 +6,7 @@ import Tabs from "@material-ui/core/Tabs";
 import Tab from "@material-ui/core/Tab";
 import Typography from "@material-ui/core/Typography";
 import Box from "@material-ui/core/Box";
-import { useTranslation, withTranslation } from "react-i18next";
+import { useTranslation } from "react-i18next";
 import { withRouter } from "react-router";
 import Menu from "@material-ui/core/Menu";
 import MenuItem from "@material-ui/core/MenuItem";

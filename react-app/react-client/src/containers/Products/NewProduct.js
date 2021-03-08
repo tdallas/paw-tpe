@@ -64,11 +64,11 @@ const NewProduct = ({ history }) => {
 
   const formIsValidate = () => {
     let isOk = true;
-    if (description.length == 0) {
+    if (description.length === 0) {
       setErrorDescription(true);
       isOk = false;
     }
-    if (price.length == 0) {
+    if (price.length === 0) {
       setErrorPrice(true);
       setErrorMessagePrice(t("required"));
       isOk = false;

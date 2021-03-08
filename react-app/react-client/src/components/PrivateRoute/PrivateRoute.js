@@ -33,12 +33,12 @@ export const PrivateRoute = ({
       }
 
       if (role === CLIENT) {
-        if (clientPaths.indexOf(path) == -1) {
+        if (clientPaths.indexOf(path) === -1) {
           return <Forbidden />;
         }
       } else if (role === MANAGER) {
         console.log("path",path);
-        if (managerPaths.indexOf(path) == -1) {
+        if (managerPaths.indexOf(path) === -1) {
           return <Forbidden />;
         }
       }

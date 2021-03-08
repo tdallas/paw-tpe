@@ -9,25 +9,14 @@ import TableRow from "@material-ui/core/TableRow";
 import Paper from "@material-ui/core/Paper";
 import {useTranslation} from "react-i18next";
 
-const TAX_RATE = 0.07;
-
 const useStyles = makeStyles({
   table: {
     minWidth: 700,
   },
 });
 
-function ccyFormat(num) {
-  return `${num.toFixed(2)}`;
-}
-
 function priceRow(qty, unit) {
   return qty * unit;
-}
-
-function createRow(desc, qty, unit) {
-  const price = priceRow(qty, unit);
-  return { desc, qty, unit, price };
 }
 
 function subtotal(items) {
@@ -35,16 +24,6 @@ function subtotal(items) {
     .map(({ productAmount, productPrice }) => productAmount * productPrice)
     .reduce((sum, i) => sum + i, 0);
 }
-
-const rowsDefault = [
-  createRow("Paperclips (Box)", 100, 1.15),
-  createRow("Paper (Case)", 10, 45.99),
-  createRow("Waste Basket", 2, 17.99),
-];
-
-const invoiceSubtotal = subtotal(rowsDefault);
-const invoiceTaxes = TAX_RATE * invoiceSubtotal;
-const invoiceTotal = invoiceTaxes + invoiceSubtotal;
 
 const ExpensesTable = (props) => {
   const classes = useStyles();
