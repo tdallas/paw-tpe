@@ -13,6 +13,7 @@ import ar.edu.itba.paw.models.help.Help;
 import ar.edu.itba.paw.webapp.dtos.ActiveReservationsResponse;
 import ar.edu.itba.paw.webapp.dtos.HelpRequest;
 import ar.edu.itba.paw.webapp.dtos.RateReservationRequest;
+import javax.ws.rs.core.Response.Status;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -122,12 +123,14 @@ public class UserController extends SimpleController {
     @POST
     @Path("/ratings/{reservationHash}/rate")
     @Produces(value = {MediaType.APPLICATION_JSON})
-    public void rateStay(@PathParam("reservationHash") String reservationHash,
+    public Response rateStay(@PathParam("reservationHash") String reservationHash,
                          @QueryParam("rate") RateReservationRequest rateRequest) {
         try {
             userService.rateStay(rateRequest.getRate(), reservationHash);
+            return Response.created(uriInfo.getBaseUri()).build();
         } catch (Exception e) {
             LOGGER.debug(e.getMessage());
         }
+        return Response.status(Status.NOT_FOUND).build();
     }
 }

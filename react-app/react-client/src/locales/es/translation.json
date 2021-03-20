@@ -63,7 +63,8 @@
   "ratings": {
     "roomNumber": "Número de Habitación",
     "avgRate": "Puntuación Promedio:",
-    "error": "¡No se encontraron puntuaciones!"
+    "error": "¡No se encontraron puntuaciones!",
+    "thanks": "¡Gracias por puntuar nuestro servicio!"
   },
   "reservation": {
     "singular": "Reserva",

@@ -65,7 +65,8 @@
   "ratings":{
     "roomNumber": "Room Number",
     "avgRate": "Average Rate:",
-    "error": "No ratings were found!"
+    "error": "No ratings were found!",
+    "thanks": "Thank you for rating our service!"
   },
 
 
@@ -210,7 +211,7 @@
   "loading": "Loading...",
   "yes": "Yes",
   "no": "No",
-  "rates": "Rates",
+  "rates": "Ratings",
   "required": "This field is required",
   "back": "Back",
   "buy": "Buy"
