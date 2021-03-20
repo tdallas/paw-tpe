@@ -64,7 +64,8 @@
 
   "ratings":{
     "roomNumber": "Room Number",
-    "avgRate": "Average Rate:"
+    "avgRate": "Average Rate:",
+    "error": "No ratings were found!"
   },
 
 

@@ -67,9 +67,6 @@ const useStyles = makeStyles((theme) => ({
 const Navbar = ({ history, setIsLoggedIn, setIsClient }) => {
   const classes = useStyles();
 
-  const { location } = history;
-  const { pathname } = location;
-
   const [value, setValue] = React.useState(0);
   const [showDropdown, setShowDropdown] = React.useState(undefined);
   const inputEl = useRef(null);

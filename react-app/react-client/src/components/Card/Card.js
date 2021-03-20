@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import { Container, Row, Col, Card } from "react-bootstrap";
+import React from "react";
+import { Col, Card } from "react-bootstrap";
 import { makeStyles } from "@material-ui/core/styles";
 import CardActionArea from "@material-ui/core/CardActionArea";
 import CardActions from "@material-ui/core/CardActions";
@@ -8,7 +8,6 @@ import CardMedia from "@material-ui/core/CardMedia";
 import Button from "../Button/Button";
 import Typography from "@material-ui/core/Typography";
 import { getProductFile } from "../../api/productApi";
-import { buyProduct } from "../../api/userApi";
 import {useTranslation} from "react-i18next";
 
 
@@ -25,7 +24,7 @@ const useStyles = makeStyles({
 const ImgMediaCard = (props) => {
   const classes = useStyles();
 
-  const { id, price, name, reservationId, onClick } = props;
+  const { id, price, name, onClick } = props;
   const {t} = useTranslation();
 
 
@@ -51,7 +50,7 @@ const ImgMediaCard = (props) => {
               size="large"
               onClick={onClick}
               ButtonText={t("buy")}
-            ></Button>
+            />
           </CardActions>
         </Card>
       </Col>
