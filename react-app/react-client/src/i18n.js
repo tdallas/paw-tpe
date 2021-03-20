@@ -5,10 +5,10 @@ import translationEN from './locales/en/translation.json'
 import translationES_AR from './locales/es_AR/translation.json'
 import translationES from './locales/es/translation.json'
 
-const detectionOptions = {
-    order: ['path', 'cookie', 'navigator', 'localStorage', 'subdomain', 'queryString', 'htmlTag'],
-    lookupFromPathIndex: 0
-};
+// const detectionOptions = {
+//     order: ['path', 'cookie', 'navigator', 'localStorage', 'subdomain', 'queryString', 'htmlTag'],
+//     lookupFromPathIndex: 0
+// };
 
 const resources = {
     en: {

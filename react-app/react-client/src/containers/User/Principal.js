@@ -17,21 +17,20 @@ const useStyles = makeStyles((theme) => ({
 const UserPrincipal = ({ history }) => {
   const classes = useStyles();
   const [reservations, setReservations] = useState([]);
-  const [totalCount, setTotalCount] = useState(0);
 
   const getMyReservations = () => {
     getAllReservations().then((response) => {
-        setReservations(
+      setReservations(
         response.data.activeReservations.map(
           ({ roomType, startDate, endDate, roomNumber, reservationId }) => {
-              return Object.assign(
-                {},
-                {roomType, startDate, endDate, roomNumber},
-                {
-                    actions: () => history.push(`/products/${reservationId}`),
-                    expenses: () => history.push(`/expenses/${reservationId}`),
-                    help: () => history.push(`/help/${reservationId}`),
-                }
+            return Object.assign(
+              {},
+              {roomType, startDate, endDate, roomNumber},
+              {
+                actions: () => history.push(`/products/${reservationId}`),
+                expenses: () => history.push(`/expenses/${reservationId}`),
+                help: () => history.push(`/help/${reservationId}`),
+              }
             );
           }
         )
@@ -44,14 +43,14 @@ const UserPrincipal = ({ history }) => {
       <Container fluid="md" className={classes.container}>
         <Row
           className="justify-content-sm-center"
-          style={{ paddingTop: "40px",width: "100%" }}
+          style={{ paddingTop: "40px", width: "100%" }}
         >
           <Col xs={1} md={1}/>
           <Col xs={10} md={10}>
             <Table
               columns={reservationUserColumns}
               rows={reservations}
-              totalItems={totalCount}
+              totalItems={0}
               pageFunction={getMyReservations}
             />
           </Col>

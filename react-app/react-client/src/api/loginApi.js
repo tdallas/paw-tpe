@@ -1,7 +1,8 @@
 import { post } from "./baseApi";
 
-const CLIENT_ROLE = "CLIENT";
-const MANAGER_ROLE = "MANAGER";
+// not being used?
+// const CLIENT_ROLE = "CLIENT";
+// const MANAGER_ROLE = "MANAGER";
 
 export const login = async (username, password) =>
   post("/login", { username, password }).then((result) => {

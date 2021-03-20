@@ -9,7 +9,7 @@ const getAvgRoomRatingUrl = (roomNumber) =>
 const getRoomRatingsUrl = (roomNumber) =>
   getAvgRoomRatingUrl(roomNumber) + "/all";
 
-export const getAvgHotelRating = async () => get(baseRatingsUrl);
+export const getAvgHotelRating = async () => get(getAvgHotelRatingUrl);
 export const getAllHotelRatings = async (params) => get(getAllHotelRatingsUrl, params);
 export const getAvgRoomRating = (roomNumber) =>
   get(getAvgRoomRatingUrl(roomNumber));

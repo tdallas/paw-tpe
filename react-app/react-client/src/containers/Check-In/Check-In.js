@@ -57,7 +57,7 @@ const checkIn = ({ history }) => {
 
     const formIsValidate = () => {
         let isOk = true;
-        if (checkIn.length == 0) {
+        if (checkIn.length === 0) {
             setErrorInput(true);
             isOk = false;
         }
@@ -95,7 +95,7 @@ const checkIn = ({ history }) => {
         <div>
             <Container fluid="md" className={classes.container}>
                 <Row style={{width: "100%"}}>
-                    <Col xs={4} md={2}></Col>
+                    <Col xs={4} md={2}/>
                     <Col>
                         <Card className={classes.card}>
                             <Row className={classes.buttonRow}>
@@ -122,7 +122,7 @@ const checkIn = ({ history }) => {
                             </InfoSimpleDialog>
                         </Card>
                     </Col>
-                    <Col xs={4} md={2}></Col>
+                    <Col xs={4} md={2}/>
                 </Row>
             </Container>
         </div>

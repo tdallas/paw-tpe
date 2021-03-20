@@ -52,6 +52,7 @@ const CheckOutExpenses = ({ history, match }) => {
                         })
                     )
                 );
+                updateInfo(response.data.size);
             })
             .catch(() => {
                 updateInfo(undefined);
@@ -96,7 +97,7 @@ const CheckOutExpenses = ({ history, match }) => {
                 </InfoSimpleDialog>
                 <InfoSimpleDialog open={showDialog} onClose={handleErrorDialogClose}>
                     <div>
-                        <div>{t('reservation.checkout.error')}</div>
+                        <div>{info ? '' : t('reservation.checkout.error')}</div>
                     </div>
                 </InfoSimpleDialog>
             </Container>

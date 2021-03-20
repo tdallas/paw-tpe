@@ -4,17 +4,13 @@ import { makeStyles } from "@material-ui/core/styles";
 import { withRouter } from "react-router";
 
 import Button from "../../components/Button/Button";
-import DatePicker from "../../components/DatePickers/DatePicker";
 import Input from '../../components/Input/Input'
 import Table from '../../components/Table/Table'
 import { useTranslation } from "react-i18next";
 import { rateColumns } from "../../utils/columnsUtil";
 import Progress from "../../components/Progress/Progress"
-
 import { getAvgHotelRating, getAllHotelRatings, getAvgRoomRating, getAllRoomRatings } from "../../api/ratingsApi";
-
-
-
+import InfoSimpleDialog from "../../components/Dialog/SimpleDialog";
 
 const useStyles = makeStyles((theme) => ({
     container: {
@@ -43,7 +39,6 @@ const Rates = ({ history }) => {
     const { t } = useTranslation();
     const [search, setSearch] = useState("");
     const [showDialog, updateShowDialog] = useState(false);
-    const [errorStatusCode, setErrorStatusCode] = useState(200);
     const [avg, setAvg] = useState("");
     const [tableInfo, setTableInfo] = useState({ rates: [], totalCount: 0 });
     const { rates, totalCount } = tableInfo;
@@ -90,7 +85,7 @@ const Rates = ({ history }) => {
 
 
     const onSearchRatings = (page = 1, limit = 20) => {
-        if (search.length == 0)
+        if (search.length === 0)
             setCustomFunc(() => getAllRatingsFiltered())
         else
             setCustomFunc(() => searchHandler())
@@ -98,6 +93,10 @@ const Rates = ({ history }) => {
 
     const back = () => {
         history.push("/");
+    }
+
+    function closeDialog() {
+        updateShowDialog(false);
     }
 
     return (
@@ -132,6 +131,9 @@ const Rates = ({ history }) => {
                         <Table columns={rateColumns} rows={rates} totalItems={totalCount} pageFunction={customFunc} />
                     </Col>
                 </Row>
+                <InfoSimpleDialog open={showDialog} onClose={closeDialog}>
+                    {t("ratings.error")}
+                </InfoSimpleDialog>
             </Container>
         </div>
     );

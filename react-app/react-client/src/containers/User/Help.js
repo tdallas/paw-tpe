@@ -27,7 +27,7 @@ const UserHelp = ({ match, history }) => {
   };
 
   const validateInput = () => {
-    return help.length == 0;
+    return help.length === 0;
   }
 
 

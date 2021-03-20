@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Container, Row, Col, CardDeck } from "react-bootstrap";
+import { Container, Row, CardDeck } from "react-bootstrap";
 import { makeStyles } from "@material-ui/core/styles";
 import { withRouter } from "react-router";
 

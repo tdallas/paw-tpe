@@ -11,16 +11,12 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 const ComposedTextField = (props) => {
-
   const { onChange, error, required, helperText} = props;
-
-  const [name, setName] = React.useState();
   const classes = useStyles();
-
 
   return (
     <form className={classes.root} noValidate autoComplete="off">
-        <TextField id="component-simple" label={props.label} value={name} type = {props.type} onChange={onChange} 
+        <TextField id="component-simple" label={props.label} type = {props.type} onChange={onChange}
         fullWidth={true} error={error} required={required} helperText={helperText}/>
     </form>
   );

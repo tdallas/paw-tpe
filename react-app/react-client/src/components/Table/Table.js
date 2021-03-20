@@ -81,7 +81,7 @@ const DataTable = ({columns, rows, totalItems = 0, pageFunction = () => {}} = {}
                                                 <TableCell key={column.id} align={column.align}
                                                            style={{textAlign: 'center'}}>
                                                     {
-                                                        (typeof value == "boolean") ? (value ? t("yes") : t("no")) :
+                                                        (typeof value === "boolean") ? (value ? t("yes") : t("no")) :
                                                             (Array.isArray(value) ?
                                                                     value.map((product) => {
                                                                         return (
