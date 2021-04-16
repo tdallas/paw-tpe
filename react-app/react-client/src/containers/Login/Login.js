@@ -14,6 +14,7 @@ import { withRouter } from "react-router";
 
 import { login } from "../../api/loginApi";
 import InfoSimpleDialog from "../../components/Dialog/SimpleDialog";
+import {useQuery} from "../../utils/hooks/useQuery";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -54,6 +55,8 @@ const useStyles = makeStyles((theme) => ({
 const Login = ({ history, setIsLoggedIn, setIsClient }) => {
   const classes = useStyles();
   const { t } = useTranslation();
+  const query = useQuery();
+  const redirected = query.get("redirectTo");
   const [hasLogged, onSubmit] = useState(false);
   const [user, onChangeUser] = useState("");
   const [password, onChangePassword] = useState("");
@@ -68,9 +71,9 @@ const Login = ({ history, setIsLoggedIn, setIsClient }) => {
       .then(() => {
         setIsLoggedIn(true);
         setIsClient(localStorage.getItem("role") === "CLIENT");
-        onSubmit();
+        onSubmit(redirected);
       })
-      .catch((error) => {
+      .catch(() => {
         updateShowDialog(true);
       });
   };
@@ -79,9 +82,14 @@ const Login = ({ history, setIsLoggedIn, setIsClient }) => {
     updateShowDialog(false);
   }
 
-  const submitLogin = () => {
+  const submitLogin = (redirect) => {
+    console.log("en submit");
     onSubmit(true);
-    history.push("/");
+    if (redirect) {
+      history.push(redirected);
+    } else {
+      history.push("/");
+    }
   };
 
   return (
@@ -135,10 +143,7 @@ const Login = ({ history, setIsLoggedIn, setIsClient }) => {
                         disabled={hasLogged}
                         onClick={onLoginPerformed(
                           submitLogin,
-                          {
-                            user,
-                            password,
-                          },
+                          { user, password, },
                           { setIsClient, setIsLoggedIn }
                         )}
                       >

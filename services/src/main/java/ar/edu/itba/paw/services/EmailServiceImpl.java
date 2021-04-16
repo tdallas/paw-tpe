@@ -165,7 +165,7 @@ public class EmailServiceImpl implements EmailService {
     }
 
     private String createEmailText(String reservation, String uriInfo) {
-        return getHtmlBeginning() + getHtmlRating(reservation, uriInfo) + getHtmlEnd();
+        return getHtmlBeginning() + getRateMeMessage(reservation, uriInfo) + getHtmlEnd();
     }
 
     private String getHtmlBeginning() {
@@ -191,9 +191,28 @@ public class EmailServiceImpl implements EmailService {
                getHtmlStars(reservation, uriInfo, messageSourceExternalizer.getMessage("email.ratings.awful"), 1);
     }
 
-    private String getHtmlStars(String reservation, String uriInfo, String stars, int star) {
+    private String getRateMeMessage(String reservation, String uriInfo) {
+        String developmentUri = "http://localhost:3000";
+        boolean inDevelopment = true;   // todo change me to pawserver for prod
+        if (inDevelopment) {
+            uriInfo = developmentUri;
+        }
         return "<div>\n" +
-                "    <form method=\"POST\" action=\"" + uriInfo + "user/ratings/" + reservation + "/rate?rate=" + stars + "\">\n" +
+            "    <a target=\"_blank\" href=\"" + uriInfo + "/ratings/" + reservation + "/rate" + "\">\n" +
+            messageSourceExternalizer.getMessage("email.ratings.subject") +
+            "    </a>\n" +
+            "</div>\n" +
+            "<br>\n";
+    }
+
+    private String getHtmlStars(String reservation, String uriInfo, String stars, int star) {
+        String developmentUri = "localhost:3000";
+        boolean inDevelopment = true;
+        if (inDevelopment) {
+            uriInfo = developmentUri;
+        }
+        return "<div>\n" +
+                "    <a href=\"" + uriInfo + "user/ratings/" + reservation + "/rate?rate=" + stars + "\">\n" +
                 "        <button type=\"submit\" class=\"btn btn-lg\">\n" +
                 "            <span>" + star + "</span>\n" +
                                 getAmountOfStars(star) +

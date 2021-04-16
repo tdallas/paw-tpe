@@ -1,13 +1,16 @@
-import React from "react";
-import { withRouter } from "react-router";
+import React, {useState} from "react";
+import {useParams, withRouter} from "react-router";
+import StarsRating from 'stars-rating';
 import { Col, Container, Row } from "react-bootstrap";
-import Card from "../../components/Card/Card";
 import CssBaseline from "@material-ui/core/CssBaseline";
 import Avatar from "@material-ui/core/Avatar";
 import LockOutlinedIcon from "@material-ui/icons/LockOutlined";
 import Typography from "@material-ui/core/Typography";
 import {makeStyles} from "@material-ui/core/styles";
 import {useTranslation} from "react-i18next";
+import InfoSimpleDialog from "../../components/Dialog/SimpleDialog";
+import {rateStay} from "../../api/userApi";
+import {useHistory, useLocation} from "react-router-dom";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -48,26 +51,59 @@ const useStyles = makeStyles((theme) => ({
 const UserRated = () => {
   const classes = useStyles();
   const { t } = useTranslation();
+  const [modalMessage, setModalMessage] = useState();
+  const {reservationId} = useParams();
+  const history = useHistory();
+  const lastLocation = useLocation();
+
+  const ratingChanged = (rating) => {
+    rateStay(reservationId, {rating}).then(() => {
+      setModalMessage(t("ratings.thanks"));
+    }).catch((error) => {
+      if (error.response) {
+        if (error.response.status === 403) {
+          redirectToLogin();
+        }
+      }
+      setModalMessage(t("ratings.repeated"));
+    });
+  }
+
+  const redirectToLogin = () => {
+    console.log("lastLocation", lastLocation);
+    console.log("lastLocation string", lastLocation.toString());
+    console.log("lastLocation pathname", lastLocation.pathname);
+    history.push(`/login?redirectTo=${lastLocation.pathname}`);
+  }
 
   return (
       <div className={classes.container}>
         <Container fluid="md" component="main" maxWidth="sm">
           <Row className={classes.row}>
             <Col>
-              <Card className={classes.root}>
-                <CssBaseline/>
-                <div className={classes.paper}>
-                  <Avatar className={classes.avatar}>
-                    <LockOutlinedIcon/>
-                  </Avatar>
-                  <Typography component="h1" variant="h5">
-                    e-Lobby
-                  </Typography>
-                  <h2>{t("ratings.thanks")}</h2>
-                </div>
-              </Card>
+              <CssBaseline/>
+              <div className={classes.paper}>
+                <Avatar className={classes.avatar}>
+                  <LockOutlinedIcon/>
+                </Avatar>
+                <Typography component="h1" variant="h5">
+                  e-Lobby
+                </Typography>
+              </div>
+              <div className={classes.paper}>{t("ratings.rate")}</div>
+              <div className={classes.paper}>
+                <StarsRating
+                    count={5}
+                    onChange={ratingChanged}
+                    half={false}
+                    size={24}
+                    color2={'#ffd700'} />
+              </div>
             </Col>
           </Row>
+          <InfoSimpleDialog open={modalMessage}>
+            <p>{modalMessage}</p>
+          </InfoSimpleDialog>
         </Container>
       </div>
   );

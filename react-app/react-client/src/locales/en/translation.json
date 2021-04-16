@@ -66,9 +66,10 @@
     "roomNumber": "Room Number",
     "avgRate": "Average Rate:",
     "error": "No ratings were found!",
-    "thanks": "Thank you for rating our service!"
+    "rate": "Rate your stay:",
+    "thanks": "Thank you for rating our service!",
+    "repeated": "This reservation has already been rated."
   },
-
 
   "reservation": {
     "singular": "Reservation",

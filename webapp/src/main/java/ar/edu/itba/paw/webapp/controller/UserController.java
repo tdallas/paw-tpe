@@ -4,7 +4,6 @@ import ar.edu.itba.paw.interfaces.dtos.ActiveReservationResponse;
 import ar.edu.itba.paw.interfaces.dtos.ChargesByUserResponse;
 import ar.edu.itba.paw.interfaces.dtos.ProductResponse;
 import ar.edu.itba.paw.interfaces.exceptions.EntityNotFoundException;
-import ar.edu.itba.paw.interfaces.exceptions.RequestInvalidException;
 import ar.edu.itba.paw.interfaces.services.MessageSourceExternalizer;
 import ar.edu.itba.paw.interfaces.services.UserService;
 import ar.edu.itba.paw.models.charge.Charge;
@@ -124,10 +123,11 @@ public class UserController extends SimpleController {
     @Path("/ratings/{reservationHash}/rate")
     @Produces(value = {MediaType.APPLICATION_JSON})
     public Response rateStay(@PathParam("reservationHash") String reservationHash,
-                         @QueryParam("rate") RateReservationRequest rateRequest) {
+                         @RequestBody RateReservationRequest rateRequest) {
         try {
-            userService.rateStay(rateRequest.getRate(), reservationHash);
-            return Response.created(uriInfo.getBaseUri()).build();
+            userService.rateStay(rateRequest.getRating(), reservationHash);
+            // fixme send correct location uri? this rated stay is not public to the client
+            return Response.ok().build();
         } catch (Exception e) {
             LOGGER.debug(e.getMessage());
         }
