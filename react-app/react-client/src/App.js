@@ -58,7 +58,9 @@ const App = () => {
       )}
       <Switch>
         <PrivateRoute exact path="/" component={isClient ? UserPrincipal : Principal}/>
-        <PrivateRoute path="/login" component={Login} setIsLoggedIn={handleSetIsLoggedIn} setIsClient={handleSetIsClient}/>
+        <Route path="/login">
+          <Login setIsLoggedIn={handleSetIsLoggedIn} setIsClient={handleSetIsClient} isLoggedIn={isLoggedIn}/>
+        </Route>
         <PrivateRoute path="/checkin" component={CheckIn} />
         <PrivateRoute path="/rates" component={Rates} />
         <PrivateRoute path="/ratings/:reservationId/rate" component={UserRated} />

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, {useEffect, useState} from "react";
 import Avatar from "@material-ui/core/Avatar";
 import Button from "@material-ui/core/Button";
 import CssBaseline from "@material-ui/core/CssBaseline";
@@ -52,7 +52,7 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-const Login = ({ history, setIsLoggedIn, setIsClient }) => {
+const Login = ({ history, setIsLoggedIn, setIsClient, isLoggedIn }) => {
   const classes = useStyles();
   const { t } = useTranslation();
   const query = useQuery();
@@ -65,6 +65,12 @@ const Login = ({ history, setIsLoggedIn, setIsClient }) => {
   const changeUser = (newUser) => onChangeUser(newUser.target.value);
   const changePassword = (newPassword) =>
     onChangePassword(newPassword.target.value);
+
+  useEffect(() => {
+    if (isLoggedIn) {
+      history.push("/");
+    }
+  }, []);
 
   const onLoginPerformed = (onSubmit, { user, password }, { setIsLoggedIn, setIsClient }) => () => {
     login(user, password)
@@ -83,7 +89,6 @@ const Login = ({ history, setIsLoggedIn, setIsClient }) => {
   }
 
   const submitLogin = (redirect) => {
-    console.log("en submit");
     onSubmit(true);
     if (redirect) {
       history.push(redirected);

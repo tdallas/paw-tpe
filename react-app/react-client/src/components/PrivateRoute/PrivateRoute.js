@@ -13,19 +13,7 @@ export const PrivateRoute = ({
     render={(props) => {
       const currentUser = localStorage.getItem("token");
       const role = localStorage.getItem("role");
-
       const { path } = routeProps;
-
-      if (path === "/login") {
-        if (role && currentUser) {
-          return <Redirect to={{ pathname: "/" }} />;
-        }
-        return (
-          <Component
-            {...Object.assign({}, ...props, { setIsClient, setIsLoggedIn })}
-          />
-        );
-      }
 
       if (!currentUser || !role) {
         // not logged in so redirect to login page with the return url
@@ -37,13 +25,12 @@ export const PrivateRoute = ({
           return <Forbidden />;
         }
       } else if (role === MANAGER) {
-        console.log("path",path);
         if (managerPaths.indexOf(path) === -1) {
           return <Forbidden />;
         }
       }
 
-      // authorised so return component
+      // authorized so return component
       return <Component {...props} />;
     }}
     {...routeProps}
