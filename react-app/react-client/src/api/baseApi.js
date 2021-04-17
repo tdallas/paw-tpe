@@ -1,11 +1,21 @@
 import axios from "axios";
 
-const options = (token) => ({
-  headers: {
-    "Content-Type": "application/json;charset=UTF-8",
-    Authorization: `Bearer ${token}`,
-  },
-});
+const options = (token) => {
+  if (token) {
+    return {
+      headers: {
+        "Content-Type": "application/json;charset=UTF-8",
+        Authorization: `Bearer ${token}`
+      }
+    }
+  } else {
+    return {
+      headers: {
+        "Content-Type": "application/json;charset=UTF-8"
+      }
+    }
+  }
+}
 
 // FIXME add to configs
 export const baseURL = "http://localhost:8080/api";

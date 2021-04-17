@@ -4,7 +4,6 @@ import ar.edu.itba.paw.interfaces.dtos.ActiveReservationResponse;
 import ar.edu.itba.paw.interfaces.dtos.ChargesByUserResponse;
 import ar.edu.itba.paw.interfaces.dtos.ProductResponse;
 import ar.edu.itba.paw.interfaces.exceptions.EntityNotFoundException;
-import ar.edu.itba.paw.interfaces.exceptions.RequestInvalidException;
 import ar.edu.itba.paw.interfaces.services.MessageSourceExternalizer;
 import ar.edu.itba.paw.interfaces.services.UserService;
 import ar.edu.itba.paw.models.charge.Charge;
@@ -13,6 +12,7 @@ import ar.edu.itba.paw.models.help.Help;
 import ar.edu.itba.paw.webapp.dtos.ActiveReservationsResponse;
 import ar.edu.itba.paw.webapp.dtos.HelpRequest;
 import ar.edu.itba.paw.webapp.dtos.RateReservationRequest;
+import javax.ws.rs.core.Response.Status;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -122,12 +122,15 @@ public class UserController extends SimpleController {
     @POST
     @Path("/ratings/{reservationHash}/rate")
     @Produces(value = {MediaType.APPLICATION_JSON})
-    public void rateStay(@PathParam("reservationHash") String reservationHash,
-                         @QueryParam("rate") RateReservationRequest rateRequest) {
+    public Response rateStay(@PathParam("reservationHash") String reservationHash,
+                         @RequestBody RateReservationRequest rateRequest) {
         try {
-            userService.rateStay(rateRequest.getRate(), reservationHash);
+            userService.rateStay(rateRequest.getRating(), reservationHash);
+            // fixme send correct location uri? this rated stay is not public to the client
+            return Response.ok().build();
         } catch (Exception e) {
             LOGGER.debug(e.getMessage());
         }
+        return Response.status(Status.NOT_FOUND).build();
     }
 }

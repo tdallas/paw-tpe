@@ -1,8 +1,6 @@
 package ar.edu.itba.paw.webapp.controller;
 
 import ar.edu.itba.paw.interfaces.dtos.ChargeDeliveryResponse;
-import ar.edu.itba.paw.interfaces.dtos.ChargesByUserResponse;
-import ar.edu.itba.paw.interfaces.dtos.ReservationConfirmedResponse;
 import ar.edu.itba.paw.interfaces.dtos.ReservationResponse;
 import ar.edu.itba.paw.interfaces.exceptions.EntityNotFoundException;
 import ar.edu.itba.paw.interfaces.exceptions.RequestInvalidException;
@@ -12,7 +10,6 @@ import ar.edu.itba.paw.interfaces.services.RoomService;
 import ar.edu.itba.paw.models.dtos.PaginatedDTO;
 import ar.edu.itba.paw.models.occupant.Occupant;
 import ar.edu.itba.paw.models.reservation.Reservation;
-import ar.edu.itba.paw.models.room.Room;
 import ar.edu.itba.paw.webapp.dtos.OccupantsRequest;
 import ar.edu.itba.paw.webapp.dtos.ReservationRequest;
 import ar.edu.itba.paw.webapp.utils.JsonToCalendar;
@@ -28,7 +25,6 @@ import javax.persistence.NoResultException;
 import javax.ws.rs.*;
 import javax.ws.rs.core.*;
 import java.util.Calendar;
-import java.util.List;
 import java.util.stream.Collectors;
 
 @Component
@@ -144,8 +140,7 @@ public class RoomController extends SimpleController {
     @Produces(value = {MediaType.APPLICATION_JSON})
     public Response checkoutPost(@PathParam(value = "reservationHash") final String reservationHash) throws EntityNotFoundException {
         try {
-            // http://localhost:8080/rooms/checkout/123458
-            roomService.doCheckout(reservationHash, uriInfo.getAbsolutePathBuilder().build().toString());
+            roomService.doCheckout(reservationHash, uriInfo.getBaseUri().toString());
         } catch (RequestInvalidException | EntityNotFoundException | NoResultException e) {
             return Response.status(Response.Status.NOT_FOUND).build();
         }
