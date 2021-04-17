@@ -183,36 +183,34 @@ public class EmailServiceImpl implements EmailService {
                 "<br><br>\n";
     }
 
-    private String getHtmlRating(String reservation, String uriInfo) {
-        return getHtmlStars(reservation, uriInfo, messageSourceExternalizer.getMessage("email.ratings.excellent"), 5) +
-               getHtmlStars(reservation, uriInfo, messageSourceExternalizer.getMessage("email.ratings.good"), 4) +
-               getHtmlStars(reservation, uriInfo, messageSourceExternalizer.getMessage("email.ratings.average"), 3) +
-               getHtmlStars(reservation, uriInfo, messageSourceExternalizer.getMessage("email.ratings.bad"), 2) +
-               getHtmlStars(reservation, uriInfo, messageSourceExternalizer.getMessage("email.ratings.awful"), 1);
-    }
-
     private String getRateMeMessage(String reservation, String uriInfo) {
-        String developmentUri = "http://localhost:3000";
-        boolean inDevelopment = true;   // todo change me to pawserver for prod
-        if (inDevelopment) {
-            uriInfo = developmentUri;
-        }
         return "<div>\n" +
-            "    <a target=\"_blank\" href=\"" + uriInfo + "/ratings/" + reservation + "/rate" + "\">\n" +
+            "    <a target=\"_blank\" href=\"" + getHostInfo(uriInfo) + "/ratings/" + reservation + "/rate" + "\">\n" +
             messageSourceExternalizer.getMessage("email.ratings.subject") +
             "    </a>\n" +
             "</div>\n" +
             "<br>\n";
     }
 
-    private String getHtmlStars(String reservation, String uriInfo, String stars, int star) {
-        String developmentUri = "localhost:3000";
-        boolean inDevelopment = true;
-        if (inDevelopment) {
-            uriInfo = developmentUri;
+    private String getHostInfo(String uriInfo) {
+        boolean isDevelopment = uriInfo.contains("localhost:8080");
+        if (isDevelopment) {
+            return "http://localhost:3000";
         }
+        return uriInfo.split("/api")[0];
+    }
+
+    private String getHtmlRating(String reservation, String uriInfo) {
+        return getHtmlStars(reservation, uriInfo, messageSourceExternalizer.getMessage("email.ratings.excellent"), 5) +
+            getHtmlStars(reservation, uriInfo, messageSourceExternalizer.getMessage("email.ratings.good"), 4) +
+            getHtmlStars(reservation, uriInfo, messageSourceExternalizer.getMessage("email.ratings.average"), 3) +
+            getHtmlStars(reservation, uriInfo, messageSourceExternalizer.getMessage("email.ratings.bad"), 2) +
+            getHtmlStars(reservation, uriInfo, messageSourceExternalizer.getMessage("email.ratings.awful"), 1);
+    }
+
+    private String getHtmlStars(String reservation, String uriInfo, String stars, int star) {
         return "<div>\n" +
-                "    <a href=\"" + uriInfo + "user/ratings/" + reservation + "/rate?rate=" + stars + "\">\n" +
+                "    <a href=\"" + getHostInfo(uriInfo) + "user/ratings/" + reservation + "/rate?rate=" + stars + "\">\n" +
                 "        <button type=\"submit\" class=\"btn btn-lg\">\n" +
                 "            <span>" + star + "</span>\n" +
                                 getAmountOfStars(star) +

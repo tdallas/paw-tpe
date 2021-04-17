@@ -1,8 +1,6 @@
 package ar.edu.itba.paw.services;
 
-import ar.edu.itba.paw.interfaces.daos.ReservationDao;
 import ar.edu.itba.paw.interfaces.daos.RoomDao;
-import ar.edu.itba.paw.interfaces.daos.UserDao;
 import ar.edu.itba.paw.interfaces.dtos.ReservationResponse;
 import ar.edu.itba.paw.interfaces.dtos.RoomResponse;
 import ar.edu.itba.paw.interfaces.exceptions.EntityNotFoundException;
@@ -11,7 +9,6 @@ import ar.edu.itba.paw.interfaces.services.*;
 import ar.edu.itba.paw.models.charge.Charge;
 import ar.edu.itba.paw.models.dtos.CheckoutDTO;
 import ar.edu.itba.paw.models.reservation.Reservation;
-import ar.edu.itba.paw.models.room.Room;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -73,7 +70,7 @@ public class RoomServiceImpl implements RoomService {
         CheckoutDTO checkoutDTO = new CheckoutDTO(charges,
                 charges.size() > 0 ? chargeService.sumCharge(reservation.getId()) : 0d);
         reservationService.inactiveReservation(reservation.getId());
-        emailService.sendRateStayEmail(reservationHash, uriInfo.split("rooms")[0]);
+        emailService.sendRateStayEmail(reservationHash, uriInfo);
         return checkoutDTO;
     }
 
