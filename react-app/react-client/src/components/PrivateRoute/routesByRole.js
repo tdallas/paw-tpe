@@ -10,6 +10,7 @@ export const managerPaths = [
   "/reservation",
   "/checkin",
   "/login",
+  "/rates",
   "/checkout/:reservationId/expenses",
 ];
 
