@@ -29,7 +29,7 @@ export const PrivateRoute = ({
 
       if (!currentUser || !role) {
         // not logged in so redirect to login page with the return url
-        return <Redirect to={{ pathname: "/login" }} />;
+        return <Redirect to={{ pathname: "/login", search: `?redirectTo=${routeProps.location.pathname}` }} />;
       }
 
       if (role === CLIENT) {

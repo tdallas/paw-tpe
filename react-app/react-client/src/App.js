@@ -60,8 +60,8 @@ const App = () => {
         <PrivateRoute exact path="/" component={isClient ? UserPrincipal : Principal}/>
         <PrivateRoute path="/login" component={Login} setIsLoggedIn={handleSetIsLoggedIn} setIsClient={handleSetIsClient}/>
         <PrivateRoute path="/checkin" component={CheckIn} />
-        <Route path="/rates" component={Rates} />
-        <Route path="/ratings/:reservationId/rate" component={UserRated} />
+        <PrivateRoute path="/rates" component={Rates} />
+        <PrivateRoute path="/ratings/:reservationId/rate" component={UserRated} />
         <PrivateRoute path="/reservation" component={Reservation} />
         <PrivateRoute path="/registration" component={Registration} />
         <PrivateRoute exact path="/checkout" component={CheckOut} />

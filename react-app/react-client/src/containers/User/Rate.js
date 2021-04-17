@@ -10,7 +10,6 @@ import {makeStyles} from "@material-ui/core/styles";
 import {useTranslation} from "react-i18next";
 import InfoSimpleDialog from "../../components/Dialog/SimpleDialog";
 import {rateStay} from "../../api/userApi";
-import {useHistory, useLocation} from "react-router-dom";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -53,27 +52,13 @@ const UserRated = () => {
   const { t } = useTranslation();
   const [modalMessage, setModalMessage] = useState();
   const {reservationId} = useParams();
-  const history = useHistory();
-  const lastLocation = useLocation();
 
   const ratingChanged = (rating) => {
     rateStay(reservationId, {rating}).then(() => {
       setModalMessage(t("ratings.thanks"));
-    }).catch((error) => {
-      if (error.response) {
-        if (error.response.status === 403) {
-          redirectToLogin();
-        }
-      }
+    }).catch(() => {
       setModalMessage(t("ratings.repeated"));
     });
-  }
-
-  const redirectToLogin = () => {
-    console.log("lastLocation", lastLocation);
-    console.log("lastLocation string", lastLocation.toString());
-    console.log("lastLocation pathname", lastLocation.pathname);
-    history.push(`/login?redirectTo=${lastLocation.pathname}`);
   }
 
   return (
