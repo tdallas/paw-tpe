@@ -31,15 +31,13 @@ public class UserController extends SimpleController {
     public static final String DEFAULT_FIRST_PAGE = "1";
     public static final String DEFAULT_PAGE_SIZE = "20";
 
-    private final MessageSourceExternalizer messageSourceExternalizer;
     private final UserService userService;
 
     @Context
     private UriInfo uriInfo;
 
     @Autowired
-    public UserController(MessageSourceExternalizer messageSourceExternalizer, UserService userService) {
-        this.messageSourceExternalizer = messageSourceExternalizer;
+    public UserController(UserService userService) {
         this.userService = userService;
     }
 
@@ -51,11 +49,10 @@ public class UserController extends SimpleController {
                                    @QueryParam("page") @DefaultValue(DEFAULT_FIRST_PAGE) int page,
                                    @QueryParam("limit") @DefaultValue(DEFAULT_PAGE_SIZE) int limit,
                                    @Context SecurityContext securityContext) {
-        // todo: mav was "expenses.jsp"
         LOGGER.info("Request received to retrieve all expenses on reservation with id " + reservationId);
         List<ChargesByUserResponse> chargesByUser = userService.checkProductsPurchasedByUserByReservationId(getUserEmailFromJwt(securityContext), reservationId);
-        System.out.println(chargesByUser);
-        System.out.println(reservationId);
+//        System.out.println(chargesByUser);
+//        System.out.println(reservationId);
 
         return Response.ok(chargesByUser).build();
     }
@@ -75,7 +72,6 @@ public class UserController extends SimpleController {
     public Response getAllProducts(@PathParam("reservationId") long reservationId,
                                    @QueryParam("page") @DefaultValue(DEFAULT_FIRST_PAGE) int page,
                                    @QueryParam("limit") @DefaultValue(DEFAULT_PAGE_SIZE) int limit) {
-        // todo: mav was "browseProducts.jsp"
         LOGGER.info("Request received to retrieve all products list");
         PaginatedDTO<ProductResponse> productList;
         try {
@@ -92,7 +88,6 @@ public class UserController extends SimpleController {
     public Response buyProduct(@PathParam("reservationId") long reservationId, @PathParam("productId") Long productId) throws EntityNotFoundException {
         LOGGER.info("Request received to buy products on reservation with id " + reservationId);
         if (productId != null) {
-            // todo: mav was "buyProducts.jsp"
             Charge charge = userService.addCharge(productId, reservationId);
             URI uri = uriInfo.getAbsolutePathBuilder().path("/" + charge.getId()).build();
             return Response.created(uri).build();
@@ -108,7 +103,6 @@ public class UserController extends SimpleController {
                                 @RequestBody HelpRequest helpRequest) throws EntityNotFoundException {
         LOGGER.info("Help request made on reservation with id " + reservationId);
         if (helpRequest.getHelpDescription() != null) {
-            // todo: mav was "requestHelp.jsp"
             System.out.println("id ---> " + reservationId);
 
             System.out.println("help ---> " + helpRequest.getHelpDescription());

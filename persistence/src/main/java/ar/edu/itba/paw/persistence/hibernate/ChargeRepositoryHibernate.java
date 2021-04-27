@@ -16,7 +16,7 @@ import javax.persistence.criteria.Root;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
+import org.springframework.transaction.annotation.Transactional;
 
 @Repository
 public class ChargeRepositoryHibernate extends SimpleRepositoryHibernate<Charge> implements ChargeDao {
@@ -64,7 +64,7 @@ public class ChargeRepositoryHibernate extends SimpleRepositoryHibernate<Charge>
     @Override
     public List<Charge> findChargesByReservationId(long reservationId) {
         return em.createQuery("SELECT c FROM Charge AS c WHERE c.reservation.id = :reservationId", Charge.class)
-                .setParameter("reservationId", reservationId).getResultList();
+            .setParameter("reservationId", reservationId).getResultList();
     }
 
     @Override
@@ -77,17 +77,20 @@ public class ChargeRepositoryHibernate extends SimpleRepositoryHibernate<Charge>
         cqCount.where(builder.and(wherePredicate));
         long count = em.createQuery(cqCount).getSingleResult();
 
-        List<Charge> reservationCharges = em.createQuery("SELECT c FROM Charge AS c WHERE c.reservation.id = :reservationId", Charge.class)
-                .setParameter("reservationId", reservationId)
-                .setFirstResult((page - 1) * pageSize)
-                .setMaxResults(pageSize)
-                .getResultList();
+        List<Charge> reservationCharges = em
+            .createQuery("SELECT c FROM Charge AS c WHERE c.reservation.id = :reservationId", Charge.class)
+            .setParameter("reservationId", reservationId)
+            .setFirstResult((page - 1) * pageSize)
+            .setMaxResults(pageSize)
+            .getResultList();
         return new PaginatedDTO<>(reservationCharges, count);
     }
 
     @Override
     public double sumCharge(long reservationId) {
-        final TypedQuery<Double> query = em.createQuery("SELECT SUM(c.product.price) FROM Charge AS c WHERE c.reservation.id = :reservationId", Double.class);
+        final TypedQuery<Double> query = em
+            .createQuery("SELECT SUM(c.product.price) FROM Charge AS c WHERE c.reservation.id = :reservationId",
+                Double.class);
         query.setParameter("reservationId", reservationId);
         List<Double> resultList = query.getResultList();
         return resultList.size() > 0 && resultList.get(0) != null ? resultList.get(0) : 0d;
@@ -103,16 +106,19 @@ public class ChargeRepositoryHibernate extends SimpleRepositoryHibernate<Charge>
         cqCount.where(builder.and(wherePredicate));
         long count = em.createQuery(cqCount).getSingleResult();
 
-        List<Charge> charges = em.createQuery("SELECT c FROM Charge AS c WHERE c.delivered = FALSE ORDER BY c.reservation.id", Charge.class)
-                .setFirstResult((page - 1) * pageSize)
-                .setMaxResults(pageSize)
-                .getResultList();
+        List<Charge> charges = em
+            .createQuery("SELECT c FROM Charge AS c WHERE c.delivered = FALSE ORDER BY c.reservation.id",
+                Charge.class)
+            .setFirstResult((page - 1) * pageSize)
+            .setMaxResults(pageSize)
+            .getResultList();
         return new PaginatedDTO<>(charges, count);
     }
 
     @Override
     public int updateChargeToDelivered(long chargeId) {
-        final TypedQuery<ar.edu.itba.paw.models.charge.Charge> query = em.createQuery("SELECT c FROM Charge AS c WHERE c.id = :chargeId", Charge.class);
+        final TypedQuery<ar.edu.itba.paw.models.charge.Charge> query = em
+            .createQuery("SELECT c FROM Charge AS c WHERE c.id = :chargeId", Charge.class);
         query.setParameter("chargeId", chargeId);
         final Charge charge = query.getSingleResult();
         if (charge != null) {
@@ -125,9 +131,12 @@ public class ChargeRepositoryHibernate extends SimpleRepositoryHibernate<Charge>
 
     @Override
     public List<Charge> findChargesByRoomNumber(int roomNumber) {
-        return em.createQuery("SELECT c FROM Charge AS c WHERE c.delivered = FALSE AND c.reservation.room.number = :roomNumber", Charge.class)
-                .setParameter("roomNumber", roomNumber)
-                .getResultList();
+        return em
+            .createQuery(
+                "SELECT c FROM Charge AS c WHERE c.delivered = FALSE AND c.reservation.room.number = :roomNumber",
+                Charge.class)
+            .setParameter("roomNumber", roomNumber)
+            .getResultList();
     }
 
     @Override
@@ -141,21 +150,33 @@ public class ChargeRepositoryHibernate extends SimpleRepositoryHibernate<Charge>
         cqCount.where(builder.and(new Predicate[]{wherePredicate1, wherePredicate2}));
         long count = em.createQuery(cqCount).getSingleResult();
 
-        List<Charge> charges = em.createQuery("SELECT c FROM Charge AS c WHERE c.delivered = FALSE AND c.reservation.room.number = :roomNumber", Charge.class)
-                .setParameter("roomNumber", roomNumber)
-                .setFirstResult((page - 1) * pageSize)
-                .setMaxResults(pageSize)
-                .getResultList();
+        List<Charge> charges = em
+            .createQuery(
+                "SELECT c FROM Charge AS c WHERE c.delivered = FALSE AND c.reservation.room.number = :roomNumber",
+                Charge.class)
+            .setParameter("roomNumber", roomNumber)
+            .setFirstResult((page - 1) * pageSize)
+            .setMaxResults(pageSize)
+            .getResultList();
         return new PaginatedDTO<>(charges, count);
     }
 
     @Override
+    @Transactional
     public int updateChargesToDelivered(long roomId) {
-        final TypedQuery<ar.edu.itba.paw.models.charge.Charge> query =
-                em.createQuery("UPDATE Charge AS c set delivered = true " +
-                        "WHERE c.reservation.room.id = :roomId", Charge.class);
+        final TypedQuery<Charge> query = em
+            .createQuery("SELECT c FROM Charge AS c WHERE c.reservation.room.id = :roomId AND c.delivered = FALSE",
+                Charge.class);
         query.setParameter("roomId", roomId);
-        return query.executeUpdate();
+        final List<Charge> roomCharges = query.getResultList();
+        if (roomCharges == null) {
+            return 0;
+        }
+        for (Charge c : roomCharges) {
+            c.setProductDelivered();
+            save(c);
+        }
+        return roomCharges.size();
     }
 
     @Override

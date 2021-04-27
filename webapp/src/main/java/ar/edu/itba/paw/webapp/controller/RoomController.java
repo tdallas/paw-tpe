@@ -13,6 +13,7 @@ import ar.edu.itba.paw.models.reservation.Reservation;
 import ar.edu.itba.paw.webapp.dtos.OccupantsRequest;
 import ar.edu.itba.paw.webapp.dtos.ReservationRequest;
 import ar.edu.itba.paw.webapp.utils.JsonToCalendar;
+import javax.ws.rs.core.Response.Status;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -183,7 +184,7 @@ public class RoomController extends SimpleController {
     public Response sendOrder(@PathParam(value = "roomId") Long roomId) throws Exception {
         LOGGER.info("Order request sent for room with id: " + roomId);
         chargeService.setChargesToDelivered(roomId);
-        return Response.ok().build();
+        return Response.status(Status.NO_CONTENT).build();
     }
 
     @POST
