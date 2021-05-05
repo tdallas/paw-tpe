@@ -359,11 +359,11 @@
                     <version>${maven-war-plugin.version}</version>
                     <configuration>
                         <packagingExcludes>**/logback-test.xml</packagingExcludes>
-                        <webResources>
-                            <resource>
-                                <directory>${frontend-build-dir}</directory>
-                            </resource>
-                        </webResources>
+<!--                        <webResources>-->
+<!--                            <resource>-->
+<!--                                <directory>${frontend-build-dir}</directory>-->
+<!--                            </resource>-->
+<!--                        </webResources>-->
                     </configuration>
                 </plugin>
             </plugins>
