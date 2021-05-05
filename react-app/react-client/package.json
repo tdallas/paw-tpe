@@ -19,6 +19,7 @@
     "react-i18next": "11.8.5",
     "react-router-dom": "^5.2.0",
     "react-scripts": "1.1.5",
+    "stars-rating": "^1.1.0",
     "webpack-dev-server": "^2.11.3"
   },
   "scripts": {

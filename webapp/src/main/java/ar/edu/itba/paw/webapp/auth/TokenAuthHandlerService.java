@@ -6,6 +6,7 @@ import ar.edu.itba.paw.interfaces.exceptions.UnsupportedAuthorizationMethodExcep
 import ar.edu.itba.paw.models.user.User;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import org.slf4j.Logger;
@@ -87,7 +88,13 @@ public class TokenAuthHandlerService {
 
     public Optional<String> validateToken(String token) {
         LOGGER.info("Validating token...");
-        Claims tokenClaims = getAllClaimsFromToken(token);
+        Claims tokenClaims;
+        try {
+            tokenClaims = getAllClaimsFromToken(token);
+        } catch (ExpiredJwtException e) {
+            LOGGER.info("Token expired!");
+            return Optional.empty();
+        }
         if (tokenClaims != null) {
             if (!isTokenExpired(tokenClaims)) {
                 return Optional.of(tokenClaims.getSubject());

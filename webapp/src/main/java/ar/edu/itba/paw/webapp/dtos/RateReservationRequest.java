@@ -10,5 +10,5 @@ import lombok.Setter;
 @Getter
 @Setter
 public class RateReservationRequest {
-    private String rate;
+    private String rating;
 }

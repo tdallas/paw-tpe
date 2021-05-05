@@ -12,6 +12,7 @@ import ar.edu.itba.paw.models.charge.Charge;
 import ar.edu.itba.paw.models.dtos.PaginatedDTO;
 import ar.edu.itba.paw.models.help.Help;
 import ar.edu.itba.paw.models.product.Product;
+import ar.edu.itba.paw.models.reservation.Calification;
 import ar.edu.itba.paw.models.reservation.Reservation;
 import ar.edu.itba.paw.models.user.User;
 import org.slf4j.Logger;
@@ -117,8 +118,11 @@ public class UserServiceImpl implements UserService {
         if (reservation.getCalification() != null) {
             throw new RequestInvalidException();
         }
-        reservationDao.rateStay(reservation.getId(), rate);
-        emailService.sendConfirmationOfRate(reservationHash);
+        reservationDao.rateStay(reservation.getId(), transformRate(rate));
+    }
+
+    private String transformRate(String rate) {
+        return Calification.values()[Integer.parseInt(rate) - 1].name();
     }
 
     private boolean isValidString(String text) {

@@ -19,7 +19,8 @@ import Orders from "./containers/Orders/Orders";
 import HelpRequest from "./containers/HelpRequest/HelpRequest";
 import Navbar from "./components/Navbar/Navbar";
 import UserNavbar from "./components/Navbar/UserNavbar";
-import Rates from "./containers/Rates/Rates"
+import Rates from "./containers/Rates/Rates";
+import UserRated from "./containers/User/Rate";
 
 import UserPrincipal from "./containers/User/Principal";
 import UserHelp from "./containers/User/Help";
@@ -56,35 +57,21 @@ const App = () => {
         <div />
       )}
       <Switch>
-        <PrivateRoute
-          exact
-          path="/"
-          component={isClient ? UserPrincipal : Principal}
-        />
-        <PrivateRoute
-          path="/login"
-          component={Login}
-          setIsLoggedIn={handleSetIsLoggedIn}
-          setIsClient={handleSetIsClient}
-        />
+        <PrivateRoute exact path="/" component={isClient ? UserPrincipal : Principal}/>
+        <Route path="/login">
+          <Login setIsLoggedIn={handleSetIsLoggedIn} setIsClient={handleSetIsClient} isLoggedIn={isLoggedIn}/>
+        </Route>
         <PrivateRoute path="/checkin" component={CheckIn} />
-        <Route path="/rates" component={Rates} />
+        <PrivateRoute path="/rates" component={Rates} />
+        <PrivateRoute path="/ratings/:reservationId/rate" component={UserRated} />
         <PrivateRoute path="/reservation" component={Reservation} />
         <PrivateRoute path="/registration" component={Registration} />
         <PrivateRoute exact path="/checkout" component={CheckOut} />
-        <PrivateRoute
-          exact
-          path="/checkout/:reservationId/expenses"
-          component={CheckOutExpenses}
-        />
+        <PrivateRoute exact path="/checkout/:reservationId/expenses" component={CheckOutExpenses}/>
         <PrivateRoute path="/reservations" component={Reservations} />
         <PrivateRoute exact path="/products/:id" component={UserProducts} />
         <PrivateRoute exact path="/products" component={Products} />
-        <PrivateRoute
-          exact
-          path="/products/newProduct"
-          component={NewProduct}
-        />
+        <PrivateRoute exact path="/products/newProduct" component={NewProduct}/>
         <PrivateRoute path="/orders" component={Orders} />
         <PrivateRoute exact path="/help" component={HelpRequest} />
         <PrivateRoute exact path="/help/:id" component={UserHelp} />

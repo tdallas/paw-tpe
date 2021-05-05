@@ -20,7 +20,6 @@ import javax.ws.rs.*;
 import javax.ws.rs.core.*;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.List;
 
 @Controller
 @Path("products")
@@ -43,7 +42,6 @@ public class ProductController extends SimpleController {
     @Produces(value = {MediaType.APPLICATION_JSON})
     public Response products(@QueryParam("page") @DefaultValue(DEFAULT_FIRST_PAGE) int page,
                              @QueryParam("limit") @DefaultValue(DEFAULT_PAGE_SIZE) int limit) {
-        // todo: mav was "products.jsp"
         PaginatedDTO<ProductResponse> products;
         try {
             products = productService.getAll(page, limit);
@@ -57,7 +55,6 @@ public class ProductController extends SimpleController {
     @Path("/{id}/disable")
     @Produces(value = {MediaType.APPLICATION_JSON})
     public Response hideProduct(@PathParam(value = "id") long productId) throws Exception {
-        // todo: mav was "productDisable.jsp"
         boolean productsAffected;
         try {
             productsAffected = productService.disableProduct(productId);
@@ -74,7 +71,6 @@ public class ProductController extends SimpleController {
     @Path("/{id}/enable")
     @Produces(value = {MediaType.APPLICATION_JSON})
     public Response showProduct(@PathParam(value = "id") long productId) throws Exception {
-        // todo: mav was "productAvailable.jsp"
         boolean productsChanged;
         try {
             productsChanged = productService.enableProduct(productId);
