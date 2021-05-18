@@ -29,8 +29,9 @@ const useStyles = makeStyles((theme) => ({
 
 
 
-const emptyOccupant = { firstName: "", lastName: "" };
-const emptyOccupantCopy = () => Object.assign({}, ...emptyOccupant);
+const emptyOccupantCopy = () => ({ firstName: "", lastName: "" });
+
+console.log(emptyOccupantCopy, "emptyOccupantCopy")
 
 const addOccupantDiv = (
   index,

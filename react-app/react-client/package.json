@@ -29,5 +29,17 @@
     "eject": "react-scripts eject"
   },
   "proxy": "http://localhost:8080",
-  "homepage": "http://pawserver.it.itba.edu.ar/paw-2019b-2/"
+  "homepage": "http://pawserver.it.itba.edu.ar/paw-2019b-2/",
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  }
 }
