@@ -26,7 +26,7 @@ export const PrivateRoute = ({
         }
       } else if (role === MANAGER) {
         if (managerPaths.indexOf(path) === -1) {
-          return <Forbidden />;
+;          return <Forbidden />;
         }
       }
 

@@ -2,7 +2,7 @@ export const managerPaths = [
   "/",
   "/help",
   "/orders",
-  "/products/newProduct",
+  "/product/newProduct",
   "/products",
   "/reservations",
   "/checkout",

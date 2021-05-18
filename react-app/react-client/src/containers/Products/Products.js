@@ -66,7 +66,9 @@ const Products = ({ history }) => {
   };
 
   const addProduct = () => {
-    history.push("/products/newProduct");
+    history.push("/product/newProduct");
+
+    console.log(history, "history");
   };
 
   const back = () => {

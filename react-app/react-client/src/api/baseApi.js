@@ -18,9 +18,9 @@ const options = (token) => {
 }
 
 // FIXME add to configs
-// export const baseURL = "http://localhost:8080/api";
+export const baseURL = "http://localhost:8080/api";
 
-export const baseURL = "/paw-2019b-2/api";
+// export const baseURL = "/paw-2019b-2/api";
 
 
 export const post = async (url, body) =>

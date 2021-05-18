@@ -69,9 +69,9 @@ const App = () => {
         <PrivateRoute exact path="/checkout" component={CheckOut} />
         <PrivateRoute exact path="/checkout/:reservationId/expenses" component={CheckOutExpenses}/>
         <PrivateRoute path="/reservations" component={Reservations} />
+        <PrivateRoute exact path="/product/newProduct" component={NewProduct}/>
         <PrivateRoute exact path="/products/:id" component={UserProducts} />
         <PrivateRoute exact path="/products" component={Products} />
-        <PrivateRoute exact path="/products/newProduct" component={NewProduct}/>
         <PrivateRoute path="/orders" component={Orders} />
         <PrivateRoute exact path="/help" component={HelpRequest} />
         <PrivateRoute exact path="/help/:id" component={UserHelp} />
