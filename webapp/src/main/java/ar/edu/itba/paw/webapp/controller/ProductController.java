@@ -2,12 +2,16 @@ package ar.edu.itba.paw.webapp.controller;
 
 import ar.edu.itba.paw.interfaces.dtos.ProductResponse;
 import ar.edu.itba.paw.interfaces.exceptions.EntityNotFoundException;
+import ar.edu.itba.paw.interfaces.services.MessageSourceExternalizer;
 import ar.edu.itba.paw.interfaces.services.ProductService;
 import ar.edu.itba.paw.models.dtos.PaginatedDTO;
 import ar.edu.itba.paw.models.product.Product;
+import ar.edu.itba.paw.webapp.dtos.ErrorMessageResponse;
 import ar.edu.itba.paw.webapp.dtos.FileUploadResponse;
 import ar.edu.itba.paw.webapp.dtos.ProductRequest;
 import ar.edu.itba.paw.webapp.utils.FilesUtils;
+import java.io.FileNotFoundException;
+import javax.ws.rs.core.Response.Status;
 import org.glassfish.jersey.media.multipart.FormDataContentDisposition;
 import org.glassfish.jersey.media.multipart.FormDataParam;
 import org.slf4j.Logger;
@@ -29,13 +33,15 @@ public class ProductController extends SimpleController {
     public static final String DEFAULT_PAGE_SIZE = "20";
 
     private final ProductService productService;
+    private final MessageSourceExternalizer messageSourceExternalizer;
 
     @Context
     private UriInfo uriInfo;
 
     @Autowired
-    public ProductController(final ProductService productService) {
+    public ProductController(final ProductService productService, MessageSourceExternalizer messageSourceExternalizer) {
         this.productService = productService;
+        this.messageSourceExternalizer = messageSourceExternalizer;
     }
 
     @GET
@@ -48,7 +54,8 @@ public class ProductController extends SimpleController {
         } catch (IndexOutOfBoundsException e) {
             return Response.status(Response.Status.BAD_REQUEST).entity(e.getMessage()).build();
         }
-        return sendPaginatedResponse(page, limit, products.getMaxItems(), products.getList(), uriInfo.getAbsolutePathBuilder());
+        return sendPaginatedResponse(page, limit, products.getMaxItems(), products.getList(),
+            uriInfo.getAbsolutePathBuilder());
     }
 
     @POST
@@ -87,14 +94,23 @@ public class ProductController extends SimpleController {
     @Produces(value = {MediaType.APPLICATION_JSON})
     public Response addProduct(@RequestBody ProductRequest productRequest) throws IOException {
         if (productRequest.getPrice() < 0) {
-            return Response.status(Response.Status.BAD_REQUEST).entity("Price must be valid.").build();
+            ErrorMessageResponse errorMessage = new ErrorMessageResponse(Status.BAD_REQUEST.getStatusCode(),
+                messageSourceExternalizer.getMessage("product.price.positive"));
+            return Response.status(Response.Status.BAD_REQUEST).entity(errorMessage).build();
         }
         LOGGER.info("Request to add product to DB received");
-        Product newProduct = new Product(productRequest.getDescription(), productRequest.getPrice(),
+        Product newProduct;
+        try {
+            newProduct = new Product(productRequest.getDescription(), productRequest.getPrice(),
                 FilesUtils.loadImg(productRequest.getImgPath()));
+        } catch (FileNotFoundException fileNotFoundException) {
+            ErrorMessageResponse errorMessage = new ErrorMessageResponse(Status.NOT_FOUND.getStatusCode(),
+                messageSourceExternalizer.getMessage("product.img.missing"));
+            return Response.status(Status.NOT_FOUND).entity(errorMessage).build();
+        }
         newProduct = productService.saveProduct(newProduct);
         LOGGER.info("Product was saved successfully");
-        // TODO is this ok?
+        // fixme: should return new created uri. ResponseBuilder offers created(URI) method
         return Response.ok(newProduct).build();
     }
 

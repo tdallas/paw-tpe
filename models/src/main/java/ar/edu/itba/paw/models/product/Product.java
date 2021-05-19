@@ -13,8 +13,6 @@ import javax.persistence.*;
 @NoArgsConstructor
 @AllArgsConstructor
 @Table(name = "product")
-
-
 public class Product {
     public final static String KEY_ID = "id";
     public final static String KEY_DESCRIPTION = "description";
