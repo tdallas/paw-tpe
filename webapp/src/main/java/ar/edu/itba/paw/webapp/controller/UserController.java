@@ -4,6 +4,7 @@ import ar.edu.itba.paw.interfaces.dtos.ActiveReservationResponse;
 import ar.edu.itba.paw.interfaces.dtos.ChargesByUserResponse;
 import ar.edu.itba.paw.interfaces.dtos.ProductResponse;
 import ar.edu.itba.paw.interfaces.exceptions.EntityNotFoundException;
+import ar.edu.itba.paw.interfaces.exceptions.RequestInvalidException;
 import ar.edu.itba.paw.interfaces.services.MessageSourceExternalizer;
 import ar.edu.itba.paw.interfaces.services.UserService;
 import ar.edu.itba.paw.models.charge.Charge;
@@ -32,13 +33,15 @@ public class UserController extends SimpleController {
     public static final String DEFAULT_PAGE_SIZE = "20";
 
     private final UserService userService;
+    private final MessageSourceExternalizer messageSourceExternalizer;
 
     @Context
     private UriInfo uriInfo;
 
     @Autowired
-    public UserController(UserService userService) {
+    public UserController(UserService userService, MessageSourceExternalizer messageSourceExternalizer) {
         this.userService = userService;
+        this.messageSourceExternalizer = messageSourceExternalizer;
     }
 
 
@@ -50,10 +53,14 @@ public class UserController extends SimpleController {
                                    @QueryParam("limit") @DefaultValue(DEFAULT_PAGE_SIZE) int limit,
                                    @Context SecurityContext securityContext) {
         LOGGER.info("Request received to retrieve all expenses on reservation with id " + reservationId);
-        List<ChargesByUserResponse> chargesByUser = userService.checkProductsPurchasedByUserByReservationId(getUserEmailFromJwt(securityContext), reservationId);
-//        System.out.println(chargesByUser);
-//        System.out.println(reservationId);
-
+        List<ChargesByUserResponse> chargesByUser;
+        try {
+            chargesByUser = userService
+                .checkProductsPurchasedByUserByReservationId(getUserEmailFromJwt(securityContext), reservationId);
+        } catch (EntityNotFoundException e) {
+            return sendErrorMessageResponse(Status.NOT_FOUND,
+                messageSourceExternalizer.getMessage("reservation.notfound"));
+        }
         return Response.ok(chargesByUser).build();
     }
 
@@ -62,7 +69,8 @@ public class UserController extends SimpleController {
     public Response getActiveReservations(@QueryParam("page") @DefaultValue(DEFAULT_FIRST_PAGE) int page,
                                           @QueryParam("limit") @DefaultValue(DEFAULT_PAGE_SIZE) int limit,
                                           @Context SecurityContext securityContext) {
-        List<ActiveReservationResponse> activeReservations = userService.findActiveReservations(getUserEmailFromJwt(securityContext));
+        List<ActiveReservationResponse> activeReservations = userService
+            .findActiveReservations(getUserEmailFromJwt(securityContext));
         return Response.ok(new ActiveReservationsResponse(activeReservations)).build();
     }
 
@@ -77,7 +85,7 @@ public class UserController extends SimpleController {
         try {
             productList = userService.getProducts(page, limit);
         } catch (IndexOutOfBoundsException e) {
-            return Response.status(Response.Status.BAD_REQUEST).entity(e.getMessage()).build();
+            return sendErrorMessageResponse(Status.NOT_FOUND, messageSourceExternalizer.getMessage("error.404"));
         }
         return sendPaginatedResponse(page, limit, productList.getMaxItems(), productList.getList(), uriInfo.getAbsolutePathBuilder());
     }
@@ -92,23 +100,25 @@ public class UserController extends SimpleController {
             URI uri = uriInfo.getAbsolutePathBuilder().path("/" + charge.getId()).build();
             return Response.created(uri).build();
         }
-        return Response.status(Response.Status.BAD_REQUEST).build();
+        return sendErrorMessageResponse(Status.NOT_FOUND,
+            messageSourceExternalizer.getMessage("product.notfound"));
     }
 
-    // TODO FIXME
     @POST
     @Path("/{reservationId}/help")
     @Produces(value = {MediaType.APPLICATION_JSON})
     public Response requestHelp(@PathParam("reservationId") long reservationId,
-                                @RequestBody HelpRequest helpRequest) throws EntityNotFoundException {
+                                @RequestBody HelpRequest helpRequest) {
         LOGGER.info("Help request made on reservation with id " + reservationId);
         if (helpRequest.getHelpDescription() != null) {
-            System.out.println("id ---> " + reservationId);
-
-            System.out.println("help ---> " + helpRequest.getHelpDescription());
-            Help helpRequested = userService.requestHelp(helpRequest.getHelpDescription(), reservationId);
-            // do something with this help object
-            return Response.ok().build();
+            Help helpRequested;
+            try {
+                helpRequested = userService.requestHelp(helpRequest.getHelpDescription(), reservationId);
+            } catch (EntityNotFoundException e) {
+                return sendErrorMessageResponse(Status.NOT_FOUND,
+                    messageSourceExternalizer.getMessage("reservation.notfound"));
+            }
+            return Response.created(URI.create(uriInfo.getRequestUri() + "/" + helpRequested.getId())).build();
         }
         return Response.status(Response.Status.BAD_REQUEST).build();
     }
@@ -120,11 +130,14 @@ public class UserController extends SimpleController {
                          @RequestBody RateReservationRequest rateRequest) {
         try {
             userService.rateStay(rateRequest.getRating(), reservationHash);
-            // fixme send correct location uri? this rated stay is not public to the client
-            return Response.ok().build();
-        } catch (Exception e) {
-            LOGGER.debug(e.getMessage());
+            // send location uri? this rated stay is not public to the client, only to manager
+            return Response.noContent().build();
+        } catch (EntityNotFoundException e) {
+            return sendErrorMessageResponse(Status.NOT_FOUND,
+                messageSourceExternalizer.getMessage("reservation.notfound"));
+        } catch (RequestInvalidException e) {
+            return sendErrorMessageResponse(Status.INTERNAL_SERVER_ERROR,
+                messageSourceExternalizer.getMessage("error.500"));
         }
-        return Response.status(Status.NOT_FOUND).build();
     }
 }

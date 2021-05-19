@@ -49,7 +49,7 @@ public class UserServiceImplTest {
     private final User newUser = new User(NEW_EMAIL, "newEmail", "newEmail");
 
     @Before
-    public void init() {
+    public void init() throws EntityNotFoundException {
         product.setId(1L);
         reservation.setId(1L);
         Map<Product, Integer> productIntegerMap = new HashMap<>();
@@ -68,14 +68,14 @@ public class UserServiceImplTest {
     }
 
     @Test
-    public void getProductsBoughtByValidReservationIdTest() {
+    public void getProductsBoughtByValidReservationIdTest() throws EntityNotFoundException {
         List<ChargesByUserResponse> charges = userService.checkProductsPurchasedByUserByReservationId("email", 1L);
         assertEquals("Product should have one element", 1, charges.size());
         assertNotNull(charges.get(0));
     }
 
     @Test
-    public void getProductsBoughtByNonValidReservationIdTest() {
+    public void getProductsBoughtByNonValidReservationIdTest() throws EntityNotFoundException {
         List<ChargesByUserResponse> charges = userService.checkProductsPurchasedByUserByReservationId("invalidEmail", 2L);
         assertEquals("Product should have no element", 0, charges.size());
     }

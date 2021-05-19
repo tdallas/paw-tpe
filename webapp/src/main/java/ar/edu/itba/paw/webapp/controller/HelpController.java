@@ -24,13 +24,15 @@ public class HelpController extends SimpleController {
     public static final String DEFAULT_PAGE_SIZE = "20";
 
     private final HelpService helpService;
+    private final MessageSourceExternalizer messageSourceExternalizer;
 
     @Context
     private UriInfo uriInfo;
 
     @Autowired
-    public HelpController(HelpService helpService) {
+    public HelpController(HelpService helpService, MessageSourceExternalizer messageSourceExternalizer) {
         this.helpService = helpService;
+        this.messageSourceExternalizer = messageSourceExternalizer;
     }
 
     @GET
@@ -42,8 +44,7 @@ public class HelpController extends SimpleController {
         try {
             helpRequests = helpService.getAllRequestsThatRequireAction(page, limit);
         } catch (IndexOutOfBoundsException e) {
-            ErrorMessageResponse msg = new ErrorMessageResponse(Status.BAD_REQUEST.getStatusCode(), e.getMessage());
-            return Response.status(Status.BAD_REQUEST).entity(msg).build();
+            return sendErrorMessageResponse(Status.NOT_FOUND, messageSourceExternalizer.getMessage("error.404"));
         }
         return sendPaginatedResponse(page, limit, helpRequests.getMaxItems(), helpRequests.getList(), uriInfo.getAbsolutePathBuilder());
     }
@@ -60,9 +61,9 @@ public class HelpController extends SimpleController {
                 return help(page, limit);
             }
         } catch (IndexOutOfBoundsException e) {
-            ErrorMessageResponse msg = new ErrorMessageResponse(Status.BAD_REQUEST.getStatusCode(), e.getMessage());
-            return Response.status(Status.BAD_REQUEST).entity(msg).build();
+            return sendErrorMessageResponse(Status.NOT_FOUND, messageSourceExternalizer.getMessage("error.404"));
         }
-        return Response.status(Response.Status.BAD_REQUEST).build();
+        return sendErrorMessageResponse(Status.BAD_REQUEST,
+            messageSourceExternalizer.getMessage("help.status.error"));
     }
 }

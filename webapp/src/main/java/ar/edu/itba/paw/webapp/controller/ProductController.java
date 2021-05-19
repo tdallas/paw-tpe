@@ -6,11 +6,11 @@ import ar.edu.itba.paw.interfaces.services.MessageSourceExternalizer;
 import ar.edu.itba.paw.interfaces.services.ProductService;
 import ar.edu.itba.paw.models.dtos.PaginatedDTO;
 import ar.edu.itba.paw.models.product.Product;
-import ar.edu.itba.paw.webapp.dtos.ErrorMessageResponse;
 import ar.edu.itba.paw.webapp.dtos.FileUploadResponse;
 import ar.edu.itba.paw.webapp.dtos.ProductRequest;
 import ar.edu.itba.paw.webapp.utils.FilesUtils;
 import java.io.FileNotFoundException;
+import java.net.URI;
 import javax.ws.rs.core.Response.Status;
 import org.glassfish.jersey.media.multipart.FormDataContentDisposition;
 import org.glassfish.jersey.media.multipart.FormDataParam;
@@ -52,7 +52,7 @@ public class ProductController extends SimpleController {
         try {
             products = productService.getAll(page, limit);
         } catch (IndexOutOfBoundsException e) {
-            return Response.status(Response.Status.BAD_REQUEST).entity(e.getMessage()).build();
+            return sendErrorMessageResponse(Status.BAD_REQUEST, messageSourceExternalizer.getMessage("error.404"));
         }
         return sendPaginatedResponse(page, limit, products.getMaxItems(), products.getList(),
             uriInfo.getAbsolutePathBuilder());
@@ -66,12 +66,14 @@ public class ProductController extends SimpleController {
         try {
             productsAffected = productService.disableProduct(productId);
         } catch (EntityNotFoundException e) {
-            return Response.status(Response.Status.NOT_FOUND).build();
+            return sendErrorMessageResponse(Status.NOT_FOUND,
+                messageSourceExternalizer.getMessage("product.notfound"));
         }
         if (productsAffected) {
             return Response.ok().build();
         }
-        return Response.status(Response.Status.CONFLICT).build();
+        return sendErrorMessageResponse(Status.CONFLICT,
+            messageSourceExternalizer.getMessage("product.error.status"));
     }
 
     @POST
@@ -82,21 +84,22 @@ public class ProductController extends SimpleController {
         try {
             productsChanged = productService.enableProduct(productId);
         } catch (EntityNotFoundException e) {
-            return Response.status(Response.Status.NOT_FOUND).build();
+            return sendErrorMessageResponse(Status.NOT_FOUND,
+                messageSourceExternalizer.getMessage("product.notfound"));
         }
         if (productsChanged) {
             return Response.ok().build();
         }
-        return Response.status(Response.Status.CONFLICT).build();
+        return sendErrorMessageResponse(Status.CONFLICT,
+            messageSourceExternalizer.getMessage("product.error.status"));
     }
 
     @POST
     @Produces(value = {MediaType.APPLICATION_JSON})
     public Response addProduct(@RequestBody ProductRequest productRequest) throws IOException {
         if (productRequest.getPrice() < 0) {
-            ErrorMessageResponse errorMessage = new ErrorMessageResponse(Status.BAD_REQUEST.getStatusCode(),
+            return sendErrorMessageResponse(Status.BAD_REQUEST,
                 messageSourceExternalizer.getMessage("product.price.positive"));
-            return Response.status(Response.Status.BAD_REQUEST).entity(errorMessage).build();
         }
         LOGGER.info("Request to add product to DB received");
         Product newProduct;
@@ -104,14 +107,12 @@ public class ProductController extends SimpleController {
             newProduct = new Product(productRequest.getDescription(), productRequest.getPrice(),
                 FilesUtils.loadImg(productRequest.getImgPath()));
         } catch (FileNotFoundException fileNotFoundException) {
-            ErrorMessageResponse errorMessage = new ErrorMessageResponse(Status.NOT_FOUND.getStatusCode(),
+            return sendErrorMessageResponse(Status.NOT_FOUND,
                 messageSourceExternalizer.getMessage("product.img.missing"));
-            return Response.status(Status.NOT_FOUND).entity(errorMessage).build();
         }
         newProduct = productService.saveProduct(newProduct);
         LOGGER.info("Product was saved successfully");
-        // fixme: should return new created uri. ResponseBuilder offers created(URI) method
-        return Response.ok(newProduct).build();
+        return Response.created(URI.create(uriInfo.getRequestUri() + "/" + newProduct.getId())).build();
     }
 
     @POST
@@ -119,16 +120,29 @@ public class ProductController extends SimpleController {
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.MULTIPART_FORM_DATA)
     public Response loadProductFile(@FormDataParam("file") InputStream file,
-                                    @FormDataParam("file") FormDataContentDisposition fileDetail) throws IOException {
+                                    @FormDataParam("file") FormDataContentDisposition fileDetail) {
         String fileName = fileDetail.getFileName();
-        String pathToFile = FilesUtils.saveFile(file, fileName);
+        String pathToFile;
+        try {
+            pathToFile = FilesUtils.saveFile(file, fileName);
+        } catch (IOException e) {
+            return sendErrorMessageResponse(Status.INTERNAL_SERVER_ERROR,
+                messageSourceExternalizer.getMessage("error.500"));
+        }
         return Response.ok(new FileUploadResponse(pathToFile)).build();
     }
 
     @GET
     @Path(value = "/{productId}/img")
     @Produces("image/png")
-    public Response getImgForProduct(@PathParam("productId") long productId) throws EntityNotFoundException {
-        return Response.ok(productService.findProductById(productId).getFile()).build();
+    public Response getImgForProduct(@PathParam("productId") long productId) {
+        Product product;
+        try {
+            product = productService.findProductById(productId);
+        } catch (EntityNotFoundException e) {
+            return sendErrorMessageResponse(Status.NOT_FOUND,
+                messageSourceExternalizer.getMessage("product.notfound"));
+        }
+        return Response.ok(product.getFile()).build();
     }
 }

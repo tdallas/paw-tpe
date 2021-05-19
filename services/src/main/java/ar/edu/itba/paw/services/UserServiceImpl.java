@@ -67,7 +67,8 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public List<ChargesByUserResponse> checkProductsPurchasedByUserByReservationId(String userEmail, long reservationId) {
+    public List<ChargesByUserResponse> checkProductsPurchasedByUserByReservationId(String userEmail, long reservationId)
+        throws EntityNotFoundException {
         Map<Product, Integer> productToQtyMap = chargeDao.getAllChargesByUser(userEmail, reservationId);
         return productToQtyMap.keySet().stream().map(
                 product -> new ChargesByUserResponse(product.getDescription(), product.getId(), product.getPrice(), productToQtyMap.get(product))

@@ -14,7 +14,7 @@ import java.util.List;
 
 public interface UserService {
 
-    List<ChargesByUserResponse> checkProductsPurchasedByUserByReservationId(String userEmail, long reservationId);
+    List<ChargesByUserResponse> checkProductsPurchasedByUserByReservationId(String userEmail, long reservationId) throws EntityNotFoundException;
 
     List<ActiveReservationResponse> findActiveReservations(String userEmail);
 
