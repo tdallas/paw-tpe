@@ -2,9 +2,12 @@ package ar.edu.itba.paw.webapp.controller;
 
 import ar.edu.itba.paw.interfaces.dtos.CalificationResponse;
 import ar.edu.itba.paw.interfaces.exceptions.EntityNotFoundException;
+import ar.edu.itba.paw.interfaces.services.MessageSourceExternalizer;
 import ar.edu.itba.paw.interfaces.services.RatingsService;
 import ar.edu.itba.paw.models.dtos.PaginatedDTO;
 import ar.edu.itba.paw.models.dtos.RatingDTO;
+import ar.edu.itba.paw.webapp.dtos.ErrorMessageResponse;
+import javax.ws.rs.core.Response.Status;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,7 +15,6 @@ import org.springframework.stereotype.Controller;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.*;
-import java.util.List;
 
 @Controller
 @Path("ratings")
@@ -22,13 +24,15 @@ public class RatingsController extends SimpleController {
     public static final String DEFAULT_PAGE_SIZE = "20";
 
     private final RatingsService ratingsService;
+    private final MessageSourceExternalizer messageSourceExternalizer;
 
     @Context
     private UriInfo uriInfo;
 
     @Autowired
-    public RatingsController(RatingsService ratingsService) {
+    public RatingsController(RatingsService ratingsService, MessageSourceExternalizer messageSourceExternalizer) {
         this.ratingsService = ratingsService;
+        this.messageSourceExternalizer = messageSourceExternalizer;
     }
 
     @GET
@@ -38,7 +42,7 @@ public class RatingsController extends SimpleController {
         try {
             hotelRating = ratingsService.getHotelRating();
         } catch (Exception e) {
-            return Response.status(Response.Status.BAD_REQUEST).entity(e.getMessage()).build();
+            return sendErrorMessageResponse(Status.NOT_FOUND, messageSourceExternalizer.getMessage("error.404"));
         }
         return Response.ok(hotelRating).build();
     }
@@ -52,7 +56,7 @@ public class RatingsController extends SimpleController {
         try {
             cals = ratingsService.getAllHotelRatings(page, limit);
         } catch (IndexOutOfBoundsException e) {
-            return Response.status(Response.Status.BAD_REQUEST).entity(e.getMessage()).build();
+            return sendErrorMessageResponse(Status.NOT_FOUND, messageSourceExternalizer.getMessage("error.404"));
         }
         return sendPaginatedResponse(page, limit, cals.getMaxItems(), cals.getList(), uriInfo.getAbsolutePathBuilder());
     }
@@ -65,7 +69,7 @@ public class RatingsController extends SimpleController {
         try {
             roomRating = ratingsService.getRoomRating(roomNumber);
         } catch (Exception e) {
-            return Response.status(Response.Status.NOT_FOUND).entity(e.getMessage()).build();
+            return sendErrorMessageResponse(Status.NOT_FOUND, messageSourceExternalizer.getMessage("error.404"));
         }
         return Response.ok(roomRating).build();
     }
@@ -80,9 +84,10 @@ public class RatingsController extends SimpleController {
         try {
             ratings = ratingsService.getAllRoomRatings(roomNumber, page, limit);
         } catch (IndexOutOfBoundsException e) {
-            return Response.status(Response.Status.BAD_REQUEST).entity(e.getMessage()).build();
+            return sendErrorMessageResponse(Status.NOT_FOUND, messageSourceExternalizer.getMessage("error.404"));
         } catch (EntityNotFoundException e) {
-            return Response.status(Response.Status.NOT_FOUND).entity(e.getMessage()).build();
+            return sendErrorMessageResponse(Status.NOT_FOUND,
+                messageSourceExternalizer.getMessage("room.notfound"));
         }
         return sendPaginatedResponse(page, limit, ratings.getMaxItems(), ratings.getList(), uriInfo.getAbsolutePathBuilder());
     }

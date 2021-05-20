@@ -1,6 +1,8 @@
 package ar.edu.itba.paw.webapp.controller;
 
+import ar.edu.itba.paw.webapp.dtos.ErrorMessageResponse;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.core.SecurityContext;
 import javax.ws.rs.core.UriBuilder;
 import java.io.Serializable;
@@ -19,5 +21,9 @@ public class SimpleController {
                 .link(uriBuilder.replaceQueryParam("page", currentPage < ((double) totalCount / limit) ? currentPage + 1 : currentPage).build(), "next")
                 .header("X-Total-Count", totalCount)
                 .build();
+    }
+
+    protected Response sendErrorMessageResponse(Response.Status status, String message) {
+        return Response.status(status).entity(new ErrorMessageResponse(status.getStatusCode(), message)).build();
     }
 }
