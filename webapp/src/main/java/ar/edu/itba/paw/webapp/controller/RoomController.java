@@ -137,7 +137,8 @@ public class RoomController extends SimpleController {
         try {
             reservation = roomService.doCheckin(reservationId);
         } catch (RequestInvalidException e) {
-            return sendErrorMessageResponse(Status.CONFLICT, messageSourceExternalizer.getMessage("error.500"));
+            return sendErrorMessageResponse(Status.CONFLICT,
+                messageSourceExternalizer.getMessage("reservation.checkin.error"));
         } catch (EntityNotFoundException | NoResultException e) {
             return sendErrorMessageResponse(Status.BAD_REQUEST, messageSourceExternalizer.getMessage("error.404"));
         }
@@ -154,8 +155,11 @@ public class RoomController extends SimpleController {
     public Response checkoutPost(@PathParam(value = "reservationHash") final String reservationHash) throws EntityNotFoundException {
         try {
             roomService.doCheckout(reservationHash, uriInfo.getBaseUri().toString());
-        } catch (RequestInvalidException | EntityNotFoundException | NoResultException e) {
+        } catch (EntityNotFoundException | NoResultException e) {
             return sendErrorMessageResponse(Status.NOT_FOUND, messageSourceExternalizer.getMessage("error.404"));
+        } catch (RequestInvalidException e) {
+            return sendErrorMessageResponse(Status.CONFLICT,
+                messageSourceExternalizer.getMessage("reservation.checkout.error"));
         }
         return Response.ok(chargeService.checkProductsPurchasedInCheckOut(reservationHash)).build();
     }
