@@ -46,6 +46,14 @@ public class ReservationServiceImpl implements ReservationService {
     }
 
     @Override
+    @Transactional
+    public ReservationResponse getReservationById(long reservationId) throws EntityNotFoundException {
+        LOGGER.info("About to get reservation with id " + reservationId);
+        return ReservationResponse.fromReservation(reservationDao.findById(reservationId).orElseThrow(
+            () -> new EntityNotFoundException("Reservation with id " + reservationId + " not found")));
+    }
+
+    @Override
     public Reservation getReservationByHash(String hash) throws EntityNotFoundException {
         LOGGER.info("About to get reservation with hash " + hash);
         return reservationDao.findReservationByHash(hash.trim()).orElseThrow(
@@ -106,7 +114,7 @@ public class ReservationServiceImpl implements ReservationService {
 
     @Transactional
     @Override
-    public Reservation doReservation(long roomId, String userEmail, Calendar startDate, Calendar endDate) throws RequestInvalidException {
+    public ReservationResponse doReservation(long roomId, String userEmail, Calendar startDate, Calendar endDate) throws RequestInvalidException {
         final boolean isValidDate = isValidDate(startDate, endDate);
         final boolean isRoomFree = isRoomFreeOnDate(roomId, startDate, endDate);
         if (!isValidDate || !isRoomFree) {
@@ -120,7 +128,7 @@ public class ReservationServiceImpl implements ReservationService {
         Reservation reservation = reservationDao.save(new Reservation(room, userEmail, startDate, endDate, user));
         LOGGER.info("Sending email with confirmation of reservation to user");
         emailService.sendConfirmationOfReservation(userEmail, reservation.getHash());
-        return reservation;
+        return ReservationResponse.fromReservation(reservation);
     }
 
     @Override
