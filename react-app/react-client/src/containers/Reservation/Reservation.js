@@ -46,6 +46,7 @@ const Reservation = ({ history }) => {
   const [showDialog, updateShowDialog] = useState(false);
   const [loading, updateShowLoading] = useState(false);
   const [info, updateInfo] = useState(undefined);
+  const [responseError, setResponseError] = useState(false);
 
   const handleDialogClose = () => {
     updateShowDialog(false);
@@ -98,16 +99,19 @@ const Reservation = ({ history }) => {
       return;
     else {
       updateShowLoading(true);
+      setResponseError(false);
       doReservation({ startDate, endDate, userEmail, roomId })
         .then((response) => {
           updateShowLoading(false);
           updateShowDialog(true);
           updateInfo(response.data);
         })
-        .catch(() => {
+        .catch((error, response) => {
           updateShowLoading(false);
           updateShowDialog(true);
-          updateInfo(undefined);
+          setResponseError(true);
+          console.log("response", error.response.data.message);
+          updateInfo(error.response.data.message);
         });
     }
   };
@@ -130,14 +134,14 @@ const Reservation = ({ history }) => {
               Id="from"
               label={t("room.room.from")}
               onChange={dateFromOnChange}
-            ></DatePicker>
+            />
           </Col>
           <Col xs={12} md={6}>
             <DatePicker
               Id="to"
               label={t("room.room.until")}
               onChange={dateToOnChange}
-            ></DatePicker>
+            />
           </Col>
         </Row>
         <Row className={classes.row}>
@@ -147,7 +151,7 @@ const Reservation = ({ history }) => {
               Id="search-availability"
               ButtonText={t("room.room.filter")}
               onClick={showRoomsHandler(dateFrom, dateTo)}
-            ></Button>
+            />
           </Col>
         </Row>
         <Row className={classes.row}>
@@ -169,22 +173,25 @@ const Reservation = ({ history }) => {
                 roomId: room,
               })}
               ButtonText={t("accept")}
-            ></Button>
+            />
           </Col>
           <Col xs={6} md={2}>
             <Button
               ButtonType="Back"
               onClick={reservationCancel}
               ButtonText={t("back")}
-            ></Button>
+            />
           </Col>
         </Row>
         <InfoSimpleDialog open={loading} title={t('loading')} />
-        <InfoSimpleDialog open={showDialog} onClose={handleDialogClose} title={info ? "La reserva se realizo correctamente!" : ''}>
-          {info ? <div>
-            <div>{t("reservation.number")}: {info.reservationHash}</div>
-            <div>{t("ratings.roomNumber")}: {info.roomNumber}</div>
-          </div> : <div>{t('reservation.checkin.error')}</div>}
+        <InfoSimpleDialog open={showDialog} onClose={handleDialogClose} title={!responseError ? t('success') : ''}>
+          {!responseError && info ? <div>
+            <div>{t("reservation.number")}: {info.hash}</div>
+            <div>{t("ratings.roomNumber")}: {info.room.number}</div>
+            <div>{t("reservation.date.start")}: {info.startDate}</div>
+            <div>{t("reservation.date.end")}: {info.endDate}</div>
+            <div>{t("reservation.email")}: {info.userEmail}</div>
+          </div> : <div>{info ? info : t('reservation.checkin.error')}</div>}
         </InfoSimpleDialog>
       </Container>
     </div>
