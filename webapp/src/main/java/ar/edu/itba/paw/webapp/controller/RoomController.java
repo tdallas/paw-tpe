@@ -14,6 +14,8 @@ import ar.edu.itba.paw.models.reservation.Reservation;
 import ar.edu.itba.paw.webapp.dtos.OccupantsRequest;
 import ar.edu.itba.paw.webapp.dtos.ReservationRequest;
 import ar.edu.itba.paw.webapp.utils.JsonToCalendar;
+import java.net.URI;
+import java.util.Optional;
 import javax.ws.rs.core.Response.Status;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -101,8 +103,9 @@ public class RoomController extends SimpleController {
         } catch (IllegalArgumentException e) {
             LOGGER.info(e.getMessage());
             System.out.println(e.getMessage());
+            // fixme
             return sendErrorMessageResponse(Status.BAD_REQUEST,
-                messageSourceExternalizer.getMessage("error.500")); // fixme
+                messageSourceExternalizer.getMessage("error.500"));
         }
         if (reservations == null) {
             return sendErrorMessageResponse(Status.NOT_FOUND,
@@ -112,12 +115,28 @@ public class RoomController extends SimpleController {
         return sendPaginatedResponse(page, limit, reservations.getMaxItems(), reservations.getList(), uriInfo.getAbsolutePathBuilder());
     }
 
+    @GET
+    @Path("/reservation/{reservationId}")
+    @Produces(value = {MediaType.APPLICATION_JSON})
+    public Response getReservation(@PathParam("reservationId") final long reservationId) {
+        ReservationResponse reservation;
+        try {
+            reservation = reservationService.getReservationById(reservationId);
+        } catch (EntityNotFoundException e) {
+            return sendErrorMessageResponse(Status.NOT_FOUND, messageSourceExternalizer.getMessage("error.404"));
+        }
+        if (reservation == null) {
+            return sendErrorMessageResponse(Status.NOT_FOUND, messageSourceExternalizer.getMessage("error.404"));
+        }
+        return Response.ok(reservation).build();
+    }
+
     @POST
     @Path("/reservation")
     @Produces(value = {MediaType.APPLICATION_JSON})
     public Response reservationPost(ReservationRequest reservationRequest) {
         LOGGER.info("Request received to do a reservation on room with id: " + reservationRequest.getRoomId());
-        Reservation reservation;
+        ReservationResponse reservation;
         try {
             reservation = reservationService.doReservation(reservationRequest.getRoomId(),
                 reservationRequest.getUserEmail(), reservationRequest.getStartDate(), reservationRequest.getEndDate());
@@ -125,7 +144,8 @@ public class RoomController extends SimpleController {
             return sendErrorMessageResponse(Status.CONFLICT,
                 messageSourceExternalizer.getMessage("reservation.invalid"));
         }
-        return Response.ok(reservation).build();
+        return Response.created(URI.create(uriInfo.getRequestUri() + "/" + reservation.getId()))
+            .entity(reservation).build();
     }
 
     @POST
