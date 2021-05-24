@@ -11,6 +11,7 @@ import java.util.Calendar;
 import java.util.List;
 
 public interface ReservationService {
+    ReservationResponse getReservationById(long reservationId) throws EntityNotFoundException;
 
     Reservation getReservationByHash(String hash) throws EntityNotFoundException;
 
@@ -24,7 +25,7 @@ public interface ReservationService {
 
     PaginatedDTO<ReservationResponse> getRoomsReservedActive(int page, int pageSize);
 
-    Reservation doReservation(long roomId, String userEmail, Calendar startDate, Calendar endDate) throws RequestInvalidException;
+    ReservationResponse doReservation(long roomId, String userEmail, Calendar startDate, Calendar endDate) throws RequestInvalidException;
 
     boolean isRoomFreeOnDate(long roomId, Calendar startDate, Calendar endDate) throws RequestInvalidException;
 
