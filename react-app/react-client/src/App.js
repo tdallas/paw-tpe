@@ -56,7 +56,6 @@ const App = () => {
       ) : (
         <div />
       )}
-      <div>HOLA</div>
       <Switch>
         <PrivateRoute exact path="/" component={isClient ? UserPrincipal : Principal}/>
         <Route path="/login">

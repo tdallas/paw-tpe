@@ -5,6 +5,7 @@ import ar.edu.itba.paw.webapp.auth.AuthenticationFilter;
 import ar.edu.itba.paw.webapp.auth.AuthorizationFilter;
 import ar.edu.itba.paw.webapp.auth.CustomUserDetailsService;
 import ar.edu.itba.paw.webapp.auth.TokenAuthHandlerService;
+import ar.edu.itba.paw.webapp.filter.CacheFilter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,6 +25,8 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.authentication.preauth.AbstractPreAuthenticatedProcessingFilter;
+import org.springframework.web.filter.GenericFilterBean;
+import org.springframework.web.filter.OncePerRequestFilter;
 
 @Configuration
 @EnableWebSecurity
