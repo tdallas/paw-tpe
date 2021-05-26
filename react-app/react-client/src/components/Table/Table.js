@@ -16,7 +16,7 @@ import Button from "../Button/Button";
 
 const useStyles = makeStyles({});
 
-const DataTable = ({columns, rows, totalItems = 0, pageFunction = () => {}} = {}) => {
+const DataTable = ({queryString = "", columns, rows, totalItems = 0, pageFunction = () => {}} = {}) => {
     const classes = useStyles();
     const query = useQuery();
     const page = +query.get("page") || 1;
@@ -30,12 +30,12 @@ const DataTable = ({columns, rows, totalItems = 0, pageFunction = () => {}} = {}
     }, [page, rowsPerPage]);
 
     const handleChangePage = (event, newPage) => {
-        history.push(`${location.pathname}?page=${newPage + 1}&limit=${rowsPerPage}`);
+        history.push(`${location.pathname}?page=${newPage + 1}&limit=${rowsPerPage}${queryString ? "&" + queryString : ""}`);
     };
 
     const handleChangeRowsPerPage = (event) => {
         let newRowsPerPage = +event.target.value;
-        history.push(`${location.pathname}?page=${page}&limit=${newRowsPerPage}`);
+        history.push(`${location.pathname}?page=${page}&limit=${newRowsPerPage}${queryString ? "&" + queryString : ""}`);
     };
 
     let isValidPageNumber = !((page - 1) * rowsPerPage >= totalItems);

@@ -11,13 +11,15 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 const ComposedTextField = (props) => {
-  const { onChange, error, required, helperText} = props;
+  const { onChange, error, required, helperText, label, value, type} = props;
   const classes = useStyles();
 
   return (
     <form className={classes.root} noValidate autoComplete="off">
-        <TextField id="component-simple" label={props.label} type = {props.type} onChange={onChange}
-        fullWidth={true} error={error} required={required} helperText={helperText}/>
+        <TextField id="component-simple" label={label} value={value} type={type}
+                   onChange={onChange} fullWidth={true} error={error}
+                   required={required} helperText={helperText}
+        />
     </form>
   );
 }

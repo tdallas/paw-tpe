@@ -1,4 +1,4 @@
-import React, {useState} from "react";
+import React, {useEffect, useState} from "react";
 import {Container, Row, Col} from "react-bootstrap";
 import {makeStyles} from "@material-ui/core/styles";
 import {withRouter} from "react-router";
@@ -11,6 +11,7 @@ import {useTranslation} from "react-i18next";
 import {getAllReservations} from "../../api/roomApi";
 import {reservationsColumns} from "../../utils/columnsUtil";
 import InfoSimpleDialog from "../../components/Dialog/SimpleDialog";
+import {useQuery} from "../../utils/hooks/useQuery";
 
 
 const useStyles = makeStyles((theme) => ({
@@ -38,16 +39,17 @@ const useStyles = makeStyles((theme) => ({
 const Reservations = ({history}) => {
     const classes = useStyles();
     const {t} = useTranslation();
-    const [lastName, setLastName] = useState("");
-    const [startDate, setDateFrom] = useState(new Date());
-    const [endDate, setDateTo] = useState(new Date());
-    const [email, setEmail] = useState("");
+    const query = useQuery();
+    const [lastName, setLastName] = useState(query.get("lastName") || "");
+    const [startDate, setDateFrom] = useState(query.get("startDate") || "");
+    const [endDate, setDateTo] = useState(query.get("endDate") || "");
+    const [email, setEmail] = useState(query.get("email") || "");
     const [showDialog, updateShowDialog] = useState(false);
     const [errorStatusCode, setErrorStatusCode] = useState(200);
     const [tableInfo, setTableInfo] = useState({reservations: [], totalCount: 0});
     const {reservations, totalCount} = tableInfo;
 
-    const getAllReservationsFiltered = (page = 1, limit = 20, startDate, endDate, email, lastName) => {
+    const getAllReservationsFiltered = (page = 1, limit = 20) => {
         getAllReservations({page, limit, startDate, endDate, email, lastName})
             .then((response) => {
                 setTableInfo({reservations: response.data, totalCount: +response.headers["x-total-count"]})
@@ -57,6 +59,17 @@ const Reservations = ({history}) => {
             }
         );
     };
+
+    const createQueryString = () => `startDate=${startDate}&endDate=${endDate}&email=${email}&lastName=${lastName}`;
+
+    useEffect(() => {
+        if (startDate || endDate || email || lastName) {
+            history.push({
+                pathname: `/reservations`,
+                search: `?${createQueryString()}`
+            });
+        }
+    }, [startDate, endDate, email, lastName]);
 
     const handleDialogClose = () => {
         updateShowDialog(false);
@@ -91,18 +104,18 @@ const Reservations = ({history}) => {
             <Container fluid="md" className={classes.container}>
                 <Row className={classes.row}>
                     <Col xs={12} md={6}>
-                        <DatePicker Id="from" label={t("reservation.date.start")} onChange={dateFromOnChange}/>
+                        <DatePicker Id="from" label={t("reservation.date.start")} value={startDate} onChange={dateFromOnChange}/>
                     </Col>
                     <Col xs={12} md={6}>
-                        <DatePicker Id="to" label={t("reservation.date.end")} onChange={dateToOnChange}/>
+                        <DatePicker Id="to" label={t("reservation.date.end")} value={endDate} onChange={dateToOnChange}/>
                     </Col>
                 </Row>
                 <Row className={classes.row}>
                     <Col xs={12} md={6}>
-                        <Input label={t("reservation.email")} type="email" onChange={emailOnChange}/>
+                        <Input label={t("reservation.email")} type="email" value={email} onChange={emailOnChange}/>
                     </Col>
                     <Col xs={12} md={6}>
-                        <Input label={t("lastname")} type="text" onChange={lastNameOnChange}/>
+                        <Input label={t("lastname")} type="text" value={lastName} onChange={lastNameOnChange}/>
                     </Col>
                 </Row>
                 <Row className={classes.row} style={{textAlign: 'center'}}>
@@ -120,7 +133,9 @@ const Reservations = ({history}) => {
                 <br/>
                 <Row className="justify-content-sm-center" style={{background: "#FAF6FC", width: "100%"}}>
                     <Col className={classes.tableCol}>
-                        <Table columns={reservationsColumns} rows={reservations} totalItems={totalCount}
+                        <Table queryString={createQueryString()}
+                               columns={reservationsColumns}
+                               rows={reservations} totalItems={totalCount}
                                pageFunction={getAllReservationsFiltered}/>
                     </Col>
                 </Row>
