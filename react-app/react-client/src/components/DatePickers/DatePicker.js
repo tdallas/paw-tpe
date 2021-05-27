@@ -13,18 +13,19 @@ const useStyles = makeStyles((theme) => ({
 
 const DatePickers = (props) => {
   const classes = useStyles();
-  const {onChange} = props;
+  const {Id, label, onChange, value} = props;
 
   return (
       <TextField
-        id={props.Id}
-        label={props.label}
+        id={Id}
+        label={label}
         type="date"
         className={classes.textField}
         InputLabelProps={{
           shrink: true,
         }}
         onChange={onChange}
+        value={value}
       />
   );
 }
