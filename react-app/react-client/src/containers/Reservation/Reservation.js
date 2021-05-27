@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, {useEffect, useState} from "react";
 import { Container, Row, Col } from "react-bootstrap";
 import { makeStyles } from "@material-ui/core/styles";
 import { withRouter } from "react-router";
@@ -11,6 +11,7 @@ import Button from "../../components/Button/Button";
 import DatePicker from "../../components/DatePickers/DatePicker";
 import Dropdown from "../../components/Dropdown/Dropdown";
 import Input from "../../components/Input/Input";
+import {useQuery} from "../../utils/hooks/useQuery";
 
 const useStyles = makeStyles((theme) => ({
   container: {
@@ -33,12 +34,13 @@ const useStyles = makeStyles((theme) => ({
 const Reservation = ({ history }) => {
   const classes = useStyles();
   const { t } = useTranslation();
+  const query = useQuery();
 
   const [showRooms, show] = useState(false);
   const [room, setRoom] = useState("");
   const [options, setOptions] = useState([]);
-  const [dateFrom, setDateFrom] = useState(new Date());
-  const [dateTo, setDateTo] = useState(new Date());
+  const [dateFrom, setDateFrom] = useState(query.get("startDate") || "");
+  const [dateTo, setDateTo] = useState(query.get("startDate") || "");
   const [email, setEmail] = useState("");
   const [errorInput, setErrorInput] = useState(false);
   const [errorDropdown, setErrorDropdown] = useState(false);
@@ -54,6 +56,17 @@ const Reservation = ({ history }) => {
       history.push("/");
     }
   }
+
+  const createQueryString = () => `startDate=${dateFrom}&endDate=${dateTo}&email=${email}&room=${room}`;
+
+  useEffect(() => {
+    if (dateFrom || dateTo) {
+      history.push({
+        pathname: `/reservation`,
+        search: `?${createQueryString()}`
+      });
+    }
+  }, [dateFrom, dateTo, email, room]);
 
   const emailOnChange = (newEmail) => {
     setEmail(newEmail.target.value);
@@ -133,6 +146,7 @@ const Reservation = ({ history }) => {
             <DatePicker
               Id="from"
               label={t("room.room.from")}
+              value={dateFrom}
               onChange={dateFromOnChange}
             />
           </Col>
@@ -140,6 +154,7 @@ const Reservation = ({ history }) => {
             <DatePicker
               Id="to"
               label={t("room.room.until")}
+              value={dateTo}
               onChange={dateToOnChange}
             />
           </Col>
