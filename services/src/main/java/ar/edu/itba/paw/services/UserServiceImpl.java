@@ -4,6 +4,7 @@ import ar.edu.itba.paw.interfaces.daos.*;
 import ar.edu.itba.paw.interfaces.dtos.ActiveReservationResponse;
 import ar.edu.itba.paw.interfaces.dtos.ChargesByUserResponse;
 import ar.edu.itba.paw.interfaces.dtos.ProductResponse;
+import ar.edu.itba.paw.interfaces.dtos.UserResponse;
 import ar.edu.itba.paw.interfaces.exceptions.EntityNotFoundException;
 import ar.edu.itba.paw.interfaces.exceptions.RequestInvalidException;
 import ar.edu.itba.paw.interfaces.services.EmailService;
@@ -42,7 +43,8 @@ public class UserServiceImpl implements UserService {
     private final EmailService emailService;
 
     @Autowired
-    public UserServiceImpl(ProductDao productDao, ChargeDao chargeDao, ReservationDao reservationDao, UserDao userDao, HelpDao helpDao, EmailService emailService) {
+    public UserServiceImpl(ProductDao productDao, ChargeDao chargeDao, ReservationDao reservationDao,
+                           UserDao userDao, HelpDao helpDao, EmailService emailService) {
         this.productDao = productDao;
         this.chargeDao = chargeDao;
         this.reservationDao = reservationDao;
@@ -67,11 +69,22 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    @Transactional
+    public UserResponse getUserById(long userId) throws EntityNotFoundException {
+        Optional<User> possibleUser = userDao.findById(userId);
+        if (possibleUser.isPresent()) {
+            return UserResponse.fromUser(possibleUser.get());
+        }
+        throw new EntityNotFoundException("Can't find a user with id " + userId);
+    }
+
+    @Override
     public List<ChargesByUserResponse> checkProductsPurchasedByUserByReservationId(String userEmail, long reservationId)
         throws EntityNotFoundException {
         Map<Product, Integer> productToQtyMap = chargeDao.getAllChargesByUser(userEmail, reservationId);
         return productToQtyMap.keySet().stream().map(
-                product -> new ChargesByUserResponse(product.getDescription(), product.getId(), product.getPrice(), productToQtyMap.get(product))
+                product -> new ChargesByUserResponse(
+                        product.getDescription(), product.getId(), product.getPrice(), productToQtyMap.get(product))
         ).collect(Collectors.toList());
     }
 
@@ -94,7 +107,6 @@ public class UserServiceImpl implements UserService {
         } else {
             LOGGER.info("There is no user created with email " + userEmail + ". So we'll create one.");
             String randomPassword = generatePassword();
-            System.out.println("Password for user is: " + randomPassword);  // TODO: ERASE THIS PRINT BEFORE SENDING TO PROD
             user = userDao.save(new User(userEmail, userEmail, new BCryptPasswordEncoder().encode(randomPassword)));
             LOGGER.info("User created! Sending e-mail about user creation to: " + userEmail);
             emailService.sendUserCreatedEmail(userEmail, randomPassword);
@@ -104,7 +116,8 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public Help requestHelp(String text, long reservationId) throws EntityNotFoundException {
-        Reservation reservation = reservationDao.findById(reservationId).orElseThrow(() -> new EntityNotFoundException("Can't find reservation"));
+        Reservation reservation = reservationDao.findById(reservationId)
+                .orElseThrow(() -> new EntityNotFoundException("Can't find reservation"));
         if (text.length() > 0 && isValidString(text)) {
             return helpDao.save(new Help(text, reservation));
         }
@@ -113,7 +126,8 @@ public class UserServiceImpl implements UserService {
 
     @Transactional
     @Override
-    public void rateStay(String rate, String reservationHash) throws EntityNotFoundException, RequestInvalidException {
+    public void rateStay(String rate, String reservationHash)
+            throws EntityNotFoundException, RequestInvalidException {
         Reservation reservation = reservationDao.findReservationByHash(reservationHash)
                 .orElseThrow(() -> new EntityNotFoundException("Reservation was not found"));
         if (reservation.getCalification() != null) {

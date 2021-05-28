@@ -10,6 +10,8 @@ import ar.edu.itba.paw.models.dtos.PaginatedDTO;
 import java.util.List;
 
 public interface ChargeService {
+    ChargeDeliveryResponse getChargeById(long chargeId) throws EntityNotFoundException;
+
     List<Charge> getAllChargesByReservationId(long reservationId) throws RequestInvalidException;
 
     PaginatedDTO<Charge> getAllChargesByReservationId(long reservationId, int page, int pageSize) throws RequestInvalidException;

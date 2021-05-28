@@ -12,8 +12,6 @@ import java.io.Serializable;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-
-
 public class ChargeDeliveryResponse implements Serializable {
     private int roomNumber;
     private long roomId;
@@ -21,9 +19,11 @@ public class ChargeDeliveryResponse implements Serializable {
 
     public static ChargeDeliveryResponse fromCharge(Charge charge) {
         final ChargeDeliveryResponse cDto = new ChargeDeliveryResponse();
+
         cDto.roomNumber = charge.getReservation().getRoom().getNumber();
         cDto.roomId = charge.getReservation().getRoom().getId();
         cDto.description = charge.getProduct().getDescription();
+
         return cDto;
     }
 }

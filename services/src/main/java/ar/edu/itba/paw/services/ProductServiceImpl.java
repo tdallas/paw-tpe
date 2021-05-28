@@ -57,8 +57,8 @@ public class ProductServiceImpl implements ProductService {
                 paginatedResponseList.getMaxItems());
     }
 
-    @Transactional
     @Override
+    @Transactional
     public Product findProductById(long productId) throws EntityNotFoundException {
         return productDao.findById(productId).orElseThrow(() ->
                 new EntityNotFoundException("Can't find product with id " + productId));
