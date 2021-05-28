@@ -14,5 +14,5 @@ public interface ProductService {
 
     PaginatedDTO<ProductResponse> getAll(int page, int pageSize);
 
-    Product findProductById(long productId) throws EntityNotFoundException;
+    ProductResponse findProductById(long productId) throws EntityNotFoundException;
 }

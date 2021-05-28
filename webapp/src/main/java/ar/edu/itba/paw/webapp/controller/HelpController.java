@@ -44,10 +44,26 @@ public class HelpController extends SimpleController {
         try {
             helpRequests = helpService.getAllRequestsThatRequireAction(page, limit);
         } catch (IndexOutOfBoundsException e) {
-            return sendErrorMessageResponse(Status.NOT_FOUND, messageSourceExternalizer.getMessage("error.404"));
+            return sendErrorMessageResponse(Status.NOT_FOUND, messageSourceExternalizer
+                    .getMessage("error.404"));
         }
         return sendPaginatedResponse(page, limit, helpRequests.getMaxItems(), helpRequests.getList(),
             uriInfo.getAbsolutePathBuilder());
+    }
+
+    @GET
+    @Path("/{id}")
+    @Produces(value = {MediaType.APPLICATION_JSON})
+    public Response getHelpRequest(@PathParam("id") final long helpRequestId) {
+        LOGGER.info("Attempted to get help request with id " + helpRequestId);
+        HelpResponse helpResponse;
+        try {
+            helpResponse = helpService.getHelpById(helpRequestId);
+            return Response.ok(helpResponse).build();
+        } catch (EntityNotFoundException e) {
+            return sendErrorMessageResponse(Status.NOT_FOUND, messageSourceExternalizer
+                    .getMessage("error.404"));
+        }
     }
 
     @PUT
@@ -56,15 +72,18 @@ public class HelpController extends SimpleController {
     public Response updateHelpStep(@PathParam("id") final long helpRequestId,
                                    @QueryParam("getHelpFormStatus") HelpStep status,
                                    @QueryParam("page") @DefaultValue(DEFAULT_FIRST_PAGE) int page,
-                                   @QueryParam("limit") @DefaultValue(DEFAULT_PAGE_SIZE) int limit)
-        throws RequestInvalidException {
+                                   @QueryParam("limit") @DefaultValue(DEFAULT_PAGE_SIZE) int limit) {
         LOGGER.info("Attempted to update status on help request.");
         try {
             if (helpService.updateStatus(helpRequestId, status)) {
                 return help(page, limit);
             }
         } catch (IndexOutOfBoundsException | EntityNotFoundException e) {
-            return sendErrorMessageResponse(Status.NOT_FOUND, messageSourceExternalizer.getMessage("error.404"));
+            return sendErrorMessageResponse(Status.NOT_FOUND, messageSourceExternalizer
+                    .getMessage("error.404"));
+        } catch (RequestInvalidException exception) {
+            return sendErrorMessageResponse(Status.BAD_REQUEST, messageSourceExternalizer
+                    .getMessage("help.status.error"));
         }
         return sendErrorMessageResponse(Status.BAD_REQUEST,
             messageSourceExternalizer.getMessage("help.status.error"));

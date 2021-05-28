@@ -44,7 +44,6 @@ public class UserController extends SimpleController {
         this.messageSourceExternalizer = messageSourceExternalizer;
     }
 
-
     @GET
     @Path("/{reservationId}/expenses")
     @Produces(value = {MediaType.APPLICATION_JSON})

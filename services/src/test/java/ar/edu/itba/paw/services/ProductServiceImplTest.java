@@ -1,6 +1,7 @@
 package ar.edu.itba.paw.services;
 
 import ar.edu.itba.paw.interfaces.daos.ProductDao;
+import ar.edu.itba.paw.interfaces.dtos.ProductResponse;
 import ar.edu.itba.paw.interfaces.exceptions.EntityNotFoundException;
 import ar.edu.itba.paw.models.product.Product;
 import org.junit.Before;
@@ -59,7 +60,7 @@ public class ProductServiceImplTest {
 
     @Test
     public void handleMaxValueIntegerAsId() throws EntityNotFoundException {
-        Product product = productService.findProductById(Integer.MAX_VALUE);
+        ProductResponse product = productService.findProductById(Integer.MAX_VALUE);
         assertNotNull(product);
     }
 }

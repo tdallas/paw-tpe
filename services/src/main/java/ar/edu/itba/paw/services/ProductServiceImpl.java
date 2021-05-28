@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Component
@@ -59,8 +60,11 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     @Transactional
-    public Product findProductById(long productId) throws EntityNotFoundException {
-        return productDao.findById(productId).orElseThrow(() ->
-                new EntityNotFoundException("Can't find product with id " + productId));
+    public ProductResponse findProductById(long productId) throws EntityNotFoundException {
+        Optional<Product> possibleProduct = productDao.findById(productId);
+        if (possibleProduct.isPresent()) {
+            return ProductResponse.fromProduct(possibleProduct.get());
+        }
+        throw new EntityNotFoundException("Can't find product with id " + productId);
     }
 }

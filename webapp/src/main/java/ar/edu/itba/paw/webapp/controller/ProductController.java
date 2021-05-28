@@ -58,6 +58,20 @@ public class ProductController extends SimpleController {
             uriInfo.getAbsolutePathBuilder());
     }
 
+    @GET
+    @Path("/{id}")
+    @Produces(value = {MediaType.APPLICATION_JSON})
+    public Response getProduct(@PathParam(value = "id") long productId) {
+        ProductResponse product;
+        try {
+            product = productService.findProductById(productId);
+        } catch (EntityNotFoundException e) {
+            return sendErrorMessageResponse(Status.NOT_FOUND,
+                    messageSourceExternalizer.getMessage("product.notfound"));
+        }
+        return Response.ok(product).build();
+    }
+
     @POST
     @Path("/{id}/disable")
     @Produces(value = {MediaType.APPLICATION_JSON})
@@ -136,7 +150,7 @@ public class ProductController extends SimpleController {
     @Path(value = "/{productId}/img")
     @Produces("image/png")
     public Response getImgForProduct(@PathParam("productId") long productId) {
-        Product product;
+        ProductResponse product;
         try {
             product = productService.findProductById(productId);
         } catch (EntityNotFoundException e) {
