@@ -1,10 +1,7 @@
 package ar.edu.itba.paw.services;
 
 import ar.edu.itba.paw.interfaces.daos.*;
-import ar.edu.itba.paw.interfaces.dtos.ActiveReservationResponse;
-import ar.edu.itba.paw.interfaces.dtos.ChargesByUserResponse;
-import ar.edu.itba.paw.interfaces.dtos.ProductResponse;
-import ar.edu.itba.paw.interfaces.dtos.UserResponse;
+import ar.edu.itba.paw.interfaces.dtos.*;
 import ar.edu.itba.paw.interfaces.exceptions.EntityNotFoundException;
 import ar.edu.itba.paw.interfaces.exceptions.RequestInvalidException;
 import ar.edu.itba.paw.interfaces.services.EmailService;
@@ -115,11 +112,11 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public Help requestHelp(String text, long reservationId) throws EntityNotFoundException {
+    public HelpResponse requestHelp(String text, long reservationId) throws EntityNotFoundException {
         Reservation reservation = reservationDao.findById(reservationId)
                 .orElseThrow(() -> new EntityNotFoundException("Can't find reservation"));
         if (text.length() > 0 && isValidString(text)) {
-            return helpDao.save(new Help(text, reservation));
+            return HelpResponse.fromHelpRequest(helpDao.save(new Help(text, reservation)));
         }
         return null;
     }
@@ -134,6 +131,20 @@ public class UserServiceImpl implements UserService {
             throw new RequestInvalidException();
         }
         reservationDao.rateStay(reservation.getId(), transformRate(rate));
+    }
+
+    @Override
+    @Transactional
+    public HelpResponse getHelpRequestById(long reservationId, long helpId) throws EntityNotFoundException {
+        Optional<Help> possibleHelp = helpDao.findById(helpId);
+        if (!possibleHelp.isPresent()) {
+            throw new EntityNotFoundException("Help request not found.");
+        }
+        Help helpRequest = possibleHelp.get();
+        if (helpRequest.getReservation().getId() != reservationId) {
+            throw new EntityNotFoundException("Reservation does not belong to help request.");
+        }
+        return HelpResponse.fromHelpRequest(helpRequest);
     }
 
     private String transformRate(String rate) {

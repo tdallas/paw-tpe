@@ -28,9 +28,9 @@ public class ProductServiceImpl implements ProductService {
 
     @Transactional
     @Override
-    public Product saveProduct(Product product) {
+    public ProductResponse saveProduct(Product product) {
         LOGGER.info("About to save product with description " + product.getDescription() + " and price " + product.getPrice());
-        return productDao.save(product);
+        return ProductResponse.fromProduct(productDao.save(product));
     }
 
     @Transactional

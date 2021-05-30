@@ -1,9 +1,6 @@
 package ar.edu.itba.paw.interfaces.services;
 
-import ar.edu.itba.paw.interfaces.dtos.ActiveReservationResponse;
-import ar.edu.itba.paw.interfaces.dtos.ChargesByUserResponse;
-import ar.edu.itba.paw.interfaces.dtos.ProductResponse;
-import ar.edu.itba.paw.interfaces.dtos.UserResponse;
+import ar.edu.itba.paw.interfaces.dtos.*;
 import ar.edu.itba.paw.interfaces.exceptions.EntityNotFoundException;
 import ar.edu.itba.paw.interfaces.exceptions.RequestInvalidException;
 import ar.edu.itba.paw.models.charge.Charge;
@@ -27,7 +24,9 @@ public interface UserService {
 
     User getUserForReservation(String userEmail);
 
-    Help requestHelp(String text, long reservationId) throws EntityNotFoundException;
+    HelpResponse requestHelp(String text, long reservationId) throws EntityNotFoundException;
 
     void rateStay(String rate, String reservationHash) throws EntityNotFoundException, RequestInvalidException;
+
+    HelpResponse getHelpRequestById(long reservationId, long helpId) throws EntityNotFoundException;
 }

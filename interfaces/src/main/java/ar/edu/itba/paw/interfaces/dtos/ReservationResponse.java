@@ -38,7 +38,8 @@ public class ReservationResponse implements Serializable {
         rDto.charges = reservation
                 .getCharges()
                 .stream()
-                .map(charge -> new ChargeResponse(charge.getId(), charge.isDelivered()))
+                .map(charge -> new ChargeResponse(charge.getId(), charge.isDelivered(),
+                        ProductResponse.fromProduct(charge.getProduct())))
                 .collect(Collectors.toList());
         rDto.occupants = reservation
                 .getOccupants()

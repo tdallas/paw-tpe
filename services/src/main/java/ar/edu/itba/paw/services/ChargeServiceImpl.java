@@ -110,6 +110,7 @@ public class ChargeServiceImpl implements ChargeService {
     }
 
     @Override
+    @Transactional
     public int setChargesToDelivered(long roomId) throws RequestInvalidException, EntityNotFoundException {
         Optional<Room> room = roomDao.findById(roomId);
         if (room.isPresent()) {

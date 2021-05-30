@@ -56,10 +56,8 @@ public class HelpController extends SimpleController {
     @Produces(value = {MediaType.APPLICATION_JSON})
     public Response getHelpRequest(@PathParam("id") final long helpRequestId) {
         LOGGER.info("Attempted to get help request with id " + helpRequestId);
-        HelpResponse helpResponse;
         try {
-            helpResponse = helpService.getHelpById(helpRequestId);
-            return Response.ok(helpResponse).build();
+            return Response.ok(helpService.getHelpById(helpRequestId)).build();
         } catch (EntityNotFoundException e) {
             return sendErrorMessageResponse(Status.NOT_FOUND, messageSourceExternalizer
                     .getMessage("error.404"));
@@ -76,7 +74,10 @@ public class HelpController extends SimpleController {
         LOGGER.info("Attempted to update status on help request.");
         try {
             if (helpService.updateStatus(helpRequestId, status)) {
-                return help(page, limit);
+                return Response
+                        .noContent()
+                        .contentLocation(uriInfo.getRequestUri())
+                        .build();
             }
         } catch (IndexOutOfBoundsException | EntityNotFoundException e) {
             return sendErrorMessageResponse(Status.NOT_FOUND, messageSourceExternalizer
