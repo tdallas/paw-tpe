@@ -82,7 +82,7 @@ public class RoomController extends SimpleController {
         LOGGER.info("Request received to retrieve reservations.");
         PaginatedDTO<ReservationResponse> reservations = null;
         try {
-            if (startDate == null && endDate == null && email == null && lastName == null) {
+            if (startDate.equals("") && endDate.equals("") && email.equals("") && lastName.equals("")) {
                 LOGGER.info("Getting all reservations starting at page " + page);
                 reservations = reservationService.getAll(page, limit);
             } else {
