@@ -27,7 +27,6 @@ const DataTable = ({queryString = "", columns, rows, totalItems = 0, pageFunctio
 
     useEffect(() => {
         pageFunction(page, rowsPerPage);
-        console.log("hola");
     }, [page, rowsPerPage]);
 
     const handleChangePage = (event, newPage) => {
