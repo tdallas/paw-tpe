@@ -49,6 +49,8 @@ const Reservation = ({ history }) => {
   const [loading, updateShowLoading] = useState(false);
   const [info, updateInfo] = useState(undefined);
   const [responseError, setResponseError] = useState(false);
+  const [respStartDate, setRespStartDate] = useState();
+  const [respEndDate, setRespEndDate] = useState();
 
   const handleDialogClose = () => {
     updateShowDialog(false);
@@ -118,12 +120,25 @@ const Reservation = ({ history }) => {
           updateShowLoading(false);
           updateShowDialog(true);
           updateInfo(response.data);
+
+          let dStart = new Date(response.data.startDate),
+          dformatStart = [dStart.getMonth()+1,
+            dStart.getDate(),
+            dStart.getFullYear()].join('/');
+
+          setRespStartDate(dformatStart);
+
+          let dEnd = new Date(response.data.endDate),
+          dformatEnd = [dEnd.getMonth()+1,
+            dEnd.getDate(),
+            dEnd.getFullYear()].join('/');
+
+          setRespEndDate(dformatEnd);
         })
         .catch((error, response) => {
           updateShowLoading(false);
           updateShowDialog(true);
           setResponseError(true);
-          console.log("response", error.response.data.message);
           updateInfo(error.response.data.message);
         });
     }
@@ -203,8 +218,8 @@ const Reservation = ({ history }) => {
           {!responseError && info ? <div>
             <div>{t("reservation.number")}: {info.hash}</div>
             <div>{t("ratings.roomNumber")}: {info.room.number}</div>
-            <div>{t("reservation.date.start")}: {info.startDate}</div>
-            <div>{t("reservation.date.end")}: {info.endDate}</div>
+            <div>{t("reservation.date.start")}: {respStartDate}</div>
+            <div>{t("reservation.date.end")}: {respEndDate}</div>
             <div>{t("reservation.email")}: {info.userEmail}</div>
           </div> : <div>{info ? info : t('reservation.checkin.error')}</div>}
         </InfoSimpleDialog>
