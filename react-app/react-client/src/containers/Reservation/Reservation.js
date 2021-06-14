@@ -92,7 +92,7 @@ const Reservation = ({ history }) => {
 
   const formIsValidate = () => {
     let isOk = true;
-    if (email.length === 0) {
+    if (email.length === 0 || !email.includes('@')) {
       setErrorInput(true);
       isOk = false;
     }
@@ -191,7 +191,7 @@ const Reservation = ({ history }) => {
             )}
           </Col>
           <Col xs={12} md={6}>
-            <Input label={t("room.room.owner")} error={errorInput} helperText={errorInput && t("required")} required={true} type="email" onChange={emailOnChange} />
+            <Input label={t("room.room.owner")} error={errorInput} helperText={errorInput && t("reservation.emailRequirements")} required={true} onChange={emailOnChange} />
           </Col>
           <Col xs={6} md={2}>
             <Button

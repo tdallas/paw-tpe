@@ -98,7 +98,8 @@
     "email": "Email del titular",
     "id": "ID de la reserva",
     "new": "Nueva Reserva",
-    "isActive": "Activa"
+    "isActive": "Activa",
+    "emailRequirements": "Este campo es requerido y con formato de email."
   },
   "order": {
     "finish": "¡Pedido Terminado!",

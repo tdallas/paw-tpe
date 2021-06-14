@@ -101,7 +101,8 @@
     "email": "Email",
     "id": "Reservation ID",
     "new": "New Reservation",
-    "isActive": "Active"
+    "isActive": "Active",
+    "emailRequirements": "This field is required and with email format."
   },
 
   "order": {
