@@ -117,8 +117,8 @@ public class ProductController extends SimpleController {
         ProductResponse productResponse = productService.saveProduct(newProduct);
         LOGGER.info("Product was saved successfully");
         return Response
-                .created(URI.create(uriInfo.getRequestUri() + "/" + newProduct.getId()))
-                .contentLocation(URI.create(uriInfo.getRequestUri() + "/" + newProduct.getId()))
+                .created(URI.create(uriInfo.getRequestUri() + "" + newProduct.getId()))
+                .contentLocation(URI.create(uriInfo.getRequestUri() + "" + newProduct.getId()))
                 .entity(productResponse)
                 .build();
     }

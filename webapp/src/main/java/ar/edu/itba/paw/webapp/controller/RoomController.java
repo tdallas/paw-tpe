@@ -193,7 +193,7 @@ public class RoomController extends SimpleController {
             roomService.doCheckout(reservationHash, uriInfo.getBaseUri().toString());
             return Response
                     .noContent()
-                    .contentLocation(URI.create(uriInfo.getBaseUri() + "rooms/reservation/" + reservation))
+                    .contentLocation(URI.create(uriInfo.getBaseUri() + "rooms/reservation/" + reservation.getId()))
                     .entity(chargeService.checkProductsPurchasedInCheckOut(reservationHash))
                     .build();
         } catch (EntityNotFoundException | NoResultException e) {

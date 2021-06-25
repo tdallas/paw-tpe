@@ -4,6 +4,7 @@ import ar.edu.itba.paw.interfaces.daos.*;
 import ar.edu.itba.paw.interfaces.dtos.*;
 import ar.edu.itba.paw.interfaces.exceptions.EntityNotFoundException;
 import ar.edu.itba.paw.interfaces.exceptions.RequestInvalidException;
+import ar.edu.itba.paw.interfaces.services.ChargeService;
 import ar.edu.itba.paw.interfaces.services.EmailService;
 import ar.edu.itba.paw.interfaces.services.UserService;
 import ar.edu.itba.paw.models.charge.Charge;
@@ -37,16 +38,18 @@ public class UserServiceImpl implements UserService {
     private final ReservationDao reservationDao;
     private final UserDao userDao;
     private final HelpDao helpDao;
+    private final ChargeService chargeService;
     private final EmailService emailService;
 
     @Autowired
     public UserServiceImpl(ProductDao productDao, ChargeDao chargeDao, ReservationDao reservationDao,
-                           UserDao userDao, HelpDao helpDao, EmailService emailService) {
+                           UserDao userDao, HelpDao helpDao, ChargeService chargeService, EmailService emailService) {
         this.productDao = productDao;
         this.chargeDao = chargeDao;
         this.reservationDao = reservationDao;
         this.userDao = userDao;
         this.helpDao = helpDao;
+        this.chargeService = chargeService;
         this.emailService = emailService;
     }
 
@@ -147,12 +150,32 @@ public class UserServiceImpl implements UserService {
         return HelpResponse.fromHelpRequest(helpRequest);
     }
 
+    @Override
+    public ChargeDeliveryResponse getCharge(long chargeId) throws EntityNotFoundException {
+        return chargeService.getChargeById(chargeId);
+    }
+
     private String transformRate(String rate) {
-        return Calification.values()[Integer.parseInt(rate) - 1].name();
+        if (isInt(rate)) {
+            return Calification.values()[Integer.parseInt(rate) - 1].name();
+        }
+        return rate.toUpperCase();
     }
 
     private boolean isValidString(String text) {
         return text.matches("^.*[a-zA-Z0-9áéíóúüñÁÉÍÓÚÑ ].*$");
+    }
+
+    private boolean isInt(String strNum) {
+        if (strNum == null) {
+            return false;
+        }
+        try {
+            int i = Integer.parseInt(strNum);
+        } catch (NumberFormatException nfe) {
+            return false;
+        }
+        return true;
     }
 
     private Integer[] generateRandomIntsArray() {

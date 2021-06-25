@@ -7,7 +7,6 @@ import ar.edu.itba.paw.interfaces.services.MessageSourceExternalizer;
 import ar.edu.itba.paw.interfaces.services.UserService;
 import ar.edu.itba.paw.models.charge.Charge;
 import ar.edu.itba.paw.models.dtos.PaginatedDTO;
-import ar.edu.itba.paw.models.help.Help;
 import ar.edu.itba.paw.webapp.dtos.ActiveReservationsResponse;
 import ar.edu.itba.paw.webapp.dtos.HelpRequest;
 import ar.edu.itba.paw.webapp.dtos.RateReservationRequest;
@@ -88,6 +87,21 @@ public class UserController extends SimpleController {
                 uriInfo.getAbsolutePathBuilder());
     }
 
+    @GET
+    @Path("/{reservationId}/products/{chargeId}")
+    @Produces(value = {MediaType.APPLICATION_JSON})
+    public Response getCharge(@PathParam("reservationId") long reservationId, @PathParam("chargeId") long chargeId) {
+        LOGGER.info("Request received to retrieve user's charge with id " + chargeId);
+        ChargeDeliveryResponse chargeResponse;
+        try {
+            chargeResponse = userService.getCharge(chargeId);
+        } catch (IndexOutOfBoundsException | EntityNotFoundException e) {
+            return sendErrorMessageResponse(Status.NOT_FOUND,
+                    messageSourceExternalizer.getMessage("user.expenses.notfound"));
+        }
+        return Response.ok(chargeResponse).build();
+    }
+
     @POST
     @Path("/{reservationId}/products/{productId}")
     @Produces(value = {MediaType.APPLICATION_JSON})
@@ -97,8 +111,17 @@ public class UserController extends SimpleController {
             Charge charge;
             try {
                 charge = userService.addCharge(productId, reservationId);
-                URI uri = uriInfo.getAbsolutePathBuilder().path("/" + charge.getId()).build();
-                return Response.created(uri).entity(ChargeResponse.fromCharge(charge)).build();
+                URI uri = URI.create(
+                        (uriInfo.getRequestUri() + "")
+                                .split("/products/")[0]
+                                + "/products/" + charge.getId()
+                );
+                return Response.created(uri).entity(ChargeResponse.fromCharge(charge))
+                        .contentLocation(URI.create(
+                                (uriInfo.getRequestUri() + "")
+                                        .split("/products/")[0]
+                                        + "/products/" + charge.getId()
+                        )).build();
             } catch (EntityNotFoundException e) {
                 if (e.getDescription().contains("product")) {
                     return sendErrorMessageResponse(Status.NOT_FOUND,
@@ -144,6 +167,10 @@ public class UserController extends SimpleController {
     public Response requestHelp(@PathParam("reservationId") long reservationId,
                                 @RequestBody HelpRequest helpRequest) {
         LOGGER.info("Help request made on reservation with id " + reservationId);
+        if (helpRequest == null) {
+            return sendErrorMessageResponse(Status.BAD_REQUEST,
+                    messageSourceExternalizer.getMessage("help.notfound"));
+        }
         if (helpRequest.getHelpDescription() != null) {
             HelpResponse helpRequested;
             try {

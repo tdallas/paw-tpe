@@ -68,12 +68,12 @@ public class HelpController extends SimpleController {
     @Path("/{id}")
     @Produces(value = {MediaType.APPLICATION_JSON})
     public Response updateHelpStep(@PathParam("id") final long helpRequestId,
-                                   @QueryParam("getHelpFormStatus") HelpStep status,
+                                   @QueryParam("status") String status,
                                    @QueryParam("page") @DefaultValue(DEFAULT_FIRST_PAGE) int page,
                                    @QueryParam("limit") @DefaultValue(DEFAULT_PAGE_SIZE) int limit) {
         LOGGER.info("Attempted to update status on help request.");
         try {
-            if (helpService.updateStatus(helpRequestId, status)) {
+            if (helpService.updateStatus(helpRequestId, HelpStep.valueOf(status.toUpperCase().replace("-", "_")))) {
                 return Response
                         .noContent()
                         .contentLocation(uriInfo.getRequestUri())
