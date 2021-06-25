@@ -94,17 +94,17 @@ public class WebConfig {
     public JavaMailSender getJavaMailSender() {
         JavaMailSenderImpl mailSender = new JavaMailSenderImpl();
         mailSender.setHost("smtp.gmail.com");
-        mailSender.setPort(25);
-
+        mailSender.setPort(587);
         mailSender.setUsername("paw.hotel.manager@gmail.com");
         mailSender.setPassword("hotelM.123");
-
         Properties props = mailSender.getJavaMailProperties();
         props.put("mail.transport.protocol", "smtp");
         props.put("mail.smtp.auth", "true");
+        props.put("mail.smtp.ssl.trust", "smtp.gmail.com");
         props.put("mail.smtp.starttls.enable", "true");
+        props.put("mail.smtp.ssl.protocols", "TLSv1.2");
         props.put("mail.info", "true");
-
+        mailSender.setJavaMailProperties(props);
         return mailSender;
     }
 
@@ -114,5 +114,4 @@ public class WebConfig {
         multipartResolver.setMaxUploadSize(20848820);
         return multipartResolver;
     }
-
 }
