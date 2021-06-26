@@ -171,9 +171,9 @@ public class RoomController extends SimpleController {
                     messageSourceExternalizer.getMessage("error.404"));
         }
         if (reservation != null) {
-//           todo: erase System.out.println(uriInfo.getBaseUri().toString());  http://localhost:8080/api/
+//           todo: erase System.out.println(uriInfo.getBaseUri().toString())  es  http://localhost:8080/api/
             return Response
-                    .noContent()
+                    .created(URI.create(uriInfo.getBaseUri() + "rooms/reservation/" + reservation.getId()))
                     .contentLocation(URI.create(uriInfo.getBaseUri() + "rooms/reservation/" + reservation.getId()))
                     .entity(reservation)
                     .build();
@@ -192,7 +192,7 @@ public class RoomController extends SimpleController {
             reservation = reservationService.getReservationByHash(reservationHash);
             roomService.doCheckout(reservationHash, uriInfo.getBaseUri().toString());
             return Response
-                    .noContent()
+                    .created(URI.create(uriInfo.getBaseUri() + "rooms/reservation/" + reservation.getId()))
                     .contentLocation(URI.create(uriInfo.getBaseUri() + "rooms/reservation/" + reservation.getId()))
                     .entity(chargeService.checkProductsPurchasedInCheckOut(reservationHash))
                     .build();

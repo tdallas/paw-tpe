@@ -55,13 +55,9 @@ const Products = ({ history }) => {
 
   const toggleProductEnabled = (toggleBoolean, id) => {
     if (toggleBoolean) {
-      disableProduct(id).then((r) => {
-        getProducts();
-      });
+      disableProduct(id).then(() => {getProducts();});
     } else {
-      enableProduct(id).then((r) => {
-        getProducts();
-      });
+      enableProduct(id).then(() => {getProducts();});
     }
   };
 

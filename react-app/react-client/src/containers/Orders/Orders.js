@@ -96,8 +96,8 @@ const Orders = ({history}) => {
                 // call show dialog in InfoSimpleDialog
                 updateShowDialog(true);
                 // send result to dialog window to show it
-                updateInfo(response.data);
-            }).catch(() => {
+                updateInfo(response.data ? response.data : t('order.deliver'));
+            }).catch((error) => {
                 updateShowDialog(true);
                 updateInfo(undefined);
         });
