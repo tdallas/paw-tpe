@@ -10,8 +10,6 @@ import java.io.Serializable;
 @Getter
 @Setter
 @NoArgsConstructor
-
-
 public class ProductResponse implements Serializable {
     private long id;
     private String description;

@@ -8,6 +8,7 @@ import ar.edu.itba.paw.models.dtos.PaginatedDTO;
 import ar.edu.itba.paw.models.product.Product;
 import ar.edu.itba.paw.webapp.dtos.FileUploadResponse;
 import ar.edu.itba.paw.webapp.dtos.ProductRequest;
+import ar.edu.itba.paw.webapp.dtos.ProductToggleRequest;
 import ar.edu.itba.paw.webapp.utils.FilesUtils;
 import java.io.FileNotFoundException;
 import java.net.URI;
@@ -39,7 +40,7 @@ public class ProductController extends SimpleController {
     private UriInfo uriInfo;
 
     @Autowired
-    public ProductController(final ProductService productService, MessageSourceExternalizer messageSourceExternalizer) {
+    public ProductController(ProductService productService, MessageSourceExternalizer messageSourceExternalizer) {
         this.productService = productService;
         this.messageSourceExternalizer = messageSourceExternalizer;
     }
@@ -52,46 +53,49 @@ public class ProductController extends SimpleController {
         try {
             products = productService.getAll(page, limit);
         } catch (IndexOutOfBoundsException e) {
-            return sendErrorMessageResponse(Status.BAD_REQUEST, messageSourceExternalizer.getMessage("error.404"));
+            return sendErrorMessageResponse(Status.BAD_REQUEST,
+                    messageSourceExternalizer.getMessage("error.404"));
         }
         return sendPaginatedResponse(page, limit, products.getMaxItems(), products.getList(),
             uriInfo.getAbsolutePathBuilder());
     }
 
-    @POST
-    @Path("/{id}/disable")
+    @GET
+    @Path("/{id}")
     @Produces(value = {MediaType.APPLICATION_JSON})
-    public Response hideProduct(@PathParam(value = "id") long productId) throws Exception {
-        boolean productsAffected;
+    public Response getProduct(@PathParam(value = "id") long productId) {
+        ProductResponse product;
         try {
-            productsAffected = productService.disableProduct(productId);
+            product = productService.findProductById(productId);
         } catch (EntityNotFoundException e) {
             return sendErrorMessageResponse(Status.NOT_FOUND,
-                messageSourceExternalizer.getMessage("product.notfound"));
+                    messageSourceExternalizer.getMessage("product.notfound"));
         }
-        if (productsAffected) {
-            return Response.ok().build();
-        }
-        return sendErrorMessageResponse(Status.CONFLICT,
-            messageSourceExternalizer.getMessage("product.error.status"));
+        return Response.ok(product).build();
     }
 
-    @POST
-    @Path("/{id}/enable")
-    @Produces(value = {MediaType.APPLICATION_JSON})
-    public Response showProduct(@PathParam(value = "id") long productId) throws Exception {
-        boolean productsChanged;
+    @PUT
+    @Path("/{id}")
+    @Consumes(value = {MediaType.APPLICATION_JSON})
+    public Response toggleProduct(@PathParam(value = "id") long productId,
+                                  @RequestBody ProductToggleRequest productRequest) {
+        boolean productsAffected;
+        boolean enable = productRequest.isEnabled();
         try {
-            productsChanged = productService.enableProduct(productId);
+            if (enable) {
+                productsAffected = productService.enableProduct(productId);
+            } else {
+                productsAffected = productService.disableProduct(productId);
+            }
         } catch (EntityNotFoundException e) {
             return sendErrorMessageResponse(Status.NOT_FOUND,
-                messageSourceExternalizer.getMessage("product.notfound"));
+                    messageSourceExternalizer.getMessage("product.notfound"));
         }
-        if (productsChanged) {
-            return Response.ok().build();
+        if (productsAffected) {
+            return Response.noContent().contentLocation(uriInfo.getRequestUri()).build();
         }
         return sendErrorMessageResponse(Status.CONFLICT,
-            messageSourceExternalizer.getMessage("product.error.status"));
+                messageSourceExternalizer.getMessage("product.error.status"));
     }
 
     @POST
@@ -110,9 +114,13 @@ public class ProductController extends SimpleController {
             return sendErrorMessageResponse(Status.NOT_FOUND,
                 messageSourceExternalizer.getMessage("product.img.missing"));
         }
-        newProduct = productService.saveProduct(newProduct);
+        ProductResponse productResponse = productService.saveProduct(newProduct);
         LOGGER.info("Product was saved successfully");
-        return Response.created(URI.create(uriInfo.getRequestUri() + "/" + newProduct.getId())).build();
+        return Response
+                .created(URI.create(uriInfo.getRequestUri() + "" + newProduct.getId()))
+                .contentLocation(URI.create(uriInfo.getRequestUri() + "" + newProduct.getId()))
+                .entity(productResponse)
+                .build();
     }
 
     @POST
@@ -120,23 +128,21 @@ public class ProductController extends SimpleController {
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.MULTIPART_FORM_DATA)
     public Response loadProductFile(@FormDataParam("file") InputStream file,
-                                    @FormDataParam("file") FormDataContentDisposition fileDetail) {
+                                    @FormDataParam("file") FormDataContentDisposition fileDetail)
+            throws IOException {
         String fileName = fileDetail.getFileName();
-        String pathToFile;
-        try {
-            pathToFile = FilesUtils.saveFile(file, fileName);
-        } catch (IOException e) {
-            return sendErrorMessageResponse(Status.INTERNAL_SERVER_ERROR,
-                messageSourceExternalizer.getMessage("error.500"));
-        }
-        return Response.ok(new FileUploadResponse(pathToFile)).build();
+        String pathToFile = FilesUtils.saveFile(file, fileName);
+        return Response
+                .created(URI.create(pathToFile))
+                .entity(new FileUploadResponse(pathToFile))
+                .build();
     }
 
     @GET
     @Path(value = "/{productId}/img")
     @Produces("image/png")
     public Response getImgForProduct(@PathParam("productId") long productId) {
-        Product product;
+        ProductResponse product;
         try {
             product = productService.findProductById(productId);
         } catch (EntityNotFoundException e) {

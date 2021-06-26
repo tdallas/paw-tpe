@@ -9,6 +9,8 @@ import ar.edu.itba.paw.interfaces.services.*;
 import ar.edu.itba.paw.models.charge.Charge;
 import ar.edu.itba.paw.models.dtos.CheckoutDTO;
 import ar.edu.itba.paw.models.reservation.Reservation;
+import ar.edu.itba.paw.models.room.Room;
+import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,6 +38,16 @@ public class RoomServiceImpl implements RoomService {
         this.emailService = emailService;
         this.reservationService = reservationService;
         this.chargeService = chargeService;
+    }
+
+    @Override
+    @Transactional
+    public RoomResponse getRoomById(long roomId) throws EntityNotFoundException {
+        Optional<Room> possibleRoom = roomDao.findById(roomId);
+        if (possibleRoom.isPresent()) {
+            return RoomResponse.fromRoom(possibleRoom.get());
+        }
+        throw new EntityNotFoundException("Can't find room with id " + roomId);
     }
 
     @Override

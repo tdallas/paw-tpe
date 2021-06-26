@@ -1,5 +1,6 @@
 package ar.edu.itba.paw.webapp.utils;
 
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
@@ -7,7 +8,7 @@ import java.util.Date;
 public class JsonToCalendar {
 
 //    String is yyyy-MM-dd
-    public static Calendar unmarshal(String v) throws Exception {
+    public static Calendar unmarshal(String v) throws ParseException {
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
         Date date =  simpleDateFormat.parse(v);
         Calendar calendar = Calendar.getInstance();

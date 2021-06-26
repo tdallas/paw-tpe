@@ -36,7 +36,12 @@ public class ReservationServiceImpl implements ReservationService {
     private final EmailService emailService;
 
     @Autowired
-    public ReservationServiceImpl(OccupantDao occupantDao, ReservationDao reservationDao, RoomDao roomDao, UserService userService, EmailService emailService) {
+    public ReservationServiceImpl(
+            OccupantDao occupantDao,
+            ReservationDao reservationDao,
+            RoomDao roomDao,
+            UserService userService,
+            EmailService emailService) {
         this.occupantDao = occupantDao;
         this.reservationDao = reservationDao;
         this.roomDao = roomDao;
@@ -103,7 +108,8 @@ public class ReservationServiceImpl implements ReservationService {
     }
 
     @Override
-    public void registerOccupants(String reservationHash, List<Occupant> listOfOccupantsFromForm) throws EntityNotFoundException {
+    public void registerOccupants(String reservationHash, List<Occupant> listOfOccupantsFromForm)
+            throws EntityNotFoundException {
         Reservation reservation = reservationDao.findReservationByHash(reservationHash)
                 .orElseThrow(() -> new EntityNotFoundException("Reservation was not found"));
         listOfOccupantsFromForm
@@ -112,13 +118,15 @@ public class ReservationServiceImpl implements ReservationService {
                 .forEach(occupantDao::save);
     }
 
-    @Transactional
     @Override
-    public ReservationResponse doReservation(long roomId, String userEmail, Calendar startDate, Calendar endDate) throws RequestInvalidException {
+    @Transactional
+    public ReservationResponse doReservation(long roomId, String userEmail, Calendar startDate, Calendar endDate)
+            throws RequestInvalidException {
         final boolean isValidDate = isValidDate(startDate, endDate);
         final boolean isRoomFree = isRoomFreeOnDate(roomId, startDate, endDate);
         if (!isValidDate || !isRoomFree) {
-            throw new RequestInvalidException(!isValidDate ? "The dates are invalid" : "The room is not available on selected dates");
+            throw new RequestInvalidException(
+                    !isValidDate ? "The dates are invalid" : "The room is not available on selected dates");
         }
         LOGGER.info("Looking if there is already a user created with email " + userEmail);
         User user = userService.getUserForReservation(userEmail);
@@ -133,11 +141,12 @@ public class ReservationServiceImpl implements ReservationService {
 
     @Override
     @Transactional
-    public PaginatedDTO<ReservationResponse> findAllBetweenDatesOrEmailAndSurname(Calendar startDate, Calendar endDate,
-                                                                                  String email, String occupantSurname,
-                                                                                  int page, int pageSize) {
+    public PaginatedDTO<ReservationResponse> findAllBetweenDatesOrEmailAndSurname(
+            Calendar startDate, Calendar endDate, String email, String occupantSurname,
+            int page, int pageSize) {
         if (pageSize < 1 || page < 1) throw new IndexOutOfBoundsException("Pagination requested invalid.");
-        PaginatedDTO<Reservation> reservations = reservationDao.findAllBetweenDatesOrEmailAndSurname(startDate, endDate, email, occupantSurname, page, pageSize);
+        PaginatedDTO<Reservation> reservations = reservationDao
+                .findAllBetweenDatesOrEmailAndSurname(startDate, endDate, email, occupantSurname, page, pageSize);
         return new PaginatedDTO<>(reservations.getList()
                 .stream().map(ReservationResponse::fromReservation).collect(Collectors.toList()),
                 reservations.getMaxItems());
@@ -147,7 +156,8 @@ public class ReservationServiceImpl implements ReservationService {
     @Transactional
     public PaginatedDTO<ReservationResponse> getRoomsReservedActive(int page, int pageSize) {
         if (pageSize < 1 || page < 1) throw new IndexOutOfBoundsException("Pagination requested invalid.");
-        PaginatedDTO<Reservation> paginatedReservationResponseList = reservationDao.getActiveReservations(page, pageSize);
+        PaginatedDTO<Reservation> paginatedReservationResponseList = reservationDao
+                .getActiveReservations(page, pageSize);
         return new PaginatedDTO<>(paginatedReservationResponseList.getList()
                 .stream().map(ReservationResponse::fromReservation).collect(Collectors.toList()),
                 paginatedReservationResponseList.getMaxItems());

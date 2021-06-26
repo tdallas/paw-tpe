@@ -1,15 +1,12 @@
 package ar.edu.itba.paw.webapp.controller;
 
-import ar.edu.itba.paw.interfaces.dtos.ActiveReservationResponse;
-import ar.edu.itba.paw.interfaces.dtos.ChargesByUserResponse;
-import ar.edu.itba.paw.interfaces.dtos.ProductResponse;
+import ar.edu.itba.paw.interfaces.dtos.*;
 import ar.edu.itba.paw.interfaces.exceptions.EntityNotFoundException;
 import ar.edu.itba.paw.interfaces.exceptions.RequestInvalidException;
 import ar.edu.itba.paw.interfaces.services.MessageSourceExternalizer;
 import ar.edu.itba.paw.interfaces.services.UserService;
 import ar.edu.itba.paw.models.charge.Charge;
 import ar.edu.itba.paw.models.dtos.PaginatedDTO;
-import ar.edu.itba.paw.models.help.Help;
 import ar.edu.itba.paw.webapp.dtos.ActiveReservationsResponse;
 import ar.edu.itba.paw.webapp.dtos.HelpRequest;
 import ar.edu.itba.paw.webapp.dtos.RateReservationRequest;
@@ -43,7 +40,6 @@ public class UserController extends SimpleController {
         this.userService = userService;
         this.messageSourceExternalizer = messageSourceExternalizer;
     }
-
 
     @GET
     @Path("/{reservationId}/expenses")
@@ -87,21 +83,82 @@ public class UserController extends SimpleController {
         } catch (IndexOutOfBoundsException e) {
             return sendErrorMessageResponse(Status.NOT_FOUND, messageSourceExternalizer.getMessage("error.404"));
         }
-        return sendPaginatedResponse(page, limit, productList.getMaxItems(), productList.getList(), uriInfo.getAbsolutePathBuilder());
+        return sendPaginatedResponse(page, limit, productList.getMaxItems(), productList.getList(),
+                uriInfo.getAbsolutePathBuilder());
+    }
+
+    @GET
+    @Path("/{reservationId}/products/{chargeId}")
+    @Produces(value = {MediaType.APPLICATION_JSON})
+    public Response getCharge(@PathParam("reservationId") long reservationId, @PathParam("chargeId") long chargeId) {
+        LOGGER.info("Request received to retrieve user's charge with id " + chargeId);
+        ChargeDeliveryResponse chargeResponse;
+        try {
+            chargeResponse = userService.getCharge(chargeId);
+        } catch (IndexOutOfBoundsException | EntityNotFoundException e) {
+            return sendErrorMessageResponse(Status.NOT_FOUND,
+                    messageSourceExternalizer.getMessage("user.expenses.notfound"));
+        }
+        return Response.ok(chargeResponse).build();
     }
 
     @POST
     @Path("/{reservationId}/products/{productId}")
     @Produces(value = {MediaType.APPLICATION_JSON})
-    public Response buyProduct(@PathParam("reservationId") long reservationId, @PathParam("productId") Long productId) throws EntityNotFoundException {
+    public Response buyProduct(@PathParam("reservationId") long reservationId, @PathParam("productId") Long productId) {
         LOGGER.info("Request received to buy products on reservation with id " + reservationId);
         if (productId != null) {
-            Charge charge = userService.addCharge(productId, reservationId);
-            URI uri = uriInfo.getAbsolutePathBuilder().path("/" + charge.getId()).build();
-            return Response.created(uri).build();
+            Charge charge;
+            try {
+                charge = userService.addCharge(productId, reservationId);
+                URI uri = URI.create(
+                        (uriInfo.getRequestUri() + "")
+                                .split("/products/")[0]
+                                + "/products/" + charge.getId()
+                );
+                return Response.created(uri).entity(ChargeResponse.fromCharge(charge))
+                        .contentLocation(URI.create(
+                                (uriInfo.getRequestUri() + "")
+                                        .split("/products/")[0]
+                                        + "/products/" + charge.getId()
+                        )).build();
+            } catch (EntityNotFoundException e) {
+                if (e.getDescription().contains("product")) {
+                    return sendErrorMessageResponse(Status.NOT_FOUND,
+                            messageSourceExternalizer.getMessage("product.notfound"));
+                } else if (e.getDescription().contains("reservation")) {
+                    return sendErrorMessageResponse(Status.NOT_FOUND,
+                            messageSourceExternalizer.getMessage("reservation.notfound"));
+                }
+                return sendErrorMessageResponse(Status.NOT_FOUND,
+                        messageSourceExternalizer.getMessage("error.404"));
+            }
         }
         return sendErrorMessageResponse(Status.NOT_FOUND,
             messageSourceExternalizer.getMessage("product.notfound"));
+    }
+
+    @GET
+    @Path("/{reservationId}/help/{helpId}")
+    @Produces(value = {MediaType.APPLICATION_JSON})
+    public Response getHelp(@PathParam("reservationId") long reservationId, @PathParam("helpId") long helpId) {
+        LOGGER.info("Attempting to get help request with id " + helpId + ", from reservation with id " + reservationId);
+        HelpResponse helpRequest;
+        try {
+            helpRequest = userService.getHelpRequestById(reservationId, helpId);
+        } catch (EntityNotFoundException e) {
+            if (e.getDescription().contains("Help")) {
+                return sendErrorMessageResponse(Status.NOT_FOUND,
+                        messageSourceExternalizer.getMessage("help.notfound"));
+            } else if (e.getDescription().contains("does not belong")) {
+                return sendErrorMessageResponse(Status.FORBIDDEN,
+                        messageSourceExternalizer.getMessage("error.403"));
+            } else {
+                return sendErrorMessageResponse(Status.NOT_FOUND,
+                        messageSourceExternalizer.getMessage("reservation.notfound"));
+            }
+        }
+        return Response.ok(helpRequest).build();
     }
 
     @POST
@@ -110,17 +167,25 @@ public class UserController extends SimpleController {
     public Response requestHelp(@PathParam("reservationId") long reservationId,
                                 @RequestBody HelpRequest helpRequest) {
         LOGGER.info("Help request made on reservation with id " + reservationId);
+        if (helpRequest == null) {
+            return sendErrorMessageResponse(Status.BAD_REQUEST,
+                    messageSourceExternalizer.getMessage("help.notfound"));
+        }
         if (helpRequest.getHelpDescription() != null) {
-            Help helpRequested;
+            HelpResponse helpRequested;
             try {
                 helpRequested = userService.requestHelp(helpRequest.getHelpDescription(), reservationId);
             } catch (EntityNotFoundException e) {
                 return sendErrorMessageResponse(Status.NOT_FOUND,
                     messageSourceExternalizer.getMessage("reservation.notfound"));
             }
-            return Response.created(URI.create(uriInfo.getRequestUri() + "/" + helpRequested.getId())).build();
+            return Response
+                    .created(URI.create(uriInfo.getRequestUri() + "/" + helpRequested.getId()))
+                    .entity(helpRequested)
+                    .build();
         }
-        return Response.status(Response.Status.BAD_REQUEST).build();
+        return sendErrorMessageResponse(Status.BAD_REQUEST,
+                messageSourceExternalizer.getMessage("help.notfound"));
     }
 
     @POST
@@ -130,14 +195,14 @@ public class UserController extends SimpleController {
                          @RequestBody RateReservationRequest rateRequest) {
         try {
             userService.rateStay(rateRequest.getRating(), reservationHash);
-            // send location uri? this rated stay is not public to the client, only to manager
+            // once submitted, this rated reservation is no longer public to the client, only to manager
             return Response.noContent().build();
         } catch (EntityNotFoundException e) {
             return sendErrorMessageResponse(Status.NOT_FOUND,
                 messageSourceExternalizer.getMessage("reservation.notfound"));
         } catch (RequestInvalidException e) {
-            return sendErrorMessageResponse(Status.INTERNAL_SERVER_ERROR,
-                messageSourceExternalizer.getMessage("error.500"));
+            return sendErrorMessageResponse(Status.BAD_REQUEST,
+                messageSourceExternalizer.getMessage("reservation.rated"));
         }
     }
 }

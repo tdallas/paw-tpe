@@ -1,11 +1,10 @@
 package ar.edu.itba.paw.services;
 
 import ar.edu.itba.paw.interfaces.daos.*;
-import ar.edu.itba.paw.interfaces.dtos.ActiveReservationResponse;
-import ar.edu.itba.paw.interfaces.dtos.ChargesByUserResponse;
-import ar.edu.itba.paw.interfaces.dtos.ProductResponse;
+import ar.edu.itba.paw.interfaces.dtos.*;
 import ar.edu.itba.paw.interfaces.exceptions.EntityNotFoundException;
 import ar.edu.itba.paw.interfaces.exceptions.RequestInvalidException;
+import ar.edu.itba.paw.interfaces.services.ChargeService;
 import ar.edu.itba.paw.interfaces.services.EmailService;
 import ar.edu.itba.paw.interfaces.services.UserService;
 import ar.edu.itba.paw.models.charge.Charge;
@@ -39,15 +38,18 @@ public class UserServiceImpl implements UserService {
     private final ReservationDao reservationDao;
     private final UserDao userDao;
     private final HelpDao helpDao;
+    private final ChargeService chargeService;
     private final EmailService emailService;
 
     @Autowired
-    public UserServiceImpl(ProductDao productDao, ChargeDao chargeDao, ReservationDao reservationDao, UserDao userDao, HelpDao helpDao, EmailService emailService) {
+    public UserServiceImpl(ProductDao productDao, ChargeDao chargeDao, ReservationDao reservationDao,
+                           UserDao userDao, HelpDao helpDao, ChargeService chargeService, EmailService emailService) {
         this.productDao = productDao;
         this.chargeDao = chargeDao;
         this.reservationDao = reservationDao;
         this.userDao = userDao;
         this.helpDao = helpDao;
+        this.chargeService = chargeService;
         this.emailService = emailService;
     }
 
@@ -67,11 +69,22 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    @Transactional
+    public UserResponse getUserById(long userId) throws EntityNotFoundException {
+        Optional<User> possibleUser = userDao.findById(userId);
+        if (possibleUser.isPresent()) {
+            return UserResponse.fromUser(possibleUser.get());
+        }
+        throw new EntityNotFoundException("Can't find a user with id " + userId);
+    }
+
+    @Override
     public List<ChargesByUserResponse> checkProductsPurchasedByUserByReservationId(String userEmail, long reservationId)
         throws EntityNotFoundException {
         Map<Product, Integer> productToQtyMap = chargeDao.getAllChargesByUser(userEmail, reservationId);
         return productToQtyMap.keySet().stream().map(
-                product -> new ChargesByUserResponse(product.getDescription(), product.getId(), product.getPrice(), productToQtyMap.get(product))
+                product -> new ChargesByUserResponse(
+                        product.getDescription(), product.getId(), product.getPrice(), productToQtyMap.get(product))
         ).collect(Collectors.toList());
     }
 
@@ -94,7 +107,6 @@ public class UserServiceImpl implements UserService {
         } else {
             LOGGER.info("There is no user created with email " + userEmail + ". So we'll create one.");
             String randomPassword = generatePassword();
-            System.out.println("Password for user is: " + randomPassword);  // TODO: ERASE THIS PRINT BEFORE SENDING TO PROD
             user = userDao.save(new User(userEmail, userEmail, new BCryptPasswordEncoder().encode(randomPassword)));
             LOGGER.info("User created! Sending e-mail about user creation to: " + userEmail);
             emailService.sendUserCreatedEmail(userEmail, randomPassword);
@@ -103,17 +115,19 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public Help requestHelp(String text, long reservationId) throws EntityNotFoundException {
-        Reservation reservation = reservationDao.findById(reservationId).orElseThrow(() -> new EntityNotFoundException("Can't find reservation"));
+    public HelpResponse requestHelp(String text, long reservationId) throws EntityNotFoundException {
+        Reservation reservation = reservationDao.findById(reservationId)
+                .orElseThrow(() -> new EntityNotFoundException("Can't find reservation"));
         if (text.length() > 0 && isValidString(text)) {
-            return helpDao.save(new Help(text, reservation));
+            return HelpResponse.fromHelpRequest(helpDao.save(new Help(text, reservation)));
         }
         return null;
     }
 
     @Transactional
     @Override
-    public void rateStay(String rate, String reservationHash) throws EntityNotFoundException, RequestInvalidException {
+    public void rateStay(String rate, String reservationHash)
+            throws EntityNotFoundException, RequestInvalidException {
         Reservation reservation = reservationDao.findReservationByHash(reservationHash)
                 .orElseThrow(() -> new EntityNotFoundException("Reservation was not found"));
         if (reservation.getCalification() != null) {
@@ -122,12 +136,46 @@ public class UserServiceImpl implements UserService {
         reservationDao.rateStay(reservation.getId(), transformRate(rate));
     }
 
+    @Override
+    @Transactional
+    public HelpResponse getHelpRequestById(long reservationId, long helpId) throws EntityNotFoundException {
+        Optional<Help> possibleHelp = helpDao.findById(helpId);
+        if (!possibleHelp.isPresent()) {
+            throw new EntityNotFoundException("Help request not found.");
+        }
+        Help helpRequest = possibleHelp.get();
+        if (helpRequest.getReservation().getId() != reservationId) {
+            throw new EntityNotFoundException("Reservation does not belong to help request.");
+        }
+        return HelpResponse.fromHelpRequest(helpRequest);
+    }
+
+    @Override
+    public ChargeDeliveryResponse getCharge(long chargeId) throws EntityNotFoundException {
+        return chargeService.getChargeById(chargeId);
+    }
+
     private String transformRate(String rate) {
-        return Calification.values()[Integer.parseInt(rate) - 1].name();
+        if (isInt(rate)) {
+            return Calification.values()[Integer.parseInt(rate) - 1].name();
+        }
+        return rate.toUpperCase();
     }
 
     private boolean isValidString(String text) {
         return text.matches("^.*[a-zA-Z0-9áéíóúüñÁÉÍÓÚÑ ].*$");
+    }
+
+    private boolean isInt(String strNum) {
+        if (strNum == null) {
+            return false;
+        }
+        try {
+            int i = Integer.parseInt(strNum);
+        } catch (NumberFormatException nfe) {
+            return false;
+        }
+        return true;
     }
 
     private Integer[] generateRandomIntsArray() {

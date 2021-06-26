@@ -2,7 +2,6 @@ package ar.edu.itba.paw.interfaces.dtos;
 
 import ar.edu.itba.paw.models.reservation.Calification;
 import ar.edu.itba.paw.models.reservation.Reservation;
-import ar.edu.itba.paw.models.room.Room;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -15,8 +14,6 @@ import java.util.stream.Collectors;
 @Getter
 @Setter
 @NoArgsConstructor
-
-
 public class ReservationResponse implements Serializable {
     private Long id;
     private Calendar startDate;
@@ -41,7 +38,8 @@ public class ReservationResponse implements Serializable {
         rDto.charges = reservation
                 .getCharges()
                 .stream()
-                .map(charge -> new ChargeResponse(charge.getId(), charge.isDelivered()))
+                .map(charge -> new ChargeResponse(charge.getId(), charge.isDelivered(),
+                        ProductResponse.fromProduct(charge.getProduct())))
                 .collect(Collectors.toList());
         rDto.occupants = reservation
                 .getOccupants()
@@ -50,10 +48,6 @@ public class ReservationResponse implements Serializable {
                 .collect(Collectors.toList());
         rDto.hash = reservation.getHash();
         rDto.calification = reservation.getCalification();
-
-        System.out.println("\n");
-        System.out.println(reservation);
-        System.out.println("\n");
 
         return rDto;
     }

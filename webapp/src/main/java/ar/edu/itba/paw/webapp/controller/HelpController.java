@@ -1,12 +1,12 @@
 package ar.edu.itba.paw.webapp.controller;
 
 import ar.edu.itba.paw.interfaces.dtos.HelpResponse;
+import ar.edu.itba.paw.interfaces.exceptions.EntityNotFoundException;
 import ar.edu.itba.paw.interfaces.exceptions.RequestInvalidException;
 import ar.edu.itba.paw.interfaces.services.HelpService;
 import ar.edu.itba.paw.interfaces.services.MessageSourceExternalizer;
 import ar.edu.itba.paw.models.dtos.PaginatedDTO;
 import ar.edu.itba.paw.models.help.HelpStep;
-import ar.edu.itba.paw.webapp.dtos.ErrorMessageResponse;
 import javax.ws.rs.core.Response.Status;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -44,24 +44,47 @@ public class HelpController extends SimpleController {
         try {
             helpRequests = helpService.getAllRequestsThatRequireAction(page, limit);
         } catch (IndexOutOfBoundsException e) {
-            return sendErrorMessageResponse(Status.NOT_FOUND, messageSourceExternalizer.getMessage("error.404"));
+            return sendErrorMessageResponse(Status.NOT_FOUND, messageSourceExternalizer
+                    .getMessage("error.404"));
         }
-        return sendPaginatedResponse(page, limit, helpRequests.getMaxItems(), helpRequests.getList(), uriInfo.getAbsolutePathBuilder());
+        return sendPaginatedResponse(page, limit, helpRequests.getMaxItems(), helpRequests.getList(),
+            uriInfo.getAbsolutePathBuilder());
+    }
+
+    @GET
+    @Path("/{id}")
+    @Produces(value = {MediaType.APPLICATION_JSON})
+    public Response getHelpRequest(@PathParam("id") final long helpRequestId) {
+        LOGGER.info("Attempted to get help request with id " + helpRequestId);
+        try {
+            return Response.ok(helpService.getHelpById(helpRequestId)).build();
+        } catch (EntityNotFoundException e) {
+            return sendErrorMessageResponse(Status.NOT_FOUND, messageSourceExternalizer
+                    .getMessage("error.404"));
+        }
     }
 
     @PUT
     @Path("/{id}")
     @Produces(value = {MediaType.APPLICATION_JSON})
-    public Response updateHelpStep(@PathParam("id") final long helpRequestId, @QueryParam("getHelpFormStatus") HelpStep status,
+    public Response updateHelpStep(@PathParam("id") final long helpRequestId,
+                                   @QueryParam("status") String status,
                                    @QueryParam("page") @DefaultValue(DEFAULT_FIRST_PAGE) int page,
-                                   @QueryParam("limit") @DefaultValue(DEFAULT_PAGE_SIZE) int limit) throws RequestInvalidException {
+                                   @QueryParam("limit") @DefaultValue(DEFAULT_PAGE_SIZE) int limit) {
         LOGGER.info("Attempted to update status on help request.");
         try {
-            if (helpService.updateStatus(helpRequestId, status)) {
-                return help(page, limit);
+            if (helpService.updateStatus(helpRequestId, HelpStep.valueOf(status.toUpperCase().replace("-", "_")))) {
+                return Response
+                        .noContent()
+                        .contentLocation(uriInfo.getRequestUri())
+                        .build();
             }
-        } catch (IndexOutOfBoundsException e) {
-            return sendErrorMessageResponse(Status.NOT_FOUND, messageSourceExternalizer.getMessage("error.404"));
+        } catch (IndexOutOfBoundsException | EntityNotFoundException e) {
+            return sendErrorMessageResponse(Status.NOT_FOUND, messageSourceExternalizer
+                    .getMessage("error.404"));
+        } catch (RequestInvalidException exception) {
+            return sendErrorMessageResponse(Status.BAD_REQUEST, messageSourceExternalizer
+                    .getMessage("help.status.error"));
         }
         return sendErrorMessageResponse(Status.BAD_REQUEST,
             messageSourceExternalizer.getMessage("help.status.error"));

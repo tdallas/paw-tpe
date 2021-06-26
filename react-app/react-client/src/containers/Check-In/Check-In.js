@@ -72,11 +72,13 @@ const checkIn = ({ history }) => {
             updateShowLoading(true);
             doCheckin(checkIn)
                 .then((response) => {
+                    let data = response.data;
                     updateShowLoading(false);
                     // call show dialog in InfoSimpleDialog
                     updateShowDialog(true);
+                    console.log(response.data);
                     // send result to dialog window to show it
-                    updateInfo(response.data);
+                    updateInfo(response.data ? response.data : t('checkin.successful'));
                 })
                 .catch(() => {
                     updateShowLoading(false);

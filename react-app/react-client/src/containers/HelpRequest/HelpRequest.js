@@ -33,7 +33,6 @@ const HelpRequest = ({history}) => {
     const {t} = useTranslation();
     const [tableInfo, setTableInfo] = useState({helpList: [], totalCount: 0});
     const {helpList, totalCount} = tableInfo;
-    // const {itemList, totalCount, pageFunction} = usePagination(getAllHelpRequests);
 
     const getAllHelpRequestsUnsolved = (page, limit) => {
         getAllHelpRequests({page, limit})
@@ -56,8 +55,12 @@ const HelpRequest = ({history}) => {
             <Container className={classes.container}>
                 <Row className={classes.row}>
                     <Col xs={12} md={10} className={classes.tableCol}>
-                        <Table columns={helpListColumns} rows={helpList} totalItems={totalCount}
-                               pageFunction={getAllHelpRequestsUnsolved}/>
+                        <Table
+                            columns={helpListColumns}
+                            rows={helpList}
+                            totalItems={totalCount}
+                            pageFunction={getAllHelpRequestsUnsolved}
+                        />
                     </Col>
                     <Col xs={12} md={2}>
                         <Col xs={12} md={6} style={{textAlign: 'left'}}>

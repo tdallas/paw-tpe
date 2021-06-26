@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Component
@@ -27,9 +28,9 @@ public class ProductServiceImpl implements ProductService {
 
     @Transactional
     @Override
-    public Product saveProduct(Product product) {
+    public ProductResponse saveProduct(Product product) {
         LOGGER.info("About to save product with description " + product.getDescription() + " and price " + product.getPrice());
-        return productDao.save(product);
+        return ProductResponse.fromProduct(productDao.save(product));
     }
 
     @Transactional
@@ -57,10 +58,13 @@ public class ProductServiceImpl implements ProductService {
                 paginatedResponseList.getMaxItems());
     }
 
-    @Transactional
     @Override
-    public Product findProductById(long productId) throws EntityNotFoundException {
-        return productDao.findById(productId).orElseThrow(() ->
-                new EntityNotFoundException("Can't find product with id " + productId));
+    @Transactional
+    public ProductResponse findProductById(long productId) throws EntityNotFoundException {
+        Optional<Product> possibleProduct = productDao.findById(productId);
+        if (possibleProduct.isPresent()) {
+            return ProductResponse.fromProduct(possibleProduct.get());
+        }
+        throw new EntityNotFoundException("Can't find product with id " + productId);
     }
 }

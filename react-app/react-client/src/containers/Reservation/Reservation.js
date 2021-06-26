@@ -90,7 +90,7 @@ const Reservation = ({ history }) => {
     if (!showRooms) show(true);
   };
 
-  const formIsValidate = () => {
+  const formIsValid = () => {
     let isOk = true;
     if (email.length === 0 || !email.includes('@')) {
       setErrorInput(true);
@@ -110,7 +110,7 @@ const Reservation = ({ history }) => {
     userEmail,
     roomId,
   }) => () => {
-    if (!formIsValidate())
+    if (!formIsValid())
       return;
     else {
       updateShowLoading(true);
@@ -135,7 +135,7 @@ const Reservation = ({ history }) => {
 
           setRespEndDate(dformatEnd);
         })
-        .catch((error, response) => {
+        .catch((error) => {
           updateShowLoading(false);
           updateShowDialog(true);
           setResponseError(true);

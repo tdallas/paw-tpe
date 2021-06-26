@@ -6,13 +6,13 @@ import ar.edu.itba.paw.models.dtos.PaginatedDTO;
 import ar.edu.itba.paw.models.product.Product;
 
 public interface ProductService {
-    Product saveProduct(Product product);
+    ProductResponse saveProduct(Product product);
 
-    boolean disableProduct(long productId) throws Exception;
+    boolean disableProduct(long productId) throws EntityNotFoundException;
 
-    boolean enableProduct(long productId) throws Exception;
+    boolean enableProduct(long productId) throws EntityNotFoundException;
 
     PaginatedDTO<ProductResponse> getAll(int page, int pageSize);
 
-    Product findProductById(long productId) throws EntityNotFoundException;
+    ProductResponse findProductById(long productId) throws EntityNotFoundException;
 }

@@ -15,7 +15,6 @@ import ar.edu.itba.paw.webapp.dtos.OccupantsRequest;
 import ar.edu.itba.paw.webapp.dtos.ReservationRequest;
 import ar.edu.itba.paw.webapp.utils.JsonToCalendar;
 import java.net.URI;
-import java.util.Optional;
 import javax.ws.rs.core.Response.Status;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,10 +23,12 @@ import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Controller;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
+import org.springframework.web.bind.annotation.RequestBody;
 
 import javax.persistence.NoResultException;
 import javax.ws.rs.*;
 import javax.ws.rs.core.*;
+import java.text.ParseException;
 import java.util.Calendar;
 import java.util.stream.Collectors;
 
@@ -67,7 +68,8 @@ public class RoomController extends SimpleController {
         } catch (IndexOutOfBoundsException e) {
             return sendErrorMessageResponse(Status.NOT_FOUND, messageSourceExternalizer.getMessage("error.404"));
         }
-        return sendPaginatedResponse(page, limit, reservations.getMaxItems(), reservations.getList(), uriInfo.getAbsolutePathBuilder());
+        return sendPaginatedResponse(page, limit, reservations.getMaxItems(), reservations.getList(),
+                uriInfo.getAbsolutePathBuilder());
     }
 
     @GET
@@ -78,7 +80,7 @@ public class RoomController extends SimpleController {
                                        @QueryParam("email")  String email,
                                        @QueryParam("lastName")  String lastName,
                                        @QueryParam("page") @DefaultValue(DEFAULT_FIRST_PAGE) int page,
-                                       @QueryParam("limit") @DefaultValue(DEFAULT_PAGE_SIZE) int limit) throws Exception {
+                                       @QueryParam("limit") @DefaultValue(DEFAULT_PAGE_SIZE) int limit) {
         LOGGER.info("Request received to retrieve reservations.");
         PaginatedDTO<ReservationResponse> reservations = null;
         try {
@@ -92,7 +94,8 @@ public class RoomController extends SimpleController {
                     Calendar endDateCalendar = JsonToCalendar.unmarshal(endDate);
                     if (startDateCalendar.before(endDateCalendar)) {
                         LOGGER.info("Valid dates received, continuing with fetch...");
-                        reservations = reservationService.findAllBetweenDatesOrEmailAndSurname(startDateCalendar, endDateCalendar, email, lastName, page, limit);
+                        reservations = reservationService.findAllBetweenDatesOrEmailAndSurname(
+                                startDateCalendar, endDateCalendar, email, lastName, page, limit);
                     } else {
                         LOGGER.info("Request received with invalid dates.");
                         return sendErrorMessageResponse(Status.BAD_REQUEST,
@@ -103,16 +106,20 @@ public class RoomController extends SimpleController {
         } catch (IllegalArgumentException e) {
             LOGGER.info(e.getMessage());
             System.out.println(e.getMessage());
-            // fixme
+            // fixme: when does this error happen?
             return sendErrorMessageResponse(Status.BAD_REQUEST,
-                messageSourceExternalizer.getMessage("error.500"));
+                messageSourceExternalizer.getMessage("error.404"));
+        } catch (ParseException e) {
+            return sendErrorMessageResponse(Status.BAD_REQUEST,
+                messageSourceExternalizer.getMessage("reservation.date.error"));
         }
         if (reservations == null) {
             return sendErrorMessageResponse(Status.NOT_FOUND,
                 messageSourceExternalizer.getMessage("error.404"));
         }
         LOGGER.info("Reservation(s) found!");
-        return sendPaginatedResponse(page, limit, reservations.getMaxItems(), reservations.getList(), uriInfo.getAbsolutePathBuilder());
+        return sendPaginatedResponse(page, limit, reservations.getMaxItems(), reservations.getList(),
+                uriInfo.getAbsolutePathBuilder());
     }
 
     @GET
@@ -149,39 +156,53 @@ public class RoomController extends SimpleController {
     }
 
     @POST
-    @Path("/checkin/{reservationId}")
+    @Path("/checkin/{reservationHash}")
     @Produces(value = {MediaType.APPLICATION_JSON})
-    public Response checkinPost(@PathParam("reservationId") final String reservationId) {
-        LOGGER.info("Request received to do the check-in on reservation with hash: " + reservationId);
+    public Response checkinPost(@PathParam("reservationHash") final String reservationHash) {
+        LOGGER.info("Request received to do the check-in on reservation with hash: " + reservationHash);
         ReservationResponse reservation;
         try {
-            reservation = roomService.doCheckin(reservationId);
+            reservation = roomService.doCheckin(reservationHash);
         } catch (RequestInvalidException e) {
             return sendErrorMessageResponse(Status.CONFLICT,
                 messageSourceExternalizer.getMessage("reservation.checkin.error"));
         } catch (EntityNotFoundException | NoResultException e) {
-            return sendErrorMessageResponse(Status.BAD_REQUEST, messageSourceExternalizer.getMessage("error.404"));
+            return sendErrorMessageResponse(Status.BAD_REQUEST,
+                    messageSourceExternalizer.getMessage("error.404"));
         }
         if (reservation != null) {
-            return Response.ok(reservation).build();
+//           todo: erase System.out.println(uriInfo.getBaseUri().toString())  es  http://localhost:8080/api/
+            return Response
+                    .created(URI.create(uriInfo.getBaseUri() + "rooms/reservation/" + reservation.getId()))
+                    .contentLocation(URI.create(uriInfo.getBaseUri() + "rooms/reservation/" + reservation.getId()))
+                    .entity(reservation)
+                    .build();
         } else {
-            return sendErrorMessageResponse(Status.BAD_REQUEST, messageSourceExternalizer.getMessage("error.404"));
+            return sendErrorMessageResponse(Status.BAD_REQUEST,
+                    messageSourceExternalizer.getMessage("error.404"));
         }
     }
 
     @POST
     @Path("/checkout/{reservationHash}")
     @Produces(value = {MediaType.APPLICATION_JSON})
-    public Response checkoutPost(@PathParam(value = "reservationHash") final String reservationHash) throws EntityNotFoundException {
+    public Response checkoutPost(@PathParam(value = "reservationHash") final String reservationHash) {
+        Reservation reservation;
         try {
+            reservation = reservationService.getReservationByHash(reservationHash);
             roomService.doCheckout(reservationHash, uriInfo.getBaseUri().toString());
+            return Response
+                    .created(URI.create(uriInfo.getBaseUri() + "rooms/reservation/" + reservation.getId()))
+                    .contentLocation(URI.create(uriInfo.getBaseUri() + "rooms/reservation/" + reservation.getId()))
+                    .entity(chargeService.checkProductsPurchasedInCheckOut(reservationHash))
+                    .build();
         } catch (EntityNotFoundException | NoResultException e) {
-            return sendErrorMessageResponse(Status.NOT_FOUND, messageSourceExternalizer.getMessage("error.404"));
+            return sendErrorMessageResponse(Status.NOT_FOUND,
+                    messageSourceExternalizer.getMessage("reservation.notfound"));
         } catch (RequestInvalidException e) {
             return sendErrorMessageResponse(Status.CONFLICT,
                 messageSourceExternalizer.getMessage("reservation.checkout.error"));
         }
-        return Response.ok(chargeService.checkProductsPurchasedInCheckOut(reservationHash)).build();
     }
 
     @GET
@@ -218,7 +239,8 @@ public class RoomController extends SimpleController {
         } catch (IndexOutOfBoundsException e) {
             return sendErrorMessageResponse(Status.NOT_FOUND, messageSourceExternalizer.getMessage("error.404"));
         }
-        return sendPaginatedResponse(page, limit, orders.getMaxItems(), orders.getList(), uriInfo.getAbsolutePathBuilder());
+        return sendPaginatedResponse(page, limit, orders.getMaxItems(), orders.getList(),
+                uriInfo.getAbsolutePathBuilder());
     }
 
     @POST
@@ -229,32 +251,51 @@ public class RoomController extends SimpleController {
         try {
             chargeService.setChargesToDelivered(roomId);
         } catch (IndexOutOfBoundsException e) {
-            return sendErrorMessageResponse(Status.NOT_FOUND, messageSourceExternalizer.getMessage("error.404"));
-        } catch (RequestInvalidException e) {
-            return sendErrorMessageResponse(Status.INTERNAL_SERVER_ERROR,
-                messageSourceExternalizer.getMessage("error.500"));
+            return sendErrorMessageResponse(Status.NOT_FOUND,
+                    messageSourceExternalizer.getMessage("error.404"));
         } catch (EntityNotFoundException e) {
             return sendErrorMessageResponse(Status.NOT_FOUND,
                 messageSourceExternalizer.getMessage("reservation.notfound"));
+        } catch (RequestInvalidException e) {
+            return sendErrorMessageResponse(Status.BAD_REQUEST,
+                    messageSourceExternalizer.getMessage("orders.already"));
         }
-        return Response.status(Status.NO_CONTENT).build();
+        return Response.noContent().build();
     }
 
     @POST
     @Path("/occupants/{reservationHash}")
     @Produces(value = {MediaType.APPLICATION_JSON})
-    public Response registrationPost(@PathParam("reservationHash") String reservationHash, OccupantsRequest occupantsRequest) throws EntityNotFoundException {
+    public Response registrationPost(@PathParam("reservationHash") String reservationHash,
+                                     @RequestBody OccupantsRequest occupantsRequest) {
         LOGGER.info("Attempted to access registration form");
-        if (reservationHash != null && !CollectionUtils.isEmpty(occupantsRequest.getOccupants())) {
-            LOGGER.info("Attempted to register occupants on reservation hash " + reservationHash);
-            reservationService.registerOccupants(reservationHash.trim(),
-                    occupantsRequest.getOccupants()
-                            .stream()
-                            .map(occupantR -> new Occupant(occupantR.getFirstName(), occupantR.getLastName()))
-                            .collect(Collectors.toList()));
-            return Response.status(Response.Status.CREATED).build();
+        if (reservationHash == null) {
+            return sendErrorMessageResponse(Status.BAD_REQUEST,
+                    messageSourceExternalizer.getMessage("reservation.notfound"));
         }
-        return sendErrorMessageResponse(Status.NOT_FOUND,
-            messageSourceExternalizer.getMessage("reservation.notfound"));
+        if (CollectionUtils.isEmpty(occupantsRequest.getOccupants())) {
+            return sendErrorMessageResponse(Status.BAD_REQUEST,
+                    messageSourceExternalizer.getMessage("reservation.occupants.empty"));
+        }
+        LOGGER.info("Attempted to register occupants on reservation hash " + reservationHash);
+        try {
+            reservationService.registerOccupants(reservationHash.trim(),
+                occupantsRequest.getOccupants()
+                    .stream()
+                    .map(
+                        occupantR -> new Occupant(
+                            occupantR.getFirstName(), occupantR.getLastName())
+                    )
+                    .collect(Collectors.toList()));
+            return Response
+                    .noContent()
+                    .contentLocation(URI.create(
+                        uriInfo.getBaseUri() + "rooms/reservation/" + reservationService
+                            .getReservationByHash(reservationHash).getId()))
+                    .build();
+        } catch (EntityNotFoundException e) {
+            return sendErrorMessageResponse(Status.NOT_FOUND,
+                    messageSourceExternalizer.getMessage("reservation.notfound"));
+        }
     }
 }
