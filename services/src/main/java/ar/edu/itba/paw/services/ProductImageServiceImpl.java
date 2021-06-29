@@ -6,6 +6,7 @@ import ar.edu.itba.paw.interfaces.services.ProductImageService;
 import ar.edu.itba.paw.models.product.ProductImage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import javax.persistence.EntityNotFoundException;
@@ -16,6 +17,7 @@ public class ProductImageServiceImpl implements ProductImageService {
 
     private final ProductImageDao productImageDao;
 
+    @Autowired
     public ProductImageServiceImpl(ProductImageDao productImageDao) {
         this.productImageDao = productImageDao;
     }
@@ -23,7 +25,7 @@ public class ProductImageServiceImpl implements ProductImageService {
     @Override
     public ProductImageResponse saveProductImage(byte[] imageBytes, String filename) {
         final ProductImage productImage = productImageDao.save(new ProductImage(imageBytes, filename));
-        return new ProductImageResponse(productImage.getId());
+        return new ProductImageResponse(productImage.getId(), productImage.getFileName());
     }
 
     @Override

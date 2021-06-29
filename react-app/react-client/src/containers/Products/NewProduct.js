@@ -32,6 +32,7 @@ const NewProduct = ({ history }) => {
 
   const [description, setDescription] = useState("");
   const [photo, setPhoto] = useState("");
+  const [photoId, setPhotoId] = useState(undefined);
   const [price, setPrice] = useState("");
   const [errorDescription, setErrorDescription] = useState(false);
   const [errorPrice, setErrorPrice] = useState(false);
@@ -49,9 +50,9 @@ const NewProduct = ({ history }) => {
 
     uploadProductFile(data)
       .then((response) => {
-        // TODO save this somewhere
-        const filePath = response.data.filename;
-        setPhoto(filePath);
+        console.log(response);
+        setPhoto(response.data.filename);
+        setPhotoId(response.data.productImageId);
       })
       .catch((error) => {
         return window.alert(error);
@@ -89,7 +90,7 @@ const NewProduct = ({ history }) => {
   const onSubmitProduct = () => {
     if (!formIsValidate()) return;
     else {
-      addProduct({ imgPath: photo, description, price }).then(() =>
+      addProduct({ productImageId: photoId, description, price }).then(() =>
         history.push("/products")
       );
     }

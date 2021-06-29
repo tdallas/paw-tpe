@@ -38,18 +38,15 @@ public class ProductController extends SimpleController {
 
     private final ProductService productService;
     private final MessageSourceExternalizer messageSourceExternalizer;
-    private final ProductImageService productImageService;
 
     @Context
     private UriInfo uriInfo;
 
     @Autowired
     public ProductController(final ProductService productService,
-                             final MessageSourceExternalizer messageSourceExternalizer,
-                             final ProductImageService productImageService) {
+                             final MessageSourceExternalizer messageSourceExternalizer) {
         this.productService = productService;
         this.messageSourceExternalizer = messageSourceExternalizer;
-        this.productImageService = productImageService;
     }
 
     @GET
@@ -114,41 +111,12 @@ public class ProductController extends SimpleController {
         }
         LOGGER.info("Request to add product to DB received");
         ProductResponse productResponse = productService.saveProduct(productRequest.getDescription(),
-                productRequest.getPrice(), productRequest.getProductImgId());
+                productRequest.getPrice(), productRequest.getProductImageId());
         LOGGER.info("Product was saved successfully");
         return Response
                 .created(URI.create(uriInfo.getRequestUri() + "" + productResponse.getId()))
                 .contentLocation(URI.create(uriInfo.getRequestUri() + "" + productResponse.getId()))
                 .entity(productResponse)
                 .build();
-    }
-
-    @POST
-    @Path("/upload-file")
-    @Produces(MediaType.APPLICATION_JSON)
-    @Consumes(MediaType.MULTIPART_FORM_DATA)
-    public Response loadProductFile(@FormDataParam("file") InputStream file,
-                                    @FormDataParam("file") FormDataContentDisposition fileDetail)
-            throws IOException {
-        final String fileName = fileDetail.getFileName();
-        final ProductImageResponse productImageResponse = productImageService.saveProductImage(IOUtils.toByteArray(file), fileName);
-        return Response
-                .created(URI.create("/products/" + productImageResponse.getProductImageId() + "/img"))
-                .entity(new FileUploadResponse(productImageResponse.getProductImageId()))
-                .build();
-    }
-
-    @GET
-    @Path(value = "/{productImageId}/img")
-    @Produces("image/png")
-    public Response getImgForProduct(@PathParam("productImageId") long productImageId) {
-        byte[] productImage;
-        try {
-            productImage = productImageService.findImageById(productImageId).getFile();
-        } catch (EntityNotFoundException e) {
-            return sendErrorMessageResponse(Status.NOT_FOUND,
-                    messageSourceExternalizer.getMessage("product.notfound"));
-        }
-        return Response.ok(productImage).build();
     }
 }

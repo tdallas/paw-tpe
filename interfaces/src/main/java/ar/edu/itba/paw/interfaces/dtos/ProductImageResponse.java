@@ -11,4 +11,5 @@ import lombok.Setter;
 @NoArgsConstructor
 public class ProductImageResponse {
     private long productImageId;
+    private String filename;
 }
