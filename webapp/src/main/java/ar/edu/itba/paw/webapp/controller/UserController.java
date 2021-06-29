@@ -116,12 +116,7 @@ public class UserController extends SimpleController {
                                 .split("/products/")[0]
                                 + "/products/" + charge.getId()
                 );
-                return Response.created(uri).entity(ChargeResponse.fromCharge(charge))
-                        .contentLocation(URI.create(
-                                (uriInfo.getRequestUri() + "")
-                                        .split("/products/")[0]
-                                        + "/products/" + charge.getId()
-                        )).build();
+                return Response.created(uri).entity(ChargeResponse.fromCharge(charge)).contentLocation(uri).build();
             } catch (EntityNotFoundException e) {
                 if (e.getDescription().contains("product")) {
                     return sendErrorMessageResponse(Status.NOT_FOUND,
@@ -179,10 +174,8 @@ public class UserController extends SimpleController {
                 return sendErrorMessageResponse(Status.NOT_FOUND,
                     messageSourceExternalizer.getMessage("reservation.notfound"));
             }
-            return Response
-                    .created(URI.create(uriInfo.getRequestUri() + "/" + helpRequested.getId()))
-                    .entity(helpRequested)
-                    .build();
+            URI uri = URI.create(uriInfo.getRequestUri() + "/" + helpRequested.getId());
+            return Response.created(uri).contentLocation(uri).entity(helpRequested).build();
         }
         return sendErrorMessageResponse(Status.BAD_REQUEST,
                 messageSourceExternalizer.getMessage("help.notfound"));
@@ -195,7 +188,7 @@ public class UserController extends SimpleController {
                          @RequestBody RateReservationRequest rateRequest) {
         try {
             userService.rateStay(rateRequest.getRating(), reservationHash);
-            // once submitted, this rated reservation is no longer public to the client, only to manager
+            // once submitted, this rated reservation is no longer accessible to the client, only to employees
             return Response.noContent().build();
         } catch (EntityNotFoundException e) {
             return sendErrorMessageResponse(Status.NOT_FOUND,
