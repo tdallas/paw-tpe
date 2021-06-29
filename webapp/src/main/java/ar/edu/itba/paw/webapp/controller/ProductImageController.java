@@ -39,7 +39,6 @@ public class ProductImageController extends SimpleController {
     }
 
     @POST
-    @Path("/upload-file")
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.MULTIPART_FORM_DATA)
     public Response loadProductFile(@FormDataParam("file") InputStream file,
@@ -48,7 +47,7 @@ public class ProductImageController extends SimpleController {
         final String fileName = fileDetail.getFileName();
         final ProductImageResponse productImageResponse = productImageService.saveProductImage(IOUtils.toByteArray(file), fileName);
         return Response
-                .created(URI.create(uriInfo.getRequestUri() + "" + productImageResponse.getProductImageId()))
+                .created(URI.create(uriInfo.getRequestUri() + "/" + productImageResponse.getProductImageId()))
                 .entity(productImageResponse)
                 .build();
     }
