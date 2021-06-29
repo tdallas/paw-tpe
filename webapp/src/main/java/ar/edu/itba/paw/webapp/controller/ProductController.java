@@ -1,18 +1,21 @@
 package ar.edu.itba.paw.webapp.controller;
 
+import ar.edu.itba.paw.interfaces.dtos.ProductImageResponse;
 import ar.edu.itba.paw.interfaces.dtos.ProductResponse;
 import ar.edu.itba.paw.interfaces.exceptions.EntityNotFoundException;
 import ar.edu.itba.paw.interfaces.services.MessageSourceExternalizer;
+import ar.edu.itba.paw.interfaces.services.ProductImageService;
 import ar.edu.itba.paw.interfaces.services.ProductService;
 import ar.edu.itba.paw.models.dtos.PaginatedDTO;
-import ar.edu.itba.paw.models.product.Product;
 import ar.edu.itba.paw.webapp.dtos.FileUploadResponse;
 import ar.edu.itba.paw.webapp.dtos.ProductRequest;
 import ar.edu.itba.paw.webapp.dtos.ProductToggleRequest;
 import ar.edu.itba.paw.webapp.utils.FilesUtils;
-import java.io.FileNotFoundException;
+
 import java.net.URI;
 import javax.ws.rs.core.Response.Status;
+
+import org.apache.commons.io.IOUtils;
 import org.glassfish.jersey.media.multipart.FormDataContentDisposition;
 import org.glassfish.jersey.media.multipart.FormDataParam;
 import org.slf4j.Logger;
@@ -35,14 +38,18 @@ public class ProductController extends SimpleController {
 
     private final ProductService productService;
     private final MessageSourceExternalizer messageSourceExternalizer;
+    private final ProductImageService productImageService;
 
     @Context
     private UriInfo uriInfo;
 
     @Autowired
-    public ProductController(ProductService productService, MessageSourceExternalizer messageSourceExternalizer) {
+    public ProductController(final ProductService productService,
+                             final MessageSourceExternalizer messageSourceExternalizer,
+                             final ProductImageService productImageService) {
         this.productService = productService;
         this.messageSourceExternalizer = messageSourceExternalizer;
+        this.productImageService = productImageService;
     }
 
     @GET
@@ -57,7 +64,7 @@ public class ProductController extends SimpleController {
                     messageSourceExternalizer.getMessage("error.404"));
         }
         return sendPaginatedResponse(page, limit, products.getMaxItems(), products.getList(),
-            uriInfo.getAbsolutePathBuilder());
+                uriInfo.getAbsolutePathBuilder());
     }
 
     @GET
@@ -100,25 +107,18 @@ public class ProductController extends SimpleController {
 
     @POST
     @Produces(value = {MediaType.APPLICATION_JSON})
-    public Response addProduct(@RequestBody ProductRequest productRequest) throws IOException {
+    public Response addProduct(@RequestBody ProductRequest productRequest) throws EntityNotFoundException {
         if (productRequest.getPrice() < 0) {
             return sendErrorMessageResponse(Status.BAD_REQUEST,
-                messageSourceExternalizer.getMessage("product.price.positive"));
+                    messageSourceExternalizer.getMessage("product.price.positive"));
         }
         LOGGER.info("Request to add product to DB received");
-        Product newProduct;
-        try {
-            newProduct = new Product(productRequest.getDescription(), productRequest.getPrice(),
-                FilesUtils.loadImg(productRequest.getImgPath()));
-        } catch (FileNotFoundException fileNotFoundException) {
-            return sendErrorMessageResponse(Status.NOT_FOUND,
-                messageSourceExternalizer.getMessage("product.img.missing"));
-        }
-        ProductResponse productResponse = productService.saveProduct(newProduct);
+        ProductResponse productResponse = productService.saveProduct(productRequest.getDescription(),
+                productRequest.getPrice(), productRequest.getProductImgId());
         LOGGER.info("Product was saved successfully");
         return Response
-                .created(URI.create(uriInfo.getRequestUri() + "" + newProduct.getId()))
-                .contentLocation(URI.create(uriInfo.getRequestUri() + "" + newProduct.getId()))
+                .created(URI.create(uriInfo.getRequestUri() + "" + productResponse.getId()))
+                .contentLocation(URI.create(uriInfo.getRequestUri() + "" + productResponse.getId()))
                 .entity(productResponse)
                 .build();
     }
@@ -130,25 +130,25 @@ public class ProductController extends SimpleController {
     public Response loadProductFile(@FormDataParam("file") InputStream file,
                                     @FormDataParam("file") FormDataContentDisposition fileDetail)
             throws IOException {
-        String fileName = fileDetail.getFileName();
-        String pathToFile = FilesUtils.saveFile(file, fileName);
+        final String fileName = fileDetail.getFileName();
+        final ProductImageResponse productImageResponse = productImageService.saveProductImage(IOUtils.toByteArray(file), fileName);
         return Response
-                .created(URI.create(pathToFile))
-                .entity(new FileUploadResponse(pathToFile))
+                .created(URI.create("/products/" + productImageResponse.getProductImageId() + "/img"))
+                .entity(new FileUploadResponse(productImageResponse.getProductImageId()))
                 .build();
     }
 
     @GET
-    @Path(value = "/{productId}/img")
+    @Path(value = "/{productImageId}/img")
     @Produces("image/png")
-    public Response getImgForProduct(@PathParam("productId") long productId) {
-        ProductResponse product;
+    public Response getImgForProduct(@PathParam("productImageId") long productImageId) {
+        byte[] productImage;
         try {
-            product = productService.findProductById(productId);
+            productImage = productImageService.findImageById(productImageId).getFile();
         } catch (EntityNotFoundException e) {
             return sendErrorMessageResponse(Status.NOT_FOUND,
-                messageSourceExternalizer.getMessage("product.notfound"));
+                    messageSourceExternalizer.getMessage("product.notfound"));
         }
-        return Response.ok(product.getFile()).build();
+        return Response.ok(productImage).build();
     }
 }

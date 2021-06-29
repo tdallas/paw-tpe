@@ -33,7 +33,8 @@ public class Product {
     @Column(nullable = false)
     private double price;
 
-    private byte[] file;
+    @OneToOne
+    private ProductImage productImage;
 
     @Column(nullable = false)
     private boolean enable;
@@ -44,10 +45,10 @@ public class Product {
         this.enable = true;
     }
 
-    public Product(String description, double price, byte[] file) {
+    public Product(String description, double price, ProductImage productImage) {
         this.description = description;
         this.price = price;
-        this.file = file;
+        this.productImage = productImage;
         this.enable = true;
     }
 

@@ -14,7 +14,6 @@ public class ProductResponse implements Serializable {
     private long id;
     private String description;
     private double price;
-    private byte[] file;
     private boolean enabled;
 
     public static ProductResponse fromProduct(Product product) {
@@ -23,7 +22,6 @@ public class ProductResponse implements Serializable {
         pDto.id = product.getId();
         pDto.description = product.getDescription();
         pDto.price = product.getPrice();
-        pDto.file = product.getFile();
         pDto.enabled = product.isEnable();
 
         return pDto;
