@@ -50,8 +50,6 @@ const NewProduct = ({ history }) => {
 
     uploadProductFile(data)
       .then((response) => {
-        console.log(response);
-        setPhoto(response.data.filename);
         setPhotoId(response.data.productImageId);
       })
       .catch((error) => {

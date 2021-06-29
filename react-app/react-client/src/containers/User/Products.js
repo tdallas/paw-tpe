@@ -70,13 +70,14 @@ const UserProducts = ({ match, history }) => {
       </InfoSimpleDialog>
       <Row style={{ background: "#FAF6FC", width: '100%' }}>
         <CardDeck style={{ justifyContent: "center", background: "#FAF6FC", width: "100vw" }}>
-          {products.map(({ id, description, price }) => (
+          {products.map(({ id, description, price, productImageId }) => (
             <Card
               id={id}
               name={description}
               price={"$" + price}
               reservationId={reservationId}
               onClick={() => onSubmitBuy(id)}
+              productImageId={productImageId}
             />
           ))}
         </CardDeck>

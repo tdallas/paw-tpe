@@ -8,8 +8,7 @@ import CardMedia from "@material-ui/core/CardMedia";
 import Button from "../Button/Button";
 import Typography from "@material-ui/core/Typography";
 import { getProductFile } from "../../api/productApi";
-import {useTranslation} from "react-i18next";
-
+import { useTranslation } from "react-i18next";
 
 const useStyles = makeStyles({
   root: {
@@ -24,16 +23,15 @@ const useStyles = makeStyles({
 const ImgMediaCard = (props) => {
   const classes = useStyles();
 
-  const { id, price, name, onClick } = props;
-  const {t} = useTranslation();
-
+  const { id, price, name, onClick, productImageId } = props;
+  const { t } = useTranslation();
 
   return (
-    <div style={{ height: "400px"}}>
+    <div style={{ height: "400px" }}>
       <Col xs={12} md={3}>
         <Card className={classes.root}>
           <CardActionArea>
-            <CardMedia component="img" src={getProductFile(id)} height="140" />
+            <CardMedia component="img" src={getProductFile(productImageId)} height="140" />
             <CardContent style={{ textAlign: "center" }}>
               <Typography gutterBottom variant="h5" component="h2">
                 {name}

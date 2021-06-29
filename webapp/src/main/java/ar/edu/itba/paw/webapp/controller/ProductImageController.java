@@ -57,14 +57,13 @@ public class ProductImageController extends SimpleController {
     @Path(value = "/{productImageId}")
     @Produces("image/png")
     public Response getImgForProduct(@PathParam("productImageId") long productImageId) {
-        ProductImageResponse productImageResponse;
+        ProductImage productImage;
         try {
-            ProductImage productImage = productImageService.findImageById(productImageId);
-            productImageResponse = new ProductImageResponse(productImage.getId(), productImage.getFileName());
+            productImage = productImageService.findImageById(productImageId);
         } catch (EntityNotFoundException e) {
             return sendErrorMessageResponse(Response.Status.NOT_FOUND,
                     messageSourceExternalizer.getMessage("product.notfound"));
         }
-        return Response.ok(productImageResponse).build();
+        return Response.ok(productImage.getFile()).build();
     }
 }

@@ -4,7 +4,7 @@ const baseProductsURL = "/products";
 const baseProductImagesURL = "/productImgs"
 
 const addProductFileUrl = baseProductImagesURL + "/upload-file";
-const getProductFileUrl = (id) => baseProductImagesURL + "/" + id + "/img";
+const getProductFileUrl = (id) => baseProductImagesURL + "/" + id;
 const addProductUrl = baseProductsURL;
 const enableProductUrl = (id) => baseProductsURL + "/" + id + "/enable";
 const disableProductUrl = (id) => baseProductsURL + "/" + id + "/disable";

@@ -84,13 +84,13 @@ public class WebAuthConfig extends WebSecurityConfigurerAdapter {
         http.csrf().disable();
         http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS).and();
         http.authorizeRequests()
-                .regexMatchers("/products/[0-9]+/img")
+                .regexMatchers("/productImages/[0-9]+")
                 .anonymous()
                 .antMatchers("/login")
                 .anonymous()
                 .antMatchers("/user/**")
                 .hasAuthority(UserRole.CLIENT.toString())
-                .antMatchers("/rooms/**", "/reservation/**", "/products/**", "/ratings/**")
+                .antMatchers("/rooms/**", "/reservation/**", "/products/**", "/ratings/**", "/productImages/upload-file")
                 .hasAnyAuthority(UserRole.EMPLOYEE.toString(), UserRole.MANAGER.toString());
         // TODO is this necessary?
         http.exceptionHandling().accessDeniedPage("/403");
