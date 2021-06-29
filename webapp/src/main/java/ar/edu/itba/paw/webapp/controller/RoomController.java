@@ -152,7 +152,8 @@ public class RoomController extends SimpleController {
                 messageSourceExternalizer.getMessage("reservation.invalid"));
         }
         return Response.created(URI.create(uriInfo.getRequestUri() + "/" + reservation.getId()))
-            .entity(reservation).build();
+                .contentLocation(URI.create(uriInfo.getRequestUri() + "/" + reservation.getId()))
+                .entity(reservation).build();
     }
 
     @POST
