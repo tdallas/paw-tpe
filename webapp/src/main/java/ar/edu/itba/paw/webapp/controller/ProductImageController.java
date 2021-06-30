@@ -66,7 +66,7 @@ public class ProductImageController extends SimpleController {
             productImage = productImageService.findImageById(productImageId);
         } catch (EntityNotFoundException e) {
             return sendErrorMessageResponse(Response.Status.NOT_FOUND,
-                    messageSourceExternalizer.getMessage("product.notfound"));
+                    messageSourceExternalizer.getMessage("product.image.notfound"));
         }
         return Response.ok(productImage.getFile()).build();
     }
