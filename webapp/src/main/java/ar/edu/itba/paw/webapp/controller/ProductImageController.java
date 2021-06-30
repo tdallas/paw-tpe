@@ -42,13 +42,18 @@ public class ProductImageController extends SimpleController {
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.MULTIPART_FORM_DATA)
     public Response loadProductFile(@FormDataParam("file") InputStream file,
-                                    @FormDataParam("file") FormDataContentDisposition fileDetail)
-            throws IOException {
+                                    @FormDataParam("file") FormDataContentDisposition fileDetail) {
+        ProductImage productImage;
         final String fileName = fileDetail.getFileName();
-        final ProductImageResponse productImageResponse = productImageService.saveProductImage(IOUtils.toByteArray(file), fileName);
+        try {
+            productImage = productImageService.saveProductImage(IOUtils.toByteArray(file), fileName);
+        } catch (IOException exception) {
+            return sendErrorMessageResponse(Response.Status.NOT_FOUND,
+                    messageSourceExternalizer.getMessage("product.image.notfound"));
+        }
         return Response
-                .created(URI.create(uriInfo.getRequestUri() + "/" + productImageResponse.getProductImageId()))
-                .entity(productImageResponse)
+                .created(URI.create(uriInfo.getRequestUri() + "/" + productImage.getId()))
+                .entity(ProductImageResponse.from(productImage))
                 .build();
     }
 

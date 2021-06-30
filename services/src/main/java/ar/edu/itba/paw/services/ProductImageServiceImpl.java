@@ -1,7 +1,6 @@
 package ar.edu.itba.paw.services;
 
 import ar.edu.itba.paw.interfaces.daos.ProductImageDao;
-import ar.edu.itba.paw.interfaces.dtos.ProductImageResponse;
 import ar.edu.itba.paw.interfaces.services.ProductImageService;
 import ar.edu.itba.paw.models.product.ProductImage;
 import org.slf4j.Logger;
@@ -23,9 +22,8 @@ public class ProductImageServiceImpl implements ProductImageService {
     }
 
     @Override
-    public ProductImageResponse saveProductImage(byte[] imageBytes, String filename) {
-        final ProductImage productImage = productImageDao.save(new ProductImage(imageBytes, filename));
-        return new ProductImageResponse(productImage.getId(), productImage.getFileName());
+    public ProductImage saveProductImage(byte[] imageBytes, String filename) {
+        return productImageDao.save(new ProductImage(imageBytes, filename));
     }
 
     @Override

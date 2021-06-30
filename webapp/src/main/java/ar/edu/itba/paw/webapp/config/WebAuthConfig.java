@@ -90,7 +90,7 @@ public class WebAuthConfig extends WebSecurityConfigurerAdapter {
                 .anonymous()
                 .antMatchers("/user/**")
                 .hasAuthority(UserRole.CLIENT.toString())
-                .antMatchers("/rooms/**", "/reservation/**", "/products/**", "/ratings/**", "/productImages/upload-file")
+                .antMatchers("/rooms/**", "/reservation/**", "/products/**", "/ratings/**", "/productImages")
                 .hasAnyAuthority(UserRole.EMPLOYEE.toString(), UserRole.MANAGER.toString());
         // TODO is this necessary?
         http.exceptionHandling().accessDeniedPage("/403");
