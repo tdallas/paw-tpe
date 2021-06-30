@@ -59,7 +59,7 @@ public class ProductImageController extends SimpleController {
 
     @GET
     @Path(value = "/{productImageId}")
-    @Produces("image/png")
+    @Produces({"image/png", "image/jpg", "image/jpeg"})
     public Response getImgForProduct(@PathParam("productImageId") long productImageId) {
         ProductImage productImage;
         try {
