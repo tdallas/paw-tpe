@@ -216,6 +216,7 @@
   "rates": "Ratings",
   "required": "This field is required",
   "back": "Back",
-  "buy": "Buy"
+  "buy": "Buy",
+  "something_happened": "Something happened, please try later!"
   
 }
