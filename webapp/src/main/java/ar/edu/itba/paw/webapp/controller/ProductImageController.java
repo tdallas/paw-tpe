@@ -43,6 +43,7 @@ public class ProductImageController extends SimpleController {
     @Consumes(MediaType.MULTIPART_FORM_DATA)
     public Response loadProductFile(@FormDataParam("file") InputStream file,
                                     @FormDataParam("file") FormDataContentDisposition fileDetail) {
+        // todo: avisar que solo se puede enviar jpg o png
         ProductImage productImage;
         final String fileName = fileDetail.getFileName();
         try {
@@ -59,7 +60,7 @@ public class ProductImageController extends SimpleController {
 
     @GET
     @Path(value = "/{productImageId}")
-    @Produces({"image/png", "image/jpg", "image/jpeg"})
+    @Produces({"image/png", "image/jpg"})
     public Response getImgForProduct(@PathParam("productImageId") long productImageId) {
         ProductImage productImage;
         try {
@@ -68,6 +69,11 @@ public class ProductImageController extends SimpleController {
             return sendErrorMessageResponse(Response.Status.NOT_FOUND,
                     messageSourceExternalizer.getMessage("product.image.notfound"));
         }
-        return Response.ok(productImage.getFile()).build();
+        String[] possibleType = productImage.getFileName().split("\\.");
+        String imageType = "png";
+        if (possibleType.length == 2) {
+            imageType = possibleType[1];
+        }
+        return Response.ok(productImage.getFile()).type("image/" + imageType).build();
     }
 }
