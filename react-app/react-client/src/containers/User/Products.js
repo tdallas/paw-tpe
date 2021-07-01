@@ -48,7 +48,7 @@ const UserProducts = ({ match, history }) => {
       .catch((error) => {
         updateShowLoading(false);
         updateShowDialog(true);
-        updateInfo(undefined);
+        updateInfo(t("something_happened"));
       });
   }
 
@@ -58,7 +58,12 @@ const UserProducts = ({ match, history }) => {
 
   products.length === 0 &&
     getAllProducts(reservationId)
-      .then((response) => setProducts(response.data));
+      .then((response) => setProducts(response.data))
+      .catch((error) => {
+        updateShowLoading(false);
+        updateShowDialog(true);
+        updateInfo(t("something_happened"));
+      });
 
   return (
     <Container className={classes.container}>
@@ -70,13 +75,14 @@ const UserProducts = ({ match, history }) => {
       </InfoSimpleDialog>
       <Row style={{ background: "#FAF6FC", width: '100%' }}>
         <CardDeck style={{ justifyContent: "center", background: "#FAF6FC", width: "100vw" }}>
-          {products.map(({ id, description, price }) => (
+          {products.map(({ id, description, price, productImageId }) => (
             <Card
               id={id}
               name={description}
               price={"$" + price}
               reservationId={reservationId}
               onClick={() => onSubmitBuy(id)}
+              productImageId={productImageId}
             />
           ))}
         </CardDeck>

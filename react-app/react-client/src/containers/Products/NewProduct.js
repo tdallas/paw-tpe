@@ -9,6 +9,8 @@ import Input from "../../components/Input/Input";
 
 import { uploadProductFile, addProduct } from "../../api/productApi";
 
+import Modal from "react-bootstrap/Modal";
+
 const useStyles = makeStyles((theme) => ({
   container: {
     background: "#FAF6FC",
@@ -20,7 +22,7 @@ const useStyles = makeStyles((theme) => ({
     paddingTop: "40px",
     paddingLeft: "10%",
     paddingRight: "10%",
-    width: "100%"
+    width: "100%",
   },
   buttonCol: {
     textAlign: "center",
@@ -32,12 +34,15 @@ const NewProduct = ({ history }) => {
 
   const [description, setDescription] = useState("");
   const [photo, setPhoto] = useState("");
+  const [photoId, setPhotoId] = useState(undefined);
   const [price, setPrice] = useState("");
   const [errorDescription, setErrorDescription] = useState(false);
   const [errorPrice, setErrorPrice] = useState(false);
   const [errorMessagePrice, setErrorMessagePrice] = useState("");
   const { t } = useTranslation();
 
+  const handleCloseMessage = () => setShowMessage(false);
+  const [showMessage, setShowMessage] = useState(false);
 
   const descriptionOnChange = (description) => {
     setDescription(description.target.value);
@@ -50,11 +55,9 @@ const NewProduct = ({ history }) => {
 
     uploadProductFile(data)
       .then((response) => {
-        // TODO save this somewhere
-        const filePath = response.data.filename;
-        setPhoto(filePath);
-      }
-    );
+        setPhotoId(response.data.productImageId);
+      })
+      .catch((response) => setShowMessage(true));
     setPhoto(newPhoto.target.value);
   };
 
@@ -72,28 +75,25 @@ const NewProduct = ({ history }) => {
       setErrorPrice(true);
       setErrorMessagePrice(t("required"));
       isOk = false;
-    }
-    else if(price <= 0){
+    } else if (price <= 0) {
       setErrorPrice(true);
       setErrorMessagePrice(t("product.errorMessagePrice"));
       isOk = false;
     }
 
     return isOk;
-  }
+  };
 
   const back = () => {
     history.push("/products");
-  }
-
+  };
 
   const onSubmitProduct = () => {
-    if (!formIsValidate())
-      return;
+    if (!formIsValidate()) return;
     else {
-      addProduct({ imgPath: photo, description, price })
-        .then(() => history.push("/products")
-      );
+      addProduct({ productImageId: photoId, description, price })
+        .then(() => history.push("/products"))
+        .catch((response) => setShowMessage(true));
     }
   };
 
@@ -101,7 +101,7 @@ const NewProduct = ({ history }) => {
     <div>
       <Container className={classes.container}>
         <Row className={classes.row}>
-          <Col xs={12} md={4} style={{ justifyContent: 'center' }}>
+          <Col xs={12} md={4} style={{ justifyContent: "center" }}>
             <Input
               label={t("product.description")}
               type="text"
@@ -111,7 +111,7 @@ const NewProduct = ({ history }) => {
               onChange={descriptionOnChange}
             />
           </Col>
-          <Col xs={12} md={4} style={{ justifyContent: 'center' }}>
+          <Col xs={12} md={4} style={{ justifyContent: "center" }}>
             <Form.Group>
               <Form.File
                 id="exampleFormControlFile1"
@@ -120,14 +120,15 @@ const NewProduct = ({ history }) => {
               />
             </Form.Group>
           </Col>
-          <Col xs={12} md={4} style={{ justifyContent: 'center' }}>
+          <Col xs={12} md={4} style={{ justifyContent: "center" }}>
             <Input
               label={t("product.price")}
               type="number"
               onChange={priceOnChange}
               error={errorPrice}
               helperText={errorPrice && errorMessagePrice}
-              required={true} />
+              required={true}
+            />
           </Col>
         </Row>
         <Row className={classes.row}>
@@ -141,12 +142,30 @@ const NewProduct = ({ history }) => {
           <Col xs={12} md={6}>
             <Button
               ButtonType="Back"
-
               onClick={back}
               ButtonText={t("cancel")}
             ></Button>
           </Col>
         </Row>
+        <Modal centered show={showMessage} onHide={handleCloseMessage}>
+          <Modal.Body>
+            <Row>
+              <Col xs={1} sm={1}></Col>
+              <Col xs={10} sm={10}>
+                <h4>{t("something_happened")}</h4>
+              </Col>
+              <Col xs={1} sm={1}></Col>
+            </Row>
+          </Modal.Body>
+          <Modal.Footer>
+            <Button
+              ButtonType="Save"
+              size="large"
+              onClick={handleCloseMessage}
+              ButtonText={t("accept")}
+            />
+          </Modal.Footer>
+        </Modal>
       </Container>
     </div>
   );

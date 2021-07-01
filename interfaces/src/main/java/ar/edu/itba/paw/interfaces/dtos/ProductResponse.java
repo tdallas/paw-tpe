@@ -14,8 +14,8 @@ public class ProductResponse implements Serializable {
     private long id;
     private String description;
     private double price;
-    private byte[] file;
     private boolean enabled;
+    private long productImageId;
 
     public static ProductResponse fromProduct(Product product) {
         final ProductResponse pDto = new ProductResponse();
@@ -23,8 +23,8 @@ public class ProductResponse implements Serializable {
         pDto.id = product.getId();
         pDto.description = product.getDescription();
         pDto.price = product.getPrice();
-        pDto.file = product.getFile();
         pDto.enabled = product.isEnable();
+        pDto.productImageId = product.getProductImage().getId();
 
         return pDto;
     }

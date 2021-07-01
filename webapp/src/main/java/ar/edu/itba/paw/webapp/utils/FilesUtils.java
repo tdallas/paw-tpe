@@ -1,6 +1,7 @@
 package ar.edu.itba.paw.webapp.utils;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
 
 import java.io.*;
 import java.nio.file.FileSystems;
@@ -11,16 +12,17 @@ public class FilesUtils {
     // TODO
     public static String saveFile(final InputStream file, final String fileName) throws IOException {
         // FIX THIS, USE ANOTHER PATH TO SAVE FILES
-        Path path = FileSystems.getDefault().getPath("target/" + fileName);
+
+        Path basePath = FileSystems.getDefault().getPath("tmps/");
+        new File(basePath.toUri()).mkdirs();
+
+        Path path = FileSystems.getDefault().getPath("tmps/" + fileName);
 
         File targetFile = new File(path.toUri());
+
         OutputStream outStream = new FileOutputStream(targetFile);
 
-        byte[] bytes = new byte[(int) file.available()];
-        DataInputStream dataInputStream = new DataInputStream(file);
-        dataInputStream.readFully(bytes);
-
-        outStream.write(bytes);
+        outStream.write(IOUtils.toByteArray(file));
 
         return path.toString();
     }

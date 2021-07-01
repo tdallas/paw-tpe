@@ -84,16 +84,15 @@ public class WebAuthConfig extends WebSecurityConfigurerAdapter {
         http.csrf().disable();
         http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS).and();
         http.authorizeRequests()
-//                .antMatchers("/login", "/user/ratings/**")
-            .antMatchers("/login")
-            .permitAll()
-            .antMatchers("/user/**")
-            .hasAuthority(UserRole.CLIENT.toString())
-            .antMatchers("/rooms/**", "/reservation/**", "/products/**", "/ratings/**")
-            .hasAnyAuthority(UserRole.EMPLOYEE.toString(), UserRole.MANAGER.toString())
-            .antMatchers("/", "/index", "/products/**/img")
-            .hasAnyAuthority(UserRole.EMPLOYEE.toString(), UserRole.MANAGER.toString(), UserRole.CLIENT.toString())
-            .anyRequest().authenticated();
+                .regexMatchers("/productImages/[0-9]+")
+                .anonymous()
+                .antMatchers("/login")
+                .anonymous()
+                .antMatchers("/user/**")
+                .hasAuthority(UserRole.CLIENT.toString())
+                .antMatchers("/rooms/**", "/reservation/**", "/products/**", "/ratings/**", "/productImages")
+                .hasAnyAuthority(UserRole.EMPLOYEE.toString(), UserRole.MANAGER.toString());
+        // TODO is this necessary?
         http.exceptionHandling().accessDeniedPage("/403");
         http.addFilter(authenticationFilterBean()).addFilter(authorizationFilterBean());
         // simple cors filter is used to add headers that axios needed

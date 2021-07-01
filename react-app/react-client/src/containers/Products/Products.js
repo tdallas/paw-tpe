@@ -13,6 +13,9 @@ import {
 } from "../../api/productApi";
 import { productsColumns } from "../../utils/columnsUtil";
 
+import Modal from 'react-bootstrap/Modal'
+
+
 const useStyles = makeStyles((theme) => ({
   container: {
     background: "#FAF6FC",
@@ -38,6 +41,9 @@ const Products = ({ history }) => {
   const [products, setProducts] = useState([]);
   const [totalCount, setTotalCount] = useState(0);
 
+  const handleCloseMessage = () => setShowMessage(false);
+  const [showMessage, setShowMessage] = useState(false);
+
   const getProducts = (page, limit) => {
     getAllProducts({ page, limit }).then((response) => {
       setProducts(
@@ -50,14 +56,15 @@ const Products = ({ history }) => {
         })
       );
       setTotalCount(+response.headers["x-total-count"]);
-    });
+    })
+      .catch((response) => setShowMessage(true));
   };
 
   const toggleProductEnabled = (toggleBoolean, id) => {
     if (toggleBoolean) {
-      disableProduct(id).then(() => {getProducts();});
+      disableProduct(id).then(() => { getProducts(); }).catch((response) => setShowMessage(true));
     } else {
-      enableProduct(id).then(() => {getProducts();});
+      enableProduct(id).then(() => { getProducts(); }).catch((response) => setShowMessage(true));
     }
   };
 
@@ -102,6 +109,21 @@ const Products = ({ history }) => {
             </Col>
           </Col>
         </Row>
+        <Modal centered show={showMessage} onHide={handleCloseMessage}>
+          <Modal.Body>
+            <Row>
+              <Col xs={1} sm={1}></Col>
+              <Col xs={10} sm={10}>
+                <h4>{t("something_happened")}</h4>
+              </Col>
+              <Col xs={1} sm={1}></Col>
+            </Row>
+          </Modal.Body>
+          <Modal.Footer>
+            <Button ButtonType="Save" size="large" onClick={handleCloseMessage}
+              ButtonText={t("accept")} />
+          </Modal.Footer>
+        </Modal>
       </Container>
     </div>
   );

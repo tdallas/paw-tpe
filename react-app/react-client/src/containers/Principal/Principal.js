@@ -1,13 +1,15 @@
-import React, {useState} from "react";
-import {Container, Row, Col} from "react-bootstrap";
-import {makeStyles} from "@material-ui/core/styles";
-import {withRouter} from "react-router";
+import React, { useState } from "react";
+import { Container, Row, Col } from "react-bootstrap";
+import { makeStyles } from "@material-ui/core/styles";
+import { withRouter } from "react-router";
 
 import Table from "../../components/Table/Table";
 import Button from "../../components/Button/Button";
-import {getAllBusyRooms} from "../../api/roomApi";
-import {busyRoomsColumns} from "../../utils/columnsUtil";
-import {useTranslation} from "react-i18next";
+import { getAllBusyRooms } from "../../api/roomApi";
+import { busyRoomsColumns } from "../../utils/columnsUtil";
+import { useTranslation } from "react-i18next";
+
+import Modal from 'react-bootstrap/Modal'
 
 const useStyles = makeStyles((theme) => ({
     container: {
@@ -24,18 +26,22 @@ const useStyles = makeStyles((theme) => ({
     },
 }));
 
-const Principal = ({history}) => {
+const Principal = ({ history }) => {
     const classes = useStyles();
-    const {t} = useTranslation();
-    const [tableInfo, setTableInfo] = useState({busyRooms: [], totalCount: 0});
-    const {busyRooms, totalCount} = tableInfo;
+    const { t } = useTranslation();
+    const [tableInfo, setTableInfo] = useState({ busyRooms: [], totalCount: 0 });
+    const { busyRooms, totalCount } = tableInfo;
+
+    const handleCloseMessage = () => setShowMessage(false);
+    const [showMessage, setShowMessage] = useState(false);
 
     const getAllActiveReservations = (page = 1, limit = 20) => {
-        getAllBusyRooms({page, limit})
+        getAllBusyRooms({ page, limit })
             .then((response) => {
-                setTableInfo({busyRooms: response.data, totalCount: +response.headers["x-total-count"]})
+                setTableInfo({ busyRooms: response.data, totalCount: +response.headers["x-total-count"] })
             }
-        );
+            )
+            .catch((response) => setShowMessage(true));
     };
 
     const newReservationClick = () => {
@@ -53,16 +59,32 @@ const Principal = ({history}) => {
                             ButtonText={t("reservation.new")}
                         />
                     </Col>
-                    <Col xs={1} md={1}/>
+                    <Col xs={1} md={1} />
                 </Row>
-                <Row className="justify-content-sm-center" style={{marginTop: '10px', width: "100%"}}>
-                    <Col xs={1} md={1}/>
+                <Row className="justify-content-sm-center" style={{ marginTop: '10px', width: "100%" }}>
+                    <Col xs={1} md={1} />
                     <Col>
                         <Table columns={busyRoomsColumns} rows={busyRooms} totalItems={totalCount}
-                               pageFunction={getAllActiveReservations}/>
+                            pageFunction={getAllActiveReservations} />
                     </Col>
-                    <Col xs={1} md={1}/>
+                    <Col xs={1} md={1} />
                 </Row>
+
+                <Modal centered show={showMessage} onHide={handleCloseMessage}>
+                    <Modal.Body>
+                        <Row>
+                            <Col xs={1} sm={1}></Col>
+                            <Col xs={10} sm={10}>
+                                <h4>{t("something_happened")}</h4>
+                            </Col>
+                            <Col xs={1} sm={1}></Col>
+                        </Row>
+                    </Modal.Body>
+                    <Modal.Footer>
+                        <Button ButtonType="Save" size="large" onClick={handleCloseMessage}
+                            ButtonText={t("accept")} />
+                    </Modal.Footer>
+                </Modal>
             </Container>
         </div>
     );

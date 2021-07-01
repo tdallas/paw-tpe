@@ -1,17 +1,21 @@
 package ar.edu.itba.paw.services;
 
 import ar.edu.itba.paw.interfaces.daos.ProductDao;
+import ar.edu.itba.paw.interfaces.daos.ProductImageDao;
 import ar.edu.itba.paw.interfaces.dtos.ProductResponse;
 import ar.edu.itba.paw.interfaces.exceptions.EntityNotFoundException;
+import ar.edu.itba.paw.interfaces.services.ProductImageService;
 import ar.edu.itba.paw.interfaces.services.ProductService;
 import ar.edu.itba.paw.models.dtos.PaginatedDTO;
 import ar.edu.itba.paw.models.product.Product;
+import ar.edu.itba.paw.models.product.ProductImage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.swing.text.html.parser.Entity;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -20,17 +24,21 @@ public class ProductServiceImpl implements ProductService {
     private static final Logger LOGGER = LoggerFactory.getLogger(ProductServiceImpl.class);
 
     private final ProductDao productDao;
+    private final ProductImageService productImageService;
 
     @Autowired
-    public ProductServiceImpl(ProductDao productDao) {
+    public ProductServiceImpl(final ProductDao productDao, final ProductImageService productImageService) {
         this.productDao = productDao;
+        this.productImageService = productImageService;
     }
 
     @Transactional
     @Override
-    public ProductResponse saveProduct(Product product) {
-        LOGGER.info("About to save product with description " + product.getDescription() + " and price " + product.getPrice());
-        return ProductResponse.fromProduct(productDao.save(product));
+    public ProductResponse saveProduct(final String description, final double price, final long productImgId) throws EntityNotFoundException {
+        LOGGER.info("About to save product with description " + description +
+                " and price " + price + " with productImgId " + productImgId);
+        final ProductImage productImage = productImageService.findImageById(productImgId);
+        return ProductResponse.fromProduct(productDao.save(new Product(description, price, productImage)));
     }
 
     @Transactional

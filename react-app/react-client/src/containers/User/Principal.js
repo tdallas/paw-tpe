@@ -1,11 +1,16 @@
-import React, {useState} from "react";
-import {Col, Container, Row} from "react-bootstrap";
-import {makeStyles} from "@material-ui/core/styles";
-import {withRouter} from "react-router";
+import React, { useState } from "react";
+import { Col, Container, Row } from "react-bootstrap";
+import { makeStyles } from "@material-ui/core/styles";
+import { withRouter } from "react-router";
+import { useTranslation } from "react-i18next";
 
-import {getAllReservations} from "../../api/userApi";
-import {reservationUserColumns} from "../../utils/columnsUtil";
+import { getAllReservations } from "../../api/userApi";
+import { reservationUserColumns } from "../../utils/columnsUtil";
 import Table from "../../components/Table/Table";
+import Button from "../../components/Button/Button";
+
+import Modal from 'react-bootstrap/Modal'
+
 
 const useStyles = makeStyles((theme) => ({
   container: {
@@ -15,8 +20,13 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 const UserPrincipal = ({ history }) => {
+  const { t } = useTranslation();
+
   const classes = useStyles();
   const [reservations, setReservations] = useState([]);
+
+  const handleCloseMessage = () => setShowMessage(false);
+  const [showMessage, setShowMessage] = useState(false);
 
   const getMyReservations = () => {
     getAllReservations().then((response) => {
@@ -25,7 +35,7 @@ const UserPrincipal = ({ history }) => {
           ({ roomType, startDate, endDate, roomNumber, reservationId }) => {
             return Object.assign(
               {},
-              {roomType, startDate, endDate, roomNumber},
+              { roomType, startDate, endDate, roomNumber },
               {
                 actions: () => history.push(`/products/${reservationId}`),
                 expenses: () => history.push(`/expenses/${reservationId}`),
@@ -35,7 +45,8 @@ const UserPrincipal = ({ history }) => {
           }
         )
       );
-    });
+    })
+      .catch((response) => setShowMessage(true));
   }
 
   return (
@@ -45,7 +56,7 @@ const UserPrincipal = ({ history }) => {
           className="justify-content-sm-center"
           style={{ paddingTop: "40px", width: "100%" }}
         >
-          <Col xs={1} md={1}/>
+          <Col xs={1} md={1} />
           <Col xs={10} md={10}>
             <Table
               columns={reservationUserColumns}
@@ -54,8 +65,23 @@ const UserPrincipal = ({ history }) => {
               pageFunction={getMyReservations}
             />
           </Col>
-          <Col xs={1} md={1}/>
+          <Col xs={1} md={1} />
         </Row>
+        <Modal centered show={showMessage} onHide={handleCloseMessage}>
+          <Modal.Body>
+            <Row>
+              <Col xs={1} sm={1}></Col>
+              <Col xs={10} sm={10}>
+                <h4>{t("something_happened")}</h4>
+              </Col>
+              <Col xs={1} sm={1}></Col>
+            </Row>
+          </Modal.Body>
+          <Modal.Footer>
+            <Button ButtonType="Save" size="large" onClick={handleCloseMessage}
+              ButtonText={t("accept")} />
+          </Modal.Footer>
+        </Modal>
       </Container>
     </div>
   );

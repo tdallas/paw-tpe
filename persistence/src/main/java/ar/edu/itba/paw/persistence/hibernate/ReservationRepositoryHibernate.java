@@ -118,10 +118,11 @@ public class ReservationRepositoryHibernate extends SimpleRepositoryHibernate<Re
     @Override
     public boolean isRoomFreeOnDate(long roomId, Calendar startDate, Calendar endDate) {
         return em.createQuery("SELECT r FROM Reservation r " +
-                "WHERE r.room.id = :roomId AND (:startDate >= r.startDate OR :endDate <= r.endDate)")
+                "WHERE r.room.id = :roomId AND ((:startDate >= r.startDate AND :startDate <= r.endDate) OR (:endDate <= r.endDate AND :endDate >= r.startDate))")
                 .setParameter("roomId", roomId)
                 .setParameter("startDate", startDate)
-                .setParameter("endDate", endDate).getResultList().size() == 0;
+                .setParameter("endDate", endDate)
+            .getResultList().size() == 0;
     }
 
     @Override

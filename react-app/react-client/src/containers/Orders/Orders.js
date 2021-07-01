@@ -1,14 +1,17 @@
-import React, {useState} from "react";
-import {Col, Container, Row} from "react-bootstrap";
-import {makeStyles} from "@material-ui/core/styles";
-import {withRouter} from "react-router";
+import React, { useState } from "react";
+import { Col, Container, Row } from "react-bootstrap";
+import { makeStyles } from "@material-ui/core/styles";
+import { withRouter } from "react-router";
 
 import Button from "../../components/Button/Button";
 import Table from '../../components/Table/Table'
-import {useTranslation} from "react-i18next";
-import {ordersColumns} from "../../utils/columnsUtil";
-import {getAllUndeliveredOrders, sendOrderToRoom} from "../../api/roomApi";
+import { useTranslation } from "react-i18next";
+import { ordersColumns } from "../../utils/columnsUtil";
+import { getAllUndeliveredOrders, sendOrderToRoom } from "../../api/roomApi";
 import InfoSimpleDialog from "../../components/Dialog/SimpleDialog";
+
+import Modal from 'react-bootstrap/Modal'
+
 
 
 const useStyles = makeStyles((theme) => ({
@@ -30,16 +33,19 @@ const useStyles = makeStyles((theme) => ({
     },
 }));
 
-const Orders = ({history}) => {
+const Orders = ({ history }) => {
     const classes = useStyles();
-    const {t} = useTranslation();
+    const { t } = useTranslation();
     const [orders, setOrders] = useState([]);
     const [totalCount, setTotalCount] = useState(0);
     const [showDialog, updateShowDialog] = useState(false);
     const [info, updateInfo] = useState(undefined);
 
+    const handleCloseMessage = () => setShowMessage(false);
+    const [showMessage, setShowMessage] = useState(false);
+
     const getUndeliveredOrders = (page, limit) => {
-        getAllUndeliveredOrders({page, limit})
+        getAllUndeliveredOrders({ page, limit })
             .then((response) => {
                 // This map-reduce will take the response and make an object like:
                 // { roomNumber : { roomId, [ name , amount ] } }
@@ -48,10 +54,10 @@ const Orders = ({history}) => {
                     let key = charge['roomNumber'];
                     if (!acc[key]) {
                         acc[key] = [];
-                        acc[key].push({roomId: charge['roomId'], chargesInfo: []})
+                        acc[key].push({ roomId: charge['roomId'], chargesInfo: [] })
                     }
                     // acc[key][0]['chargesInfo'].push({chargeId: charge['chargeId'], description: charge['description']});
-                    acc[key][0]['chargesInfo'].push({description: charge['description']});
+                    acc[key][0]['chargesInfo'].push({ description: charge['description'] });
                     return acc;
                 }, {});
                 const dataByRoomArray = Object.keys(dataByRoom).map((key) => [Number(key), dataByRoom[key]]);
@@ -60,7 +66,7 @@ const Orders = ({history}) => {
                         let key = product.description;
                         if (!acc[key]) {
                             acc[key] = [];
-                            acc[key].push({amount: 0});
+                            acc[key].push({ amount: 0 });
                         }
                         acc[key][0].amount++;
                         return acc;
@@ -87,7 +93,8 @@ const Orders = ({history}) => {
                     );
                 }));
             }
-        );
+            )
+            .catch((response) => setShowMessage(true));
     }
 
     const setOrdersDelivered = (id) => {
@@ -100,7 +107,7 @@ const Orders = ({history}) => {
             }).catch((error) => {
                 updateShowDialog(true);
                 updateInfo(undefined);
-        });
+            });
     }
 
     const onSubmitOrders = () => {
@@ -118,14 +125,14 @@ const Orders = ({history}) => {
                 <Row className={classes.row}>
                     <Col xs={12} md={10} className={classes.tableCol}>
                         <Table columns={ordersColumns} rows={orders} totalItems={totalCount}
-                               pageFunction={getUndeliveredOrders}/>
+                            pageFunction={getUndeliveredOrders} />
                     </Col>
                     <Col xs={12} md={2}>
-                        <Col xs={12} md={6} style={{textAlign: 'left'}}>
-                            <Button ButtonType="Save" size="large" onClick={onSubmitOrders} ButtonText={t("refresh")}/>
+                        <Col xs={12} md={6} style={{ textAlign: 'left' }}>
+                            <Button ButtonType="Save" size="large" onClick={onSubmitOrders} ButtonText={t("refresh")} />
                         </Col>
-                        <Col xs={12} md={6} style={{textAlign: 'left'}}>
-                            <Button ButtonType="Back" size="large" onClick={back} ButtonText={t("home")}/>
+                        <Col xs={12} md={6} style={{ textAlign: 'left' }}>
+                            <Button ButtonType="Back" size="large" onClick={back} ButtonText={t("home")} />
                         </Col>
                     </Col>
                 </Row>
@@ -136,6 +143,23 @@ const Orders = ({history}) => {
                         <div>{t("error.500")}</div>
                     }
                 </InfoSimpleDialog>
+
+
+                <Modal centered show={showMessage} onHide={handleCloseMessage}>
+                    <Modal.Body>
+                        <Row>
+                            <Col xs={1} sm={1}></Col>
+                            <Col xs={10} sm={10}>
+                                <h4>{t("something_happened")}</h4>
+                            </Col>
+                            <Col xs={1} sm={1}></Col>
+                        </Row>
+                    </Modal.Body>
+                    <Modal.Footer>
+                        <Button ButtonType="Save" size="large" onClick={handleCloseMessage}
+                            ButtonText={t("accept")} />
+                    </Modal.Footer>
+                </Modal>
             </Container>
         </div>
     );

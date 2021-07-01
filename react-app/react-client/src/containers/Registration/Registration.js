@@ -9,6 +9,9 @@ import Button from "../../components/Button/Button";
 import Input from "../../components/Input/Input";
 import { registerOccupants } from "../../api/roomApi";
 
+import Modal from 'react-bootstrap/Modal'
+
+
 const useStyles = makeStyles((theme) => ({
   container: {
     background: "#FAF6FC",
@@ -41,7 +44,7 @@ const addOccupantDiv = (
 ) => (
   <div key={index}>
     <Row className={classes.buttonRow}>
-      <Col xs={6} md={3}/>
+      <Col xs={6} md={3} />
       <Col>
         <Input
           label="First name"
@@ -56,7 +59,7 @@ const addOccupantDiv = (
           onChange={onLastNameChange}
         />
       </Col>
-      <Col xs={6} md={3}/>
+      <Col xs={6} md={3} />
     </Row>
   </div>
 );
@@ -78,6 +81,9 @@ const registration = ({ history }) => {
   // occupant = {firstName:..., lastName:...}
   const [occupants, addOccupant] = useState([emptyOccupantCopy()]);
 
+  const handleCloseMessage = () => setShowMessage(false);
+  const [showMessage, setShowMessage] = useState(false);
+
   const onChangeReservationId = (newReservationId) => {
     onReservationId(newReservationId.target.value);
   };
@@ -90,7 +96,8 @@ const registration = ({ history }) => {
     registerOccupants({ occupants: filtederdOccupants }, reservationId)
       .then((response) => {
         history.push("/");
-      });
+      })
+      .catch((response) => setShowMessage(true));
   };
 
   const back = () => {
@@ -110,7 +117,7 @@ const registration = ({ history }) => {
   return (
     <div>
       <Container fluid="md" className={classes.container}>
-        <Row style={{width: "100%"}}>
+        <Row style={{ width: "100%" }}>
           <Col xs={6} md={3}></Col>
           <Col>
             <Row className={classes.buttonRow}>
@@ -124,7 +131,7 @@ const registration = ({ history }) => {
                 <Button
                   ButtonType="Save"
                   onClick={registrationSubmit}
-                  ButtonText= {t("register")}
+                  ButtonText={t("register")}
                   disabled={
                     submit || hasEmptyOccupant(occupants) || !reservationId
                   }
@@ -139,16 +146,16 @@ const registration = ({ history }) => {
               </Col>
             </Row>
             <Row className={classes.buttonRow}>
-          <Col className={classes.buttonColRight}>
-            <Button
-              ButtonType="Save"
-              onClick={onAddOccupant}
-              ButtonText={t("registrations.addOccupant")}
-            />
+              <Col className={classes.buttonColRight}>
+                <Button
+                  ButtonType="Save"
+                  onClick={onAddOccupant}
+                  ButtonText={t("registrations.addOccupant")}
+                />
+              </Col>
+            </Row>
           </Col>
-        </Row>
-          </Col>
-          <Col xs={6} md={3}/>
+          <Col xs={6} md={3} />
         </Row>
         {occupants.map((occupant, index) =>
           addOccupantDiv(
@@ -159,7 +166,21 @@ const registration = ({ history }) => {
             onLastNameChange(index)
           )
         )}
-        
+        <Modal centered show={showMessage} onHide={handleCloseMessage}>
+          <Modal.Body>
+            <Row>
+              <Col xs={1} sm={1}></Col>
+              <Col xs={10} sm={10}>
+                <h4>{t("something_happened")}</h4>
+              </Col>
+              <Col xs={1} sm={1}></Col>
+            </Row>
+          </Modal.Body>
+          <Modal.Footer>
+            <Button ButtonType="Save" size="large" onClick={handleCloseMessage}
+              ButtonText={t("accept")} />
+          </Modal.Footer>
+        </Modal>
       </Container>
     </div>
   );

@@ -1,9 +1,10 @@
 import {baseURL, post, get, put} from "./baseApi";
 
 const baseProductsURL = "/products";
+const baseProductImagesURL = "/productImgs"
 
-const addProductFileUrl = baseProductsURL + "/upload-file";
-const getProductFileUrl = (id) => baseProductsURL + "/" + id + "/img";
+const addProductFileUrl = baseProductImagesURL;
+const getProductFileUrl = (id) => baseProductImagesURL + "/" + id;
 const addProductUrl = baseProductsURL;
 const enableProductUrl = (id) => baseProductsURL + "/" + id + "/enable";
 const disableProductUrl = (id) => baseProductsURL + "/" + id + "/disable";
