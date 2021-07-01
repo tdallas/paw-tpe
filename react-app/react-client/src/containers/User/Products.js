@@ -48,7 +48,7 @@ const UserProducts = ({ match, history }) => {
       .catch((error) => {
         updateShowLoading(false);
         updateShowDialog(true);
-        updateInfo(undefined);
+        updateInfo(t("something_happened"));
       });
   }
 
@@ -58,7 +58,12 @@ const UserProducts = ({ match, history }) => {
 
   products.length === 0 &&
     getAllProducts(reservationId)
-      .then((response) => setProducts(response.data));
+      .then((response) => setProducts(response.data))
+      .catch((error) => {
+        updateShowLoading(false);
+        updateShowDialog(true);
+        updateInfo(t("something_happened"));
+      });
 
   return (
     <Container className={classes.container}>

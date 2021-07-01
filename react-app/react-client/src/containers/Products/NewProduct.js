@@ -9,6 +9,8 @@ import Input from "../../components/Input/Input";
 
 import { uploadProductFile, addProduct } from "../../api/productApi";
 
+import Modal from "react-bootstrap/Modal";
+
 const useStyles = makeStyles((theme) => ({
   container: {
     background: "#FAF6FC",
@@ -39,6 +41,9 @@ const NewProduct = ({ history }) => {
   const [errorMessagePrice, setErrorMessagePrice] = useState("");
   const { t } = useTranslation();
 
+  const handleCloseMessage = () => setShowMessage(false);
+  const [showMessage, setShowMessage] = useState(false);
+
   const descriptionOnChange = (description) => {
     setDescription(description.target.value);
   };
@@ -52,9 +57,7 @@ const NewProduct = ({ history }) => {
       .then((response) => {
         setPhotoId(response.data.productImageId);
       })
-      .catch((error) => {
-        return window.alert(error);
-      });
+      .catch((response) => setShowMessage(true));
     setPhoto(newPhoto.target.value);
   };
 
@@ -88,9 +91,9 @@ const NewProduct = ({ history }) => {
   const onSubmitProduct = () => {
     if (!formIsValidate()) return;
     else {
-      addProduct({ productImageId: photoId, description, price }).then(() =>
-        history.push("/products")
-      );
+      addProduct({ productImageId: photoId, description, price })
+        .then(() => history.push("/products"))
+        .catch((response) => setShowMessage(true));
     }
   };
 
@@ -144,6 +147,25 @@ const NewProduct = ({ history }) => {
             ></Button>
           </Col>
         </Row>
+        <Modal centered show={showMessage} onHide={handleCloseMessage}>
+          <Modal.Body>
+            <Row>
+              <Col xs={1} sm={1}></Col>
+              <Col xs={10} sm={10}>
+                <h4>{t("something_happened")}</h4>
+              </Col>
+              <Col xs={1} sm={1}></Col>
+            </Row>
+          </Modal.Body>
+          <Modal.Footer>
+            <Button
+              ButtonType="Save"
+              size="large"
+              onClick={handleCloseMessage}
+              ButtonText={t("accept")}
+            />
+          </Modal.Footer>
+        </Modal>
       </Container>
     </div>
   );

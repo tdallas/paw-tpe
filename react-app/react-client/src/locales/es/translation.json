@@ -205,5 +205,6 @@
   "rates": "Puntuación",
   "required": "Este campo es requerido",
   "back": "Volver",
-  "buy": "Comprar"
+  "buy": "Comprar",
+  "something_happened": "Algo sucedió, por favor, inténtalo mas tarde!"
 }

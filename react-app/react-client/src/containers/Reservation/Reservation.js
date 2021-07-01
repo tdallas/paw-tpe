@@ -86,8 +86,15 @@ const Reservation = ({ history }) => {
     getFreeRooms({ startDate, endDate })
       .then((result) => {
         setOptions(result.data);
+        if (!showRooms) show(true);
+      })
+      .catch((error) => {
+        updateShowLoading(false);
+        updateShowDialog(true);
+        setResponseError(true);
+        updateInfo(t("something_happened"));
       });
-    if (!showRooms) show(true);
+    
   };
 
   const formIsValid = () => {
@@ -139,7 +146,7 @@ const Reservation = ({ history }) => {
           updateShowLoading(false);
           updateShowDialog(true);
           setResponseError(true);
-          updateInfo(error.response.data.message);
+          updateInfo(t("something_happened"));
         });
     }
   };

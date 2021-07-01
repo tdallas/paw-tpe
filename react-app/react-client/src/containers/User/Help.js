@@ -8,6 +8,9 @@ import { requestHelp } from "../../api/userApi";
 
 import Button from "../../components/Button/Button";
 
+import Modal from 'react-bootstrap/Modal'
+
+
 const useStyles = makeStyles((theme) => ({
   container: {
     background: "#FAF6FC",
@@ -21,6 +24,9 @@ const UserHelp = ({ match, history }) => {
   const [help, setHelp] = useState("");
   const { t } = useTranslation();
 
+  const handleCloseMessage = () => setShowMessage(false);
+  const [showMessage, setShowMessage] = useState(false);
+
 
   const onHelpChange = (newHelp) => {
     setHelp(newHelp.target.value);
@@ -33,11 +39,12 @@ const UserHelp = ({ match, history }) => {
 
 
   const onSubmitHelp = ({ helpDescription }) => () => {
-      requestHelp(match.params.id, { helpDescription })
-        .then(() => {
-          history.push("/");
-        }
-      );
+    requestHelp(match.params.id, { helpDescription })
+      .then(() => {
+        history.push("/");
+      }
+      )
+      .catch((response) => setShowMessage(true));
   };
 
   const back = () => {
@@ -49,7 +56,7 @@ const UserHelp = ({ match, history }) => {
       <Container fluid="md" className={classes.container}>
         <Row
           className="justify-content-sm-center"
-          style={{ paddingTop: "40px",width: "100%" }}
+          style={{ paddingTop: "40px", width: "100%" }}
         >
           <Col xs={1} md={2}></Col>
           <Col xs={9} md={7}>
@@ -81,7 +88,23 @@ const UserHelp = ({ match, history }) => {
           </Col>
           <Col xs={1} md={2}></Col>
         </Row>
-        <Row style={{width: "100%"}}></Row>
+        <Row style={{ width: "100%" }}></Row>
+
+        <Modal centered show={showMessage} onHide={handleCloseMessage}>
+          <Modal.Body>
+            <Row>
+              <Col xs={1} sm={1}></Col>
+              <Col xs={10} sm={10}>
+                <h4>{t("something_happened")}</h4>
+              </Col>
+              <Col xs={1} sm={1}></Col>
+            </Row>
+          </Modal.Body>
+          <Modal.Footer>
+            <Button ButtonType="Save" size="large" onClick={handleCloseMessage}
+              ButtonText={t("accept")} />
+          </Modal.Footer>
+        </Modal>
       </Container>
     </div>
   );

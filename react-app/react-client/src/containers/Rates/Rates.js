@@ -51,11 +51,14 @@ const Rates = ({ history }) => {
             .catch(() => {
                 updateShowDialog(true);
             }
-        );
+            );
 
         getAvgHotelRating()
             .then((response) => {
                 setAvg(response.data.rating);
+            })
+            .catch(() => {
+                updateShowDialog(true);
             });
     };
 
@@ -67,13 +70,16 @@ const Rates = ({ history }) => {
             .catch((error) => {
                 updateShowDialog(true);
             }
-        );
+            );
 
         getAvgRoomRating(search)
             .then((response) => {
                 setAvg(response.data.rating);
             }
-        );
+            )
+            .catch(() => {
+                updateShowDialog(true);
+            });
     }
 
 
