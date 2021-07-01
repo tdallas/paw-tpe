@@ -15,6 +15,10 @@ import org.springframework.stereotype.Component;
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
 import javax.persistence.EntityNotFoundException;
+import java.security.SecureRandom;
+import java.util.Random;
+
+import static ar.edu.itba.paw.services.UserServiceImpl.GENERATED_PASSWORD_LENGTH;
 
 @Component
 public class EmailServiceImpl implements EmailService {
@@ -53,15 +57,14 @@ public class EmailServiceImpl implements EmailService {
     }
 
     @Async
-    @Override
-    public void sendUserCreatedEmail(String to, String password) {
+    public void sendUserCreatedEmail(String to) {
         LOGGER.debug("About to send email notifying the creation of user to " + to);
         MimeMessage mimeMessage = javaMailSender.createMimeMessage();
         MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, "utf-8");
         String subject = messageSourceExternalizer.getMessage("email.userCreated.subject");
         LOGGER.debug("Got the following message from message source " + subject);
         try {
-            helper.setText(getHtmlMessageForUserCreation(to, password), true);
+            helper.setText(getHtmlMessageForUserCreation(to), true);
             helper.setTo(to);
             helper.setSubject(subject);
             helper.setFrom(BUSINESS_EMAIL);
@@ -73,14 +76,16 @@ public class EmailServiceImpl implements EmailService {
 
     @Async
     @Override
-    public void sendCheckinEmail(Reservation reservation) {
+    public void sendCheckinEmail(Reservation reservation, boolean requiresNewPassword) {
         LOGGER.debug("About to send email notifying the check-in of reservation to " + reservation.getUserEmail());
         MimeMessage mimeMessage = javaMailSender.createMimeMessage();
         MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, "utf-8");
         String subject = messageSourceExternalizer.getMessage("email.checkin.subject");
         LOGGER.debug("Got the following message from message source " + subject);
         try {
-            helper.setText(getHtmlMessageForCheckin(reservation.getUserEmail(), reservation.getHash()), true);
+            helper.setText(
+                    getHtmlMessageForCheckin(reservation.getUserEmail(), reservation.getHash(), requiresNewPassword),
+                    true);
             helper.setTo(reservation.getUserEmail());
             helper.setSubject(subject);
             helper.setFrom(BUSINESS_EMAIL);
@@ -139,12 +144,17 @@ public class EmailServiceImpl implements EmailService {
         javaMailSender.send(mimeMessage);
     }
 
-    private String getHtmlMessageForCheckin(String userEmail, String hash) {
-        return "<h3> " + messageSourceExternalizer.getMessage("email.checkin.welcome") + " </h3> <br> " +
+    private String getHtmlMessageForCheckin(String userEmail, String hash, boolean requiresNewPassword) {
+        String checkinMessage = "<h3> " + messageSourceExternalizer.getMessage("email.checkin.welcome") + " </h3> <br> " +
                 "<p>" + messageSourceExternalizer.getMessage("email.checkin.yourReservationIdIs") + " <b> " +
                 hash + "</b>" + messageSourceExternalizer.getMessage("email.checkin.keepItSafe") +
                 "<h4>" + messageSourceExternalizer.getMessage("email.checkin.reminder") + " <br> " +
                 "<p> <b>" + messageSourceExternalizer.getMessage("email.username") + ":</b> " + userEmail + "</p>";
+        if (requiresNewPassword) {
+            String password = generatePassword();
+            return checkinMessage + "<p> <b>" + messageSourceExternalizer.getMessage("email.checkin.password") + "</b> " + password + "</p>";
+        }
+        return checkinMessage;
     }
 
     private String getHtmlMessageForReservation(String to, String hash) {
@@ -155,13 +165,12 @@ public class EmailServiceImpl implements EmailService {
                 + to + "</p>";
     }
 
-    private String getHtmlMessageForUserCreation(String to, String password) {
+    private String getHtmlMessageForUserCreation(String to) {
         return "<h3> " + messageSourceExternalizer.getMessage("email.userCreated.welcome") + " </h3> <br> " +
                 "<h4>" + messageSourceExternalizer.getMessage("email.userCreated.loginInfo") +
                 messageSourceExternalizer.getMessage("email.userCreated.info") +
                 "<p> <b>" + messageSourceExternalizer.getMessage("email.username") + ":</b> " +
-                to + " <br> <b>" + messageSourceExternalizer.getMessage("email.password") + "</b>: " +
-                password + "</p>";
+                to + " <br> <b>" + messageSourceExternalizer.getMessage("email.password") + "</b>: " + "</p>";
     }
 
     private String createEmailText(String reservation, String uriInfo) {
@@ -170,9 +179,9 @@ public class EmailServiceImpl implements EmailService {
 
     private String getHtmlBeginning() {
         return "<!DOCTYPE html>\n" +
-        "<html>\n" +
-            "<head>\n" + "</head>\n" +
-            "<body style=\"margin-left: 15px;color:black\">\n" +
+                "<html>\n" +
+                "<head>\n" + "</head>\n" +
+                "<body style=\"margin-left: 15px;color:black\">\n" +
                 "<div style=\"font-family: Arial\">\n" +
                 "    <h1>" + messageSourceExternalizer.getMessage("email.ratings.hopeYouEnjoyed") + "</h1>\n" +
                 "</div>\n" +
@@ -185,11 +194,11 @@ public class EmailServiceImpl implements EmailService {
 
     private String getRateMeMessage(String reservation, String uriInfo) {
         return "<div>\n" +
-            "    <a target=\"_blank\" href=\"" + getHostInfo(uriInfo) + "/ratings/" + reservation + "/rate" + "\">\n" +
-            messageSourceExternalizer.getMessage("email.ratings.subject") +
-            "    </a>\n" +
-            "</div>\n" +
-            "<br>\n";
+                "    <a target=\"_blank\" href=\"" + getHostInfo(uriInfo) + "/ratings/" + reservation + "/rate" + "\">\n" +
+                messageSourceExternalizer.getMessage("email.ratings.subject") +
+                "    </a>\n" +
+                "</div>\n" +
+                "<br>\n";
     }
 
     private String getHostInfo(String uriInfo) {
@@ -202,10 +211,10 @@ public class EmailServiceImpl implements EmailService {
 
     private String getHtmlRating(String reservation, String uriInfo) {
         return getHtmlStars(reservation, uriInfo, messageSourceExternalizer.getMessage("email.ratings.excellent"), 5) +
-            getHtmlStars(reservation, uriInfo, messageSourceExternalizer.getMessage("email.ratings.good"), 4) +
-            getHtmlStars(reservation, uriInfo, messageSourceExternalizer.getMessage("email.ratings.average"), 3) +
-            getHtmlStars(reservation, uriInfo, messageSourceExternalizer.getMessage("email.ratings.bad"), 2) +
-            getHtmlStars(reservation, uriInfo, messageSourceExternalizer.getMessage("email.ratings.awful"), 1);
+                getHtmlStars(reservation, uriInfo, messageSourceExternalizer.getMessage("email.ratings.good"), 4) +
+                getHtmlStars(reservation, uriInfo, messageSourceExternalizer.getMessage("email.ratings.average"), 3) +
+                getHtmlStars(reservation, uriInfo, messageSourceExternalizer.getMessage("email.ratings.bad"), 2) +
+                getHtmlStars(reservation, uriInfo, messageSourceExternalizer.getMessage("email.ratings.awful"), 1);
     }
 
     private String getHtmlStars(String reservation, String uriInfo, String stars, int star) {
@@ -213,7 +222,7 @@ public class EmailServiceImpl implements EmailService {
                 "    <a href=\"" + getHostInfo(uriInfo) + "user/ratings/" + reservation + "/rate?rate=" + stars + "\">\n" +
                 "        <button type=\"submit\" class=\"btn btn-lg\">\n" +
                 "            <span>" + star + "</span>\n" +
-                                getAmountOfStars(star) +
+                getAmountOfStars(star) +
                 "        </button>\n" +
                 "    </a>\n" +
                 "</div>\n" +
@@ -235,10 +244,29 @@ public class EmailServiceImpl implements EmailService {
     }
 
     private String getHtmlEnd() {
-        return  "<div>\n" +
-                    "<h3>" + messageSourceExternalizer.getMessage("email.ratings.thank") + "</h3>\n" +
+        return "<div>\n" +
+                "<h3>" + messageSourceExternalizer.getMessage("email.ratings.thank") + "</h3>\n" +
                 "</div>\n" +
-            "</body>\n" +
-        "</html>";
+                "</body>\n" +
+                "</html>";
+    }
+
+    private Integer[] generateRandomIntsArray() {
+        Random random = new SecureRandom();
+        Integer[] ints = new Integer[GENERATED_PASSWORD_LENGTH];
+        for (int i = 0; i < GENERATED_PASSWORD_LENGTH; i++) {
+            ints[i] = random.nextInt(26);
+        }
+        return ints;
+    }
+
+    protected String generatePassword() {
+        LOGGER.info("Generating password...");
+        Integer[] ints = generateRandomIntsArray();
+        StringBuilder password = new StringBuilder(GENERATED_PASSWORD_LENGTH);
+        for (Integer i : ints) {
+            password.append(Character.toChars('a' + i));
+        }
+        return password.toString();
     }
 }

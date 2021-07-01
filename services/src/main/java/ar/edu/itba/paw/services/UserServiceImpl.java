@@ -106,10 +106,8 @@ public class UserServiceImpl implements UserService {
             LOGGER.info("There is already an user created with email " + userEmail);
         } else {
             LOGGER.info("There is no user created with email " + userEmail + ". So we'll create one.");
-            String randomPassword = generatePassword();
-            user = userDao.save(new User(userEmail, userEmail, new BCryptPasswordEncoder().encode(randomPassword)));
-            LOGGER.info("User created! Sending e-mail about user creation to: " + userEmail);
-            emailService.sendUserCreatedEmail(userEmail, randomPassword);
+            user = userDao.save(new User(userEmail, userEmail, new BCryptPasswordEncoder().encode(generatePassword())));
+            LOGGER.info("User created with e-mail " + userEmail);
         }
         return user;
     }
@@ -134,6 +132,7 @@ public class UserServiceImpl implements UserService {
             throw new RequestInvalidException();
         }
         reservationDao.rateStay(reservation.getId(), transformRate(rate));
+        emailService.sendConfirmationOfRate(reservationHash);
     }
 
     @Override

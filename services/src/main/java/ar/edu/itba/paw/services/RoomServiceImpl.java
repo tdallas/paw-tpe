@@ -1,5 +1,6 @@
 package ar.edu.itba.paw.services;
 
+import ar.edu.itba.paw.interfaces.daos.ReservationDao;
 import ar.edu.itba.paw.interfaces.daos.RoomDao;
 import ar.edu.itba.paw.interfaces.dtos.ReservationResponse;
 import ar.edu.itba.paw.interfaces.dtos.RoomResponse;
@@ -27,14 +28,16 @@ public class RoomServiceImpl implements RoomService {
     private static final Logger LOGGER = LoggerFactory.getLogger(RoomServiceImpl.class);
 
     private final RoomDao roomDao;
+    private final ReservationDao reservationDao;
     private final EmailService emailService;
     private final ReservationService reservationService;
     private final ChargeService chargeService;
 
     @Autowired
-    public RoomServiceImpl(RoomDao roomDao, EmailService emailService,
+    public RoomServiceImpl(RoomDao roomDao, ReservationDao reservationDao, EmailService emailService,
                            ReservationService reservationService, ChargeService chargeService) {
         this.roomDao = roomDao;
+        this.reservationDao = reservationDao;
         this.emailService = emailService;
         this.reservationService = reservationService;
         this.chargeService = chargeService;
@@ -52,8 +55,9 @@ public class RoomServiceImpl implements RoomService {
 
     @Override
     public void reserveRoom(long roomID, Reservation reservation) {
+        List<Reservation> hadActiveReservations = reservationDao.findActiveReservationsByEmail(reservation.getUserEmail());
         roomDao.reserveRoom(roomID);
-        emailService.sendCheckinEmail(reservation);
+        emailService.sendCheckinEmail(reservation, hadActiveReservations.isEmpty());
     }
 
     @Override
