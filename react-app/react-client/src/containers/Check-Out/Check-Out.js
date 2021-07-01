@@ -76,8 +76,8 @@ const checkOut = ({ history }) => {
                                 <Col xs={12} md={6} style={{ marginBottom: '10px' }}>
                                     <Input label={t("reservation.number")} error={errorInput} helperText={errorInput && t("required")} required={true} onChange={onChangeCheckOut}/>
                                 </Col>
-                                <Col xs={6} md={2} className={classes.buttonColLeft}>
-                                    <Button ButtonType="Save" onClick={checkOutSubmit} ButtonText={t('accept')}/>
+                                <Col xs={6} md={3} className={classes.buttonColLeft}>
+                                    <Button ButtonType="Save" onClick={checkOutSubmit} ButtonText={"Check-Out"}/>
                                 </Col>
                                 <Col xs={6} md={2} className={classes.buttonColRight}>
                                     <Button ButtonType="Back" onClick={checkOutCancel} ButtonText={t('cancel')}/>

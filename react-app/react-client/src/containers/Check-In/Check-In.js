@@ -104,8 +104,8 @@ const checkIn = ({ history }) => {
                                 <Col xs={12} md={6} style={{ marginBottom: '10px' }}>
                                     <Input label={t('reservation.number')} error={errorInput} helperText={errorInput && "El campo es requerido"} required={true} onChange={onChangeCheckIn} />
                                 </Col>
-                                <Col xs={6} md={2} className={classes.buttonColLeft}>
-                                    <Button ButtonType="Save" onClick={(checkInSubmit)} ButtonText={t('accept')} />
+                                <Col xs={6} md={3} className={classes.buttonColLeft}>
+                                    <Button ButtonType="Save" onClick={(checkInSubmit)} ButtonText="Check-In" />
                                 </Col>
                                 <Col xs={6} md={2} className={classes.buttonColRight}>
                                     <Button ButtonType="Back" onClick={checkInCancel} ButtonText={t('cancel')} />
