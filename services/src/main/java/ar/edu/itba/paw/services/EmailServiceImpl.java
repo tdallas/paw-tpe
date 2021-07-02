@@ -15,10 +15,6 @@ import org.springframework.stereotype.Component;
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
 import javax.persistence.EntityNotFoundException;
-import java.security.SecureRandom;
-import java.util.Random;
-
-import static ar.edu.itba.paw.services.UserServiceImpl.GENERATED_PASSWORD_LENGTH;
 
 @Component
 public class EmailServiceImpl implements EmailService {
