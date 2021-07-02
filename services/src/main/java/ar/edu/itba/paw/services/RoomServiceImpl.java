@@ -32,15 +32,17 @@ public class RoomServiceImpl implements RoomService {
     private final EmailService emailService;
     private final ReservationService reservationService;
     private final ChargeService chargeService;
+    private final UserService userService;
 
     @Autowired
     public RoomServiceImpl(RoomDao roomDao, ReservationDao reservationDao, EmailService emailService,
-                           ReservationService reservationService, ChargeService chargeService) {
+                           ReservationService reservationService, ChargeService chargeService, UserService userService) {
         this.roomDao = roomDao;
         this.reservationDao = reservationDao;
         this.emailService = emailService;
         this.reservationService = reservationService;
         this.chargeService = chargeService;
+        this.userService = userService;
     }
 
     @Override
@@ -54,10 +56,15 @@ public class RoomServiceImpl implements RoomService {
     }
 
     @Override
-    public void reserveRoom(long roomID, Reservation reservation) {
-        List<Reservation> hadActiveReservations = reservationDao.findActiveReservationsByEmail(reservation.getUserEmail());
+    public void reserveRoom(long roomID, Reservation reservation) throws EntityNotFoundException {
+        String password = null;
+        List<Reservation> hadActiveReservations = reservationDao
+                .findActiveReservationsByEmail(reservation.getUserEmail());
         roomDao.reserveRoom(roomID);
-        emailService.sendCheckinEmail(reservation, hadActiveReservations.isEmpty());
+        if (hadActiveReservations.isEmpty()) {
+            password = userService.createNewPassword(reservation.getUser().getId());
+        }
+        emailService.sendCheckinEmail(reservation, password);
     }
 
     @Override

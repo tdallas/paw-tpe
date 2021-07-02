@@ -113,6 +113,16 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    @Transactional
+    public String createNewPassword(long userId) throws EntityNotFoundException {
+        String newPassword = generatePassword();
+        User user = userDao.findById(userId).orElseThrow(() -> new EntityNotFoundException("Can't find user"));
+        user.setPassword(new BCryptPasswordEncoder().encode(newPassword));
+        userDao.save(user);
+        return newPassword;
+    }
+
+    @Override
     public HelpResponse requestHelp(String text, long reservationId) throws EntityNotFoundException {
         Reservation reservation = reservationDao.findById(reservationId)
                 .orElseThrow(() -> new EntityNotFoundException("Can't find reservation"));

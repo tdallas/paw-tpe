@@ -76,7 +76,7 @@ public class EmailServiceImpl implements EmailService {
 
     @Async
     @Override
-    public void sendCheckinEmail(Reservation reservation, boolean requiresNewPassword) {
+    public void sendCheckinEmail(Reservation reservation, String newPassword) {
         LOGGER.debug("About to send email notifying the check-in of reservation to " + reservation.getUserEmail());
         MimeMessage mimeMessage = javaMailSender.createMimeMessage();
         MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, "utf-8");
@@ -84,7 +84,7 @@ public class EmailServiceImpl implements EmailService {
         LOGGER.debug("Got the following message from message source " + subject);
         try {
             helper.setText(
-                    getHtmlMessageForCheckin(reservation.getUserEmail(), reservation.getHash(), requiresNewPassword),
+                    getHtmlMessageForCheckin(reservation.getUserEmail(), reservation.getHash(), newPassword),
                     true);
             helper.setTo(reservation.getUserEmail());
             helper.setSubject(subject);
@@ -144,15 +144,14 @@ public class EmailServiceImpl implements EmailService {
         javaMailSender.send(mimeMessage);
     }
 
-    private String getHtmlMessageForCheckin(String userEmail, String hash, boolean requiresNewPassword) {
+    private String getHtmlMessageForCheckin(String userEmail, String hash, String newPassword) {
         String checkinMessage = "<h3> " + messageSourceExternalizer.getMessage("email.checkin.welcome") + " </h3> <br> " +
                 "<p>" + messageSourceExternalizer.getMessage("email.checkin.yourReservationIdIs") + " <b> " +
                 hash + "</b>" + messageSourceExternalizer.getMessage("email.checkin.keepItSafe") +
                 "<h4>" + messageSourceExternalizer.getMessage("email.checkin.reminder") + " <br> " +
                 "<p> <b>" + messageSourceExternalizer.getMessage("email.username") + ":</b> " + userEmail + "</p>";
-        if (requiresNewPassword) {
-            String password = generatePassword();
-            return checkinMessage + "<p> <b>" + messageSourceExternalizer.getMessage("email.checkin.password") + "</b> " + password + "</p>";
+        if (newPassword != null) {
+            return checkinMessage + "<p> <b>" + messageSourceExternalizer.getMessage("email.checkin.password") + "</b> " + newPassword + "</p>";
         }
         return checkinMessage;
     }
@@ -249,24 +248,5 @@ public class EmailServiceImpl implements EmailService {
                 "</div>\n" +
                 "</body>\n" +
                 "</html>";
-    }
-
-    private Integer[] generateRandomIntsArray() {
-        Random random = new SecureRandom();
-        Integer[] ints = new Integer[GENERATED_PASSWORD_LENGTH];
-        for (int i = 0; i < GENERATED_PASSWORD_LENGTH; i++) {
-            ints[i] = random.nextInt(26);
-        }
-        return ints;
-    }
-
-    protected String generatePassword() {
-        LOGGER.info("Generating password...");
-        Integer[] ints = generateRandomIntsArray();
-        StringBuilder password = new StringBuilder(GENERATED_PASSWORD_LENGTH);
-        for (Integer i : ints) {
-            password.append(Character.toChars('a' + i));
-        }
-        return password.toString();
     }
 }
