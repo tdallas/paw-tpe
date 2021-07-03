@@ -23,6 +23,8 @@ public interface UserService {
 
     User getUserForReservation(String userEmail);
 
+    String createNewPassword(long id) throws EntityNotFoundException;
+
     HelpResponse requestHelp(String text, long reservationId) throws EntityNotFoundException;
 
     void rateStay(String rate, String reservationHash) throws EntityNotFoundException, RequestInvalidException;

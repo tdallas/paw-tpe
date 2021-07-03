@@ -106,12 +106,20 @@ public class UserServiceImpl implements UserService {
             LOGGER.info("There is already an user created with email " + userEmail);
         } else {
             LOGGER.info("There is no user created with email " + userEmail + ". So we'll create one.");
-            String randomPassword = generatePassword();
-            user = userDao.save(new User(userEmail, userEmail, new BCryptPasswordEncoder().encode(randomPassword)));
-            LOGGER.info("User created! Sending e-mail about user creation to: " + userEmail);
-            emailService.sendUserCreatedEmail(userEmail, randomPassword);
+            user = userDao.save(new User(userEmail, userEmail, new BCryptPasswordEncoder().encode(generatePassword())));
+            LOGGER.info("User created with e-mail " + userEmail);
         }
         return user;
+    }
+
+    @Override
+    @Transactional
+    public String createNewPassword(long userId) throws EntityNotFoundException {
+        String newPassword = generatePassword();
+        User user = userDao.findById(userId).orElseThrow(() -> new EntityNotFoundException("Can't find user"));
+        user.setPassword(new BCryptPasswordEncoder().encode(newPassword));
+        userDao.save(user);
+        return newPassword;
     }
 
     @Override
@@ -134,6 +142,7 @@ public class UserServiceImpl implements UserService {
             throw new RequestInvalidException();
         }
         reservationDao.rateStay(reservation.getId(), transformRate(rate));
+        emailService.sendConfirmationOfRate(reservationHash);
     }
 
     @Override

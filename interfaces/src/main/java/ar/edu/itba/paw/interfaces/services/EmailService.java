@@ -5,9 +5,7 @@ import ar.edu.itba.paw.models.reservation.Reservation;
 public interface EmailService {
     void sendConfirmationOfReservation(String to, String text);
 
-    void sendUserCreatedEmail(String to, String password);
-
-    void sendCheckinEmail(Reservation reservation);
+    void sendCheckinEmail(Reservation reservation, String newPassword);
 
     void sendRateStayEmail(String reservationHash, String uriInfo);
 
