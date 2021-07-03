@@ -3,6 +3,7 @@ import { Col, Container, Row } from "react-bootstrap";
 import { makeStyles } from "@material-ui/core/styles";
 import { withRouter } from "react-router";
 import { useTranslation } from "react-i18next";
+import { LinearProgress } from "@material-ui/core";
 
 import { getAllReservations } from "../../api/userApi";
 import { reservationUserColumns } from "../../utils/columnsUtil";
@@ -27,8 +28,10 @@ const UserPrincipal = ({ history }) => {
 
   const handleCloseMessage = () => setShowMessage(false);
   const [showMessage, setShowMessage] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   const getMyReservations = () => {
+    setLoading(true);
     getAllReservations().then((response) => {
       setReservations(
         response.data.activeReservations.map(
@@ -45,8 +48,9 @@ const UserPrincipal = ({ history }) => {
           }
         )
       );
+      setLoading(false);
     })
-      .catch((response) => setShowMessage(true));
+      .catch((response) => setShowMessage(true) && setLoading(false));
   }
 
   return (
@@ -58,6 +62,7 @@ const UserPrincipal = ({ history }) => {
         >
           <Col xs={1} md={1} />
           <Col xs={10} md={10}>
+          {loading && <LinearProgress />}
             <Table
               columns={reservationUserColumns}
               rows={reservations}

@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { Col, Container, Row } from "react-bootstrap";
 import { makeStyles } from "@material-ui/core/styles";
 import { withRouter } from "react-router";
+import { LinearProgress } from "@material-ui/core";
 
 import Button from "../../components/Button/Button";
 import Table from "../../components/Table/Table";
@@ -13,8 +14,7 @@ import {
 } from "../../api/productApi";
 import { productsColumns } from "../../utils/columnsUtil";
 
-import Modal from 'react-bootstrap/Modal'
-
+import Modal from "react-bootstrap/Modal";
 
 const useStyles = makeStyles((theme) => ({
   container: {
@@ -43,28 +43,43 @@ const Products = ({ history }) => {
 
   const handleCloseMessage = () => setShowMessage(false);
   const [showMessage, setShowMessage] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   const getProducts = (page, limit) => {
-    getAllProducts({ page, limit }).then((response) => {
-      setProducts(
-        response.data.map(({ id, description, price, file, enabled }) => {
-          return Object.assign(
-            {},
-            { file, description, price, enabled },
-            { toggle: () => toggleProductEnabled(enabled, id) }
-          );
-        })
-      );
-      setTotalCount(+response.headers["x-total-count"]);
-    })
-      .catch((response) => setShowMessage(true));
+    setLoading(true);
+    getAllProducts({ page, limit })
+      .then((response) => {
+        setProducts(
+          response.data.map(({ id, description, price, file, enabled }) => {
+            return Object.assign(
+              {},
+              { file, description, price, enabled },
+              { toggle: () => toggleProductEnabled(enabled, id) }
+            );
+          })
+        );
+        setLoading(false);
+        setTotalCount(+response.headers["x-total-count"]);
+      })
+      .catch(() => setShowMessage(true) && setLoading(false));
   };
 
   const toggleProductEnabled = (toggleBoolean, id) => {
+    setLoading(true);
     if (toggleBoolean) {
-      disableProduct(id).then(() => { getProducts(); }).catch((response) => setShowMessage(true));
+      disableProduct(id)
+        .then(() => {
+          getProducts();
+          setLoading(false);
+        })
+        .catch(() => setShowMessage(true) && setLoading(false));
     } else {
-      enableProduct(id).then(() => { getProducts(); }).catch((response) => setShowMessage(true));
+      enableProduct(id)
+        .then(() => {
+          getProducts();
+          setLoading(false);
+        })
+        .catch(() => setShowMessage(true) && setLoading(false));
     }
   };
 
@@ -83,6 +98,7 @@ const Products = ({ history }) => {
       <Container className={classes.container}>
         <Row className={classes.row}>
           <Col xs={12} md={10} className={classes.tableCol}>
+            {loading && <LinearProgress />}
             <Table
               columns={productsColumns}
               rows={products}
@@ -120,8 +136,12 @@ const Products = ({ history }) => {
             </Row>
           </Modal.Body>
           <Modal.Footer>
-            <Button ButtonType="Save" size="large" onClick={handleCloseMessage}
-              ButtonText={t("accept")} />
+            <Button
+              ButtonType="Save"
+              size="large"
+              onClick={handleCloseMessage}
+              ButtonText={t("accept")}
+            />
           </Modal.Footer>
         </Modal>
       </Container>
