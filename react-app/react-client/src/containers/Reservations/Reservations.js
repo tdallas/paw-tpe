@@ -40,10 +40,12 @@ const Reservations = ({ history }) => {
   const classes = useStyles();
   const { t } = useTranslation();
   const query = useQuery();
-  const [lastName, setLastName] = useState(query.get("lastName") || "");
-  const [startDate, setDateFrom] = useState(query.get("startDate") || "");
-  const [endDate, setDateTo] = useState(query.get("endDate") || "");
-  const [email, setEmail] = useState(query.get("email") || "");
+  const [lastName, setLastName] = useState(query.get("lastName") || undefined);
+  const [startDate, setDateFrom] = useState(
+    query.get("startDate") || undefined
+  );
+  const [endDate, setDateTo] = useState(query.get("endDate") || undefined);
+  const [email, setEmail] = useState(query.get("email") || undefined);
   const [showDialog, updateShowDialog] = useState(false);
   const [errorStatusCode, setErrorStatusCode] = useState(200);
   const [tableInfo, setTableInfo] = useState({
@@ -55,20 +57,22 @@ const Reservations = ({ history }) => {
   const { reservations, totalCount } = tableInfo;
 
   const getAllReservationsFiltered = (page = 1, limit = 20) => {
-    setLoading(true);
-    getAllReservations({ page, limit, startDate, endDate, email, lastName })
-      .then((response) => {
-        setTableInfo({
-          reservations: response.data,
-          totalCount: +response.headers["x-total-count"],
+    if (startDate || endDate) {
+      setLoading(true);
+      getAllReservations({ page, limit, startDate, endDate, email, lastName })
+        .then((response) => {
+          setTableInfo({
+            reservations: response.data,
+            totalCount: +response.headers["x-total-count"],
+          });
+          setLoading(false);
+        })
+        .catch((error) => {
+          setErrorStatusCode(error.response.status);
+          updateShowDialog(true);
+          setLoading(false);
         });
-        setLoading(false);
-      })
-      .catch((error) => {
-        setErrorStatusCode(error.response.status);
-        updateShowDialog(true);
-        setLoading(false);
-      });
+    }
   };
 
   const createQueryString = () =>
