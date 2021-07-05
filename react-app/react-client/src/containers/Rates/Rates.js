@@ -53,6 +53,7 @@ const Rates = ({ history }) => {
   const { rates, totalCount } = tableInfo;
 
   const getAllRatingsFiltered = (page = 1, limit = 20) => {
+    console.log("pase rey")
     setLoading1(true);
     setLoading2(true);
     getAllHotelRatings({ page, limit })
@@ -70,7 +71,7 @@ const Rates = ({ history }) => {
 
     getAvgHotelRating()
       .then((response) => {
-        setAvg(response.data.rating);
+        setAvg(parseFloat(response.data.rating).toFixed(2));
         setLoading2(false);
       })
       .catch(() => {
@@ -97,7 +98,7 @@ const Rates = ({ history }) => {
 
     getAvgRoomRating(search)
       .then((response) => {
-        setAvg(response.data.rating);
+        setAvg(parseFloat(response.data.rating).toFixed(2));
         setLoading2(false);
       })
       .catch(() => {
