@@ -6,10 +6,11 @@ import { LinearProgress } from "@material-ui/core";
 import Button from "../../components/Button/Button";
 import Table from "../../components/Table/Table";
 import { useTranslation } from "react-i18next";
-import { getAllHelpRequests } from "../../api/helpApi";
+import { getAllHelpRequests, updateHelpStep } from "../../api/helpApi";
 import { helpListColumns } from "../../utils/columnsUtil";
 
 import Modal from "react-bootstrap/Modal";
+import { StarRateSharp } from "@material-ui/icons";
 
 const useStyles = makeStyles((theme) => ({
   container: {
@@ -33,21 +34,36 @@ const useStyles = makeStyles((theme) => ({
 const HelpRequest = ({ history }) => {
   const classes = useStyles();
   const { t } = useTranslation();
-  const [tableInfo, setTableInfo] = useState({ helpList: [], totalCount: 0 });
+  // const [tableInfo, setTableInfo] = useState({ helpList: [], totalCount: 0 });
+  const [tableInfo, setTableInfo] = useState([]);
+
   const { helpList, totalCount } = tableInfo;
 
   const handleCloseMessage = () => setShowMessage(false);
   const [showMessage, setShowMessage] = useState(false);
   const [loading, setLoading] = useState(false);
 
+  const onActionHandler = (id, helpStep) => {
+    updateHelpStep(id, { status: helpStep })
+      .then(() => getAllHelpRequestsUnsolved(1, 20))
+      .catch(() => setShowMessage(true) && setLoading(false));
+  }
+
   const getAllHelpRequestsUnsolved = (page, limit) => {
     setLoading(true);
     getAllHelpRequests({ page, limit })
       .then((response) => {
-        setTableInfo({
-          helpList: response.data,
-          totalCount: +response.headers["x-total-count"],
-        });
+        setTableInfo(
+          response.data.map(elem => {
+            return Object.assign(
+              {},
+              elem,
+              {
+                actions: () => onActionHandler(elem.id, elem.helpStep)
+              }
+            )
+          })
+        );
         setLoading(false);
       })
       .catch(() => setShowMessage(true) && setLoading(false));
@@ -69,7 +85,7 @@ const HelpRequest = ({ history }) => {
             {loading && <LinearProgress />}
             <Table
               columns={helpListColumns}
-              rows={helpList}
+              rows={tableInfo}
               totalItems={totalCount}
               pageFunction={getAllHelpRequestsUnsolved}
             />

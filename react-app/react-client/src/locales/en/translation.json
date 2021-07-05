@@ -120,6 +120,8 @@
       "singular": "Request",
       "plural": "Requests"
     },
+    "action": "Action",
+    "resolve": "Resolve",
     "status": {
       "message": "Status",
       "update": "Status Updated",

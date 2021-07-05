@@ -115,6 +115,8 @@
       "singular": "Pedido",
       "plural": "Pedidos"
     },
+    "action": "Acción",
+    "resolve": "Resolver",
     "status": {
       "message": "Estado",
       "update": "Estado Cambiado!",
