@@ -76,7 +76,6 @@ const checkIn = ({ history }) => {
                     updateShowLoading(false);
                     // call show dialog in InfoSimpleDialog
                     updateShowDialog(true);
-                    console.log(response.data);
                     // send result to dialog window to show it
                     updateInfo(response.data ? response.data : t('checkin.successful'));
                 })

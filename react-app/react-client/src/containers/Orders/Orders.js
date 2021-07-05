@@ -131,7 +131,10 @@ const Orders = ({ history }) => {
       });
   };
 
-  const onSubmitOrders = () => getUndeliveredOrders();
+  const onSubmitOrders = () => {
+    getUndeliveredOrders();
+    updateShowDialog(false);
+  };
 
   const back = () => {
     history.push("/");
