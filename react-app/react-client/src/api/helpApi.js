@@ -7,6 +7,5 @@ const aHelpRequestUrl = id => baseRoomURL + `/${id}`;
 
 export const getAllHelpRequests = async (params) => get(getAllHelpRequestsUrl, params);
 export const getAHelpRequest = async (id) => get(aHelpRequestUrl(id));
-// export const updateHelpStep = async (id, params, body) => put(aHelpRequestUrl(id), params, body);
 export const updateHelpStep = async (id,params) => put(aHelpRequestUrl(id), params, {});
 
