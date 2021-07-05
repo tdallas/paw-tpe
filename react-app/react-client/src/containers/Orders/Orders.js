@@ -110,7 +110,7 @@ const Orders = ({ history }) => {
       })
       .catch(
         (response) =>
-          setShowMessage(true) && setLoading(false) && console.log(response)
+          setShowMessage(true) && setLoading(false)
       );
   };
 
@@ -125,7 +125,6 @@ const Orders = ({ history }) => {
         setLoading(false);
       })
       .catch((error) => {
-        console.log("error", error);
         updateShowDialog(true);
         updateInfo(undefined);
         setLoading(false);

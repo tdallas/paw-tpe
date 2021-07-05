@@ -53,7 +53,6 @@ const Rates = ({ history }) => {
   const { rates, totalCount } = tableInfo;
 
   const getAllRatingsFiltered = (page = 1, limit = 20) => {
-    console.log("pase rey")
     setLoading1(true);
     setLoading2(true);
     getAllHotelRatings({ page, limit })
