@@ -70,7 +70,7 @@ const Rates = ({ history }) => {
 
     getAvgHotelRating()
       .then((response) => {
-        setAvg(response.data.rating);
+        setAvg(parseFloat(response.data.rating).toFixed(2));
         setLoading2(false);
       })
       .catch(() => {
@@ -97,7 +97,7 @@ const Rates = ({ history }) => {
 
     getAvgRoomRating(search)
       .then((response) => {
-        setAvg(response.data.rating);
+        setAvg(parseFloat(response.data.rating).toFixed(2));
         setLoading2(false);
       })
       .catch(() => {
