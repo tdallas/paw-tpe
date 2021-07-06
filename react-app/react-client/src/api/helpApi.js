@@ -1,4 +1,4 @@
-import { get, put } from "./baseApi";
+import {get, post} from "./baseApi";
 
 const baseRoomURL = "/help";
 
@@ -7,4 +7,4 @@ const aHelpRequestUrl = id => baseRoomURL + `/${id}`;
 
 export const getAllHelpRequests = async (params) => get(getAllHelpRequestsUrl, params);
 export const getAHelpRequest = async (id) => get(aHelpRequestUrl(id));
-export const updateHelpStep = async (id, params, body) => put(aHelpRequestUrl(id), params, body);
+export const markHelpRequestResolved = async (id) => post(aHelpRequestUrl(id));

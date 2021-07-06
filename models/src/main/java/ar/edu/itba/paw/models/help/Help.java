@@ -46,8 +46,4 @@ public class Help {
     public void setHelpResolved() {
         this.helpStep = HelpStep.RESOLVED;
     }
-
-    public void setHelpStillRequired() {
-        this.helpStep = HelpStep.REQUIRES_FURTHER_ACTION;
-    }
 }

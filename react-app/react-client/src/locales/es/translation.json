@@ -115,13 +115,14 @@
       "singular": "Pedido",
       "plural": "Pedidos"
     },
+    "action": "Acción",
+    "resolve": "Resolver",
     "status": {
       "message": "Estado",
       "update": "Estado Cambiado!",
       "mark": {
         "message": "Marcar como",
         "unattended": "No atendido",
-        "further": "Sin solucionar",
         "resolved": "Resuelto"
       }
     }

@@ -6,10 +6,11 @@ import { LinearProgress } from "@material-ui/core";
 import Button from "../../components/Button/Button";
 import Table from "../../components/Table/Table";
 import { useTranslation } from "react-i18next";
-import { getAllHelpRequests } from "../../api/helpApi";
+import { getAllHelpRequests, markHelpRequestResolved } from "../../api/helpApi";
 import { helpListColumns } from "../../utils/columnsUtil";
 
 import Modal from "react-bootstrap/Modal";
+import { StarRateSharp } from "@material-ui/icons";
 
 const useStyles = makeStyles((theme) => ({
   container: {
@@ -33,21 +34,47 @@ const useStyles = makeStyles((theme) => ({
 const HelpRequest = ({ history }) => {
   const classes = useStyles();
   const { t } = useTranslation();
-  const [tableInfo, setTableInfo] = useState({ helpList: [], totalCount: 0 });
+  // const [tableInfo, setTableInfo] = useState({ helpList: [], totalCount: 0 });
+  const [tableInfo, setTableInfo] = useState([]);
+
   const { helpList, totalCount } = tableInfo;
 
-  const handleCloseMessage = () => setShowMessage(false);
   const [showMessage, setShowMessage] = useState(false);
+  const [message, setMessage] = useState(t("something_happened"));
   const [loading, setLoading] = useState(false);
 
+  const handleCloseMessage = () => {
+    setShowMessage(false);
+    getAllHelpRequestsUnsolved(1, 20);
+  };
+
+  const onActionHandler = (id) => {
+    setLoading(true);
+    markHelpRequestResolved(id)
+      .then(() => {
+        setLoading(false);
+        setMessage(t("help.status.update"));
+        setShowMessage(true);
+      })
+      .catch(() => setShowMessage(true) && setLoading(false));
+  }
+
   const getAllHelpRequestsUnsolved = (page, limit) => {
+    setMessage(t("something_happened"))
     setLoading(true);
     getAllHelpRequests({ page, limit })
       .then((response) => {
-        setTableInfo({
-          helpList: response.data,
-          totalCount: +response.headers["x-total-count"],
-        });
+        setTableInfo(
+          response.data.map(elem => {
+            return Object.assign(
+              {},
+              elem,
+              {
+                actions: () => onActionHandler(elem.id)
+              }
+            )
+          })
+        );
         setLoading(false);
       })
       .catch(() => setShowMessage(true) && setLoading(false));
@@ -69,7 +96,7 @@ const HelpRequest = ({ history }) => {
             {loading && <LinearProgress />}
             <Table
               columns={helpListColumns}
-              rows={helpList}
+              rows={tableInfo}
               totalItems={totalCount}
               pageFunction={getAllHelpRequestsUnsolved}
             />
@@ -97,11 +124,11 @@ const HelpRequest = ({ history }) => {
         <Modal centered show={showMessage} onHide={handleCloseMessage}>
           <Modal.Body>
             <Row>
-              <Col xs={1} sm={1}></Col>
+              <Col xs={1} sm={1}/>
               <Col xs={10} sm={10}>
-                <h4>{t("something_happened")}</h4>
+                <h4>{message}</h4>
               </Col>
-              <Col xs={1} sm={1}></Col>
+              <Col xs={1} sm={1}/>
             </Row>
           </Modal.Body>
           <Modal.Footer>

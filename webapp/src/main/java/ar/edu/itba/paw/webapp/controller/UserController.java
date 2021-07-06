@@ -159,14 +159,13 @@ public class UserController extends SimpleController {
     @POST
     @Path("/{reservationId}/help")
     @Produces(value = {MediaType.APPLICATION_JSON})
-    public Response requestHelp(@PathParam("reservationId") long reservationId,
-                                @RequestBody HelpRequest helpRequest) {
+    public Response requestHelp(@PathParam("reservationId") long reservationId, @RequestBody HelpRequest helpRequest) {
         LOGGER.info("Help request made on reservation with id " + reservationId);
         if (helpRequest == null) {
             return sendErrorMessageResponse(Status.BAD_REQUEST,
                     messageSourceExternalizer.getMessage("help.notfound"));
         }
-        if (helpRequest.getHelpDescription() != null) {
+        if (helpRequest.getHelpDescription() != null && !helpRequest.getHelpDescription().isEmpty()) {
             HelpResponse helpRequested;
             try {
                 helpRequested = userService.requestHelp(helpRequest.getHelpDescription(), reservationId);

@@ -120,13 +120,14 @@
       "singular": "Request",
       "plural": "Requests"
     },
+    "action": "Action",
+    "resolve": "Resolve",
     "status": {
       "message": "Status",
       "update": "Status Updated",
       "mark": {
         "message": "Mark As",
         "unattended": "Unattended",
-        "further": "Requires Further Action",
         "resolved": "Resolved"
       }
     }
@@ -218,5 +219,4 @@
   "back": "Back",
   "buy": "Buy",
   "something_happened": "Something happened, please try later!"
-  
 }

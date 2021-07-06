@@ -23,7 +23,8 @@ export const helpListColumns = [
     {id: "id", label: "help.request.plural"},
     {id: "helpStep", label: "help.status.message"},
     {id: "helpText", label: "help.text.singular"},
-    {id: "roomNumber", label: "room.singular"}
+    {id: "roomNumber", label: "room.singular"},
+    {id: "actions", label: "help.resolve", isButton: true}
 ];
 
 
