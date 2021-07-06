@@ -19,7 +19,7 @@ import Modal from "react-bootstrap/Modal";
 const useStyles = makeStyles((theme) => ({
   container: {
     background: "#FAF6FC",
-    height: "100vh",
+    height: "100%",
     maxWidth: "100%",
     padding: 0,
   },

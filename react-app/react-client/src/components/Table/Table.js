@@ -72,7 +72,7 @@ const DataTable = ({queryString = "", columns, rows, totalItems = 0, pageFunctio
                                                         ButtonType="Save"
                                                         size="large"
                                                         onClick={value}
-                                                        ButtonText={(column.id === "toggle") ? (row.enabled ? t("disabled") : t("enable")) : t(column.label)}
+                                                        ButtonText={(column.id === "toggle") ? (row.enabled ? t("disable") : t("enable")) : t(column.label)}
                                                     />
                                                 </TableCell>
                                             );
