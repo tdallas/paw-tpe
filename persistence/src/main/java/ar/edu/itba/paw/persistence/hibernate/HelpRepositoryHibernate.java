@@ -1,7 +1,6 @@
 package ar.edu.itba.paw.persistence.hibernate;
 
 import ar.edu.itba.paw.interfaces.daos.HelpDao;
-import ar.edu.itba.paw.models.charge.Charge;
 import ar.edu.itba.paw.models.dtos.PaginatedDTO;
 import ar.edu.itba.paw.models.help.Help;
 import ar.edu.itba.paw.models.help.HelpStep;
@@ -57,12 +56,11 @@ public class HelpRepositoryHibernate extends SimpleRepositoryHibernate<Help> imp
         Root<Help> entityRoot = cqCount.from(Help.class);
         cqCount.select(builder.count(entityRoot));
         Predicate wherePredicate1 = builder.equal(entityRoot.get("helpStep"), HelpStep.UNATTENDED);
-        Predicate wherePredicate2 = builder.equal(entityRoot.get("helpStep"), HelpStep.REQUIRES_FURTHER_ACTION);
-        cqCount.where(builder.or(new Predicate[]{wherePredicate1, wherePredicate2}));
+        cqCount.where(builder.or(wherePredicate1));
         long count = em.createQuery(cqCount).getSingleResult();
 
         List<Help> helpList = em.createQuery(
-                "SELECT h FROM Help AS h WHERE h.helpStep = 'UNATTENDED' OR h.helpStep = 'REQUIRES_FURTHER_ACTION'", Help.class)
+                "SELECT h FROM Help AS h WHERE h.helpStep = 'UNATTENDED'", Help.class)
                 .setFirstResult((page - 1) * pageSize)
                 .setMaxResults(pageSize)
                 .getResultList();
@@ -70,25 +68,12 @@ public class HelpRepositoryHibernate extends SimpleRepositoryHibernate<Help> imp
     }
 
     @Override
-    public boolean updateToHelpRequestResolved(long helpId) {
+    public boolean markHelpRequestAsResolved(long helpId) {
         final TypedQuery<Help> query = em.createQuery("SELECT h FROM Help AS h WHERE h.id = :helpId", Help.class);
         query.setParameter("helpId", helpId);
         final Help helpRequest = query.getSingleResult();
         if (helpRequest != null) {
             helpRequest.setHelpResolved();
-            em.merge(helpRequest);
-            return true;
-        }
-        return false;
-    }
-
-    @Override
-    public boolean updateRequestToRequiresFurtherAction(long helpId) {
-        final TypedQuery<Help> query = em.createQuery("SELECT h FROM Help AS h WHERE h.id = :helpId", Help.class);
-        query.setParameter("helpId", helpId);
-        final Help helpRequest = query.getSingleResult();
-        if (helpRequest != null) {
-            helpRequest.setHelpStillRequired();
             em.merge(helpRequest);
             return true;
         }

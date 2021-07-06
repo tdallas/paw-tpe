@@ -6,7 +6,7 @@ import ar.edu.itba.paw.interfaces.exceptions.RequestInvalidException;
 import ar.edu.itba.paw.interfaces.services.HelpService;
 import ar.edu.itba.paw.interfaces.services.MessageSourceExternalizer;
 import ar.edu.itba.paw.models.dtos.PaginatedDTO;
-import ar.edu.itba.paw.models.help.HelpStep;
+
 import javax.ws.rs.core.Response.Status;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,6 +15,7 @@ import org.springframework.stereotype.Controller;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.*;
+import java.net.URI;
 
 @Controller
 @Path("help")
@@ -64,27 +65,22 @@ public class HelpController extends SimpleController {
         }
     }
 
-    @PUT
+    @POST
     @Path("/{id}")
     @Produces(value = {MediaType.APPLICATION_JSON})
-    public Response updateHelpStep(@PathParam("id") final long helpRequestId,
-                                   @QueryParam("status") String status,
-                                   @QueryParam("page") @DefaultValue(DEFAULT_FIRST_PAGE) int page,
-                                   @QueryParam("limit") @DefaultValue(DEFAULT_PAGE_SIZE) int limit) {
-        LOGGER.info("Attempted to update status on help request.");
+    public Response markResolved(@PathParam("id") final long helpRequestId) {
+        LOGGER.info("Attempted to update status on help request with id " + helpRequestId);
         try {
-            if (helpService.updateStatus(helpRequestId, HelpStep.valueOf(status.toUpperCase().replace("-", "_")))) {
-                return Response
-                        .noContent()
-                        .contentLocation(uriInfo.getRequestUri())
-                        .build();
+            URI uri = uriInfo.getRequestUri();
+            if (helpService.markResolved(helpRequestId)) {
+                return Response.created(uri).location(uri).contentLocation(uri).build();
             }
-        } catch (IndexOutOfBoundsException | EntityNotFoundException e) {
+        } catch (EntityNotFoundException exception) {
+            return sendErrorMessageResponse(Status.NOT_FOUND, messageSourceExternalizer
+                    .getMessage("help.request.error"));
+        } catch (IndexOutOfBoundsException e) {
             return sendErrorMessageResponse(Status.NOT_FOUND, messageSourceExternalizer
                     .getMessage("error.404"));
-        } catch (RequestInvalidException exception) {
-            return sendErrorMessageResponse(Status.BAD_REQUEST, messageSourceExternalizer
-                    .getMessage("help.status.error"));
         }
         return sendErrorMessageResponse(Status.BAD_REQUEST,
             messageSourceExternalizer.getMessage("help.status.error"));

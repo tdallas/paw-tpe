@@ -8,7 +8,6 @@ import ar.edu.itba.paw.interfaces.exceptions.RequestInvalidException;
 import ar.edu.itba.paw.interfaces.services.HelpService;
 import ar.edu.itba.paw.models.dtos.PaginatedDTO;
 import ar.edu.itba.paw.models.help.Help;
-import ar.edu.itba.paw.models.help.HelpStep;
 import ar.edu.itba.paw.models.reservation.Reservation;
 import java.util.Optional;
 import org.slf4j.Logger;
@@ -66,41 +65,13 @@ public class HelpServiceImpl implements HelpService {
 
     @Transactional
     @Override
-    public boolean updateStatus(long helpId, HelpStep status)
-            throws RequestInvalidException, EntityNotFoundException {
+    public boolean markResolved(long helpId) throws EntityNotFoundException {
         Help helpRequest = helpDao.findById(helpId)
             .orElseThrow(() -> new EntityNotFoundException("Can't find help request with id " + helpId));
-        if(helpRequest != null) {
-            if (status == HelpStep.REQUIRES_FURTHER_ACTION) {
-                return this.setRequestToRequiresFurtherAction(helpId);
-            } else if (status == HelpStep.RESOLVED) {
-                return this.setRequestToResolved(helpId);
-            }
+        if (helpRequest != null) {
+            return helpDao.markHelpRequestAsResolved(helpId);
         }
         return false;
-    }
-
-    @Transactional
-    @Override
-    public boolean setRequestToResolved(long helpId) throws RequestInvalidException, EntityNotFoundException {
-        Help helpRequest = helpDao.findById(helpId)
-            .orElseThrow(() -> new EntityNotFoundException("Can't find help request with id " + helpId));
-        if(helpRequest != null) {
-            return helpDao.updateToHelpRequestResolved(helpId);
-        }
-        throw new RequestInvalidException();
-    }
-
-    @Transactional
-    @Override
-    public boolean setRequestToRequiresFurtherAction(long helpId)
-        throws RequestInvalidException, EntityNotFoundException {
-        Help helpRequest = helpDao.findById(helpId)
-            .orElseThrow(() -> new EntityNotFoundException("Can't find help request with id " + helpId));
-        if(helpRequest != null) {
-            return helpDao.updateRequestToRequiresFurtherAction(helpId);
-        }
-        throw new RequestInvalidException();
     }
 
     @Override

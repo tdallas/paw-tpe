@@ -123,7 +123,6 @@
       "mark": {
         "message": "Marcar como",
         "unattended": "No atendido",
-        "further": "Sin solucionar",
         "resolved": "Resuelto"
       }
     }

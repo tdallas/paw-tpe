@@ -10,7 +10,5 @@ public interface HelpDao extends SimpleDao<ar.edu.itba.paw.models.help.Help> {
 
     PaginatedDTO<Help> findAllHelpRequestsNotResolved(int page, int pageSize);
 
-    boolean updateToHelpRequestResolved(long helpId);
-
-    boolean updateRequestToRequiresFurtherAction(long helpId);
+    boolean markHelpRequestAsResolved(long helpId);
 }
