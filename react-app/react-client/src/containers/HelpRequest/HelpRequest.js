@@ -45,7 +45,6 @@ const HelpRequest = ({ history }) => {
 
   const handleCloseMessage = () => {
     setShowMessage(false);
-    getAllHelpRequestsUnsolved(1, 20);
   };
 
   const onActionHandler = (id) => {
@@ -55,6 +54,7 @@ const HelpRequest = ({ history }) => {
         setLoading(false);
         setMessage(t("help.status.update"));
         setShowMessage(true);
+        getAllHelpRequestsUnsolved(1, 20);
       })
       .catch(() => setShowMessage(true) && setLoading(false));
   }
@@ -80,7 +80,7 @@ const HelpRequest = ({ history }) => {
       .catch(() => setShowMessage(true) && setLoading(false));
   };
 
-  const onSubmitHelpRequest = () => {
+  const refreshHelpRequestsList = () => {
     getAllHelpRequestsUnsolved();
   };
 
@@ -106,7 +106,7 @@ const HelpRequest = ({ history }) => {
               <Button
                 ButtonType="Save"
                 size="large"
-                onClick={onSubmitHelpRequest}
+                onClick={refreshHelpRequestsList}
                 ButtonText={t("refresh")}
               />
             </Col>
