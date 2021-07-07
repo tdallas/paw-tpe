@@ -10,7 +10,6 @@ import { getAllHelpRequests, markHelpRequestResolved } from "../../api/helpApi";
 import { helpListColumns } from "../../utils/columnsUtil";
 
 import Modal from "react-bootstrap/Modal";
-import { StarRateSharp } from "@material-ui/icons";
 
 const useStyles = makeStyles((theme) => ({
   container: {
@@ -34,10 +33,9 @@ const useStyles = makeStyles((theme) => ({
 const HelpRequest = ({ history }) => {
   const classes = useStyles();
   const { t } = useTranslation();
-  // const [tableInfo, setTableInfo] = useState({ helpList: [], totalCount: 0 });
   const [tableInfo, setTableInfo] = useState([]);
 
-  const { helpList, totalCount } = tableInfo;
+  const { totalCount } = tableInfo;
 
   const [showMessage, setShowMessage] = useState(false);
   const [message, setMessage] = useState(t("something_happened"));

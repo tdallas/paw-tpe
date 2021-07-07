@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, {useEffect, useState} from "react";
 import { Container, Row, Col } from "react-bootstrap";
 import { makeStyles } from "@material-ui/core/styles";
 import { withRouter } from "react-router";
@@ -10,6 +10,7 @@ import Input from "../../components/Input/Input";
 import { registerOccupants } from "../../api/roomApi";
 
 import Modal from 'react-bootstrap/Modal'
+import {useQuery} from "../../utils/hooks/useQuery";
 
 
 const useStyles = makeStyles((theme) => ({
@@ -74,15 +75,22 @@ const hasEmptyOccupant = (occupants) =>
 
 const registration = ({ history }) => {
   const classes = useStyles();
+  const { t } = useTranslation();
+  const query = useQuery();
+  const hash = query.get("hash");
 
   const [reservationId, onReservationId] = useState("");
   const [submit, onSubmit] = useState(false);
-  const { t } = useTranslation();
-  // occupant = {firstName:..., lastName:...}
   const [occupants, addOccupant] = useState([emptyOccupantCopy()]);
+  const [showMessage, setShowMessage] = useState(false);
+
+  useEffect(() => {
+    if (hash) {
+      onReservationId(hash);
+    }
+  }, []);
 
   const handleCloseMessage = () => setShowMessage(false);
-  const [showMessage, setShowMessage] = useState(false);
 
   const onChangeReservationId = (newReservationId) => {
     onReservationId(newReservationId.target.value);
@@ -90,14 +98,14 @@ const registration = ({ history }) => {
 
   const registrationSubmit = () => {
     onSubmit(true);
-    const filtederdOccupants = occupants.filter(
+    const filteredOccupants = occupants.filter(
       (occupant) => !isEmpty(occupant.firstName) && !isEmpty(occupant.lastName)
     );
-    registerOccupants({ occupants: filtederdOccupants }, reservationId)
+    registerOccupants({ occupants: filteredOccupants }, reservationId)
       .then((response) => {
         history.push("/");
       })
-      .catch((response) => setShowMessage(true));
+      .catch((error) => setShowMessage(true));
   };
 
   const back = () => {
@@ -118,11 +126,12 @@ const registration = ({ history }) => {
     <div>
       <Container fluid="md" className={classes.container}>
         <Row style={{ width: "100%" }}>
-          <Col xs={6} md={3}></Col>
+          <Col xs={6} md={3}/>
           <Col>
             <Row className={classes.buttonRow}>
               <Col style={{ marginBottom: "5px" }}>
                 <Input
+                  value={hash}
                   label={t("reservation.number")}
                   onChange={onChangeReservationId}
                 />
@@ -169,11 +178,11 @@ const registration = ({ history }) => {
         <Modal centered show={showMessage} onHide={handleCloseMessage}>
           <Modal.Body>
             <Row>
-              <Col xs={1} sm={1}></Col>
+              <Col xs={1} sm={1}/>
               <Col xs={10} sm={10}>
                 <h4>{t("something_happened")}</h4>
               </Col>
-              <Col xs={1} sm={1}></Col>
+              <Col xs={1} sm={1}/>
             </Row>
           </Modal.Body>
           <Modal.Footer>
