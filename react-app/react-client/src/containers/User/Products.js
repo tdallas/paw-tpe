@@ -17,7 +17,7 @@ const useStyles = makeStyles((theme) => ({
     paddingRight: "40px",
     display: "flex",
     justifyContent: "center",
-    height: "100%"
+    height: "100vh"
   },
 }));
 
@@ -79,12 +79,13 @@ const UserProducts = ({ match, history }) => {
           <div>{t("user.error")}</div>
         )}
       </InfoSimpleDialog>
-      <Row style={{ background: "#FAF6FC", width: "100%" }}>
+      <Row style={{ background: "#FAF6FC", width: "100%", display: 'flex' }}>
         <CardDeck
           style={{
             justifyContent: "center",
             background: "#FAF6FC",
             width: "100vw",
+            padding: 0
           }}
         >
           {products.map(({ id, description, price, productImageId }) => (

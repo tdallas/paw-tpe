@@ -87,6 +87,7 @@ const registration = ({ history }) => {
   useEffect(() => {
     if (hash) {
       onReservationId(hash);
+      console.log("hola")
     }
   }, []);
 
