@@ -84,16 +84,15 @@ public class WebAuthConfig extends WebSecurityConfigurerAdapter {
         http.csrf().disable();
         http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS).and();
         http.authorizeRequests()
-                .regexMatchers("/productImgs/[0-9]+")
+                .antMatchers("/api/login")
                 .anonymous()
-                .antMatchers("/login")
+                .regexMatchers("/api/productImgs/[0-9]+")
                 .anonymous()
-                .antMatchers("/user/**")
+                .antMatchers("/api/user/**")
                 .hasAuthority(UserRole.CLIENT.toString())
-                .antMatchers("/rooms/**", "/reservation/**", "/products/**", "/ratings/**", "/productImgs/**")
-                .hasAnyAuthority(UserRole.EMPLOYEE.toString(), UserRole.MANAGER.toString());
-        // TODO is this necessary?
-        http.exceptionHandling().accessDeniedPage("/403");
+                .antMatchers("/api/rooms/**", "/api/reservation/**", "/api/products/**", "/api/ratings/**", "/apix/productImgs")
+                .hasAnyAuthority(UserRole.EMPLOYEE.toString(), UserRole.MANAGER.toString())
+                .anyRequest().authenticated();
         http.addFilter(authenticationFilterBean()).addFilter(authorizationFilterBean());
         // simple cors filter is used to add headers that axios needed
         http.addFilterBefore(new SimpleCorsFilter(), AbstractPreAuthenticatedProcessingFilter.class);
