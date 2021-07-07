@@ -33,7 +33,7 @@ const NewProduct = ({ history }) => {
   const classes = useStyles();
 
   const [description, setDescription] = useState("");
-  const [photo, setPhoto] = useState("");
+  // const [photo, setPhoto] = useState("");
   const [photoId, setPhotoId] = useState(undefined);
   const [price, setPrice] = useState("");
   const [errorDescription, setErrorDescription] = useState(false);
@@ -58,7 +58,7 @@ const NewProduct = ({ history }) => {
         setPhotoId(response.data.productImageId);
       })
       .catch((response) => setShowMessage(true));
-    setPhoto(newPhoto.target.value);
+    // setPhoto(newPhoto.target.value);
   };
 
   const priceOnChange = (newPrice) => {
