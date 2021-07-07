@@ -150,6 +150,7 @@
     },
     "roomType": {
       "single": "single",
+      "simple": "simple",
       "double": "double",
       "triple": "triple"
     }
