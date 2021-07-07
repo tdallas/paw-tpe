@@ -51,7 +51,6 @@ const HelpRequest = ({ history }) => {
       .then(() => {
         setLoading(false);
         setMessage(t("help.status.update"));
-        setShowMessage(true);
         getAllHelpRequestsUnsolved(1, 20);
       })
       .catch(() => setShowMessage(true) && setLoading(false));
